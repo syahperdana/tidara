@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tidara Tide Map</title>
+<meta name="description" content="Tidara: interactive tide predictions for 303 Indonesian tide gauge stations.">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<script src="assets/prefs.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Sea chart in two lights: day (pale sea, warm paper land) and night (deep navy). Full-bleed map, floating glass
+     controls, a right drawer (bottom sheet on phones) for the selected station, a timeline along the bottom edge. */
+  --sea: #dfeaf1; --land: #fbf8f1; --coast: #93a9b6; --border: rgba(150,120,80,.6); --grid: rgba(60,90,110,.10);
+  --glass: rgba(255,255,255,0.9); --ink: #13212b; --muted: #556b78; --line: rgba(60,90,110,0.18);
+  --accent: #0b8c83; --accent-ink: #ffffff; --soft: rgba(11,140,131,.12); --field: rgba(255,255,255,.8);
+  --label-bg: rgba(255,255,255,.86); --label-ink: #13212b; --mark-edge: rgba(255,255,255,.95); --hw: #1f6fd1; --lw: #c0621d;
+  --menu: #ffffff; --shadow: 0 8px 26px rgba(30,60,80,.16);
+  --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --sea: #071520; --land: #142430; --coast: #35525f; --border: rgba(160,140,110,.55); --grid: rgba(142,165,178,.08);
+  --glass: rgba(10,24,34,0.86); --ink: #e6f0f4; --muted: #8ea5b2; --line: rgba(142,165,178,0.22);
+  --accent: #45d0c3; --accent-ink: #062026; --soft: rgba(69,208,195,.15); --field: rgba(0,0,0,.25);
+  --label-bg: rgba(7,21,32,.74); --label-ink: #e6f0f4; --mark-edge: rgba(7,21,32,.85); --hw: #7cc4ff; --lw: #f6a96b;
+  --menu: #0d1d28; --shadow: 0 8px 30px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; overflow: hidden; background: var(--sea); color: var(--ink); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+select option { background: var(--menu); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+#map { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; display: block; }
+#map.drag { cursor: grabbing; }
+.glass { background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+
+.top { position: fixed; top: calc(12px + env(safe-area-inset-top)); left: 12px; right: 12px; display: flex; gap: 10px; align-items: flex-start; pointer-events: none; z-index: 5; }
+.top > * { pointer-events: auto; }
+.brand { display: flex; align-items: center; gap: 9px; padding: 7px 12px 7px 8px; text-decoration: none; color: var(--ink); }
+.brand img { width: 30px; height: 30px; }
+.brand b { font-size: 19px; letter-spacing: .02em; font-weight: 700; }
+.brand small { display: block; font-size: 10.5px; color: var(--muted); margin-top: -3px; letter-spacing: .02em; }
+.search { position: relative; width: min(320px, 100%); }
+.search input { width: 100%; padding: 11px 12px 11px 36px; border-radius: 12px; border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); box-shadow: var(--shadow); }
+.search svg { position: absolute; left: 12px; top: 13px; opacity: .7; z-index: 1; pointer-events: none; }
+.results { position: absolute; top: 46px; left: 0; right: 0; max-height: 50vh; overflow: auto; padding: 4px; display: none; }
+.results.show { display: block; }
+.results button { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; padding: 8px 10px; border: 0; background: none; border-radius: 8px; }
+.results button:hover, .results button.on { background: var(--soft); }
+.results small { color: var(--muted); white-space: nowrap; }
+.spacer { flex: 1; }
+.nav { display: flex; gap: 2px; padding: 4px; align-items: center; }
+.nav a, .nav button { color: var(--ink); text-decoration: none; padding: 7px 11px; border-radius: 8px; font-weight: 500; font-size: 13px; border: 0; background: none; }
+.nav a:hover, .nav button:hover { background: var(--soft); }
+.nav .js-lang { font-weight: 700; letter-spacing: .04em; min-width: 38px; }
+.nav .js-theme { display: grid; place-items: center; padding: 7px 9px; }
+
+.layers { position: fixed; right: 12px; top: calc(70px + env(safe-area-inset-top)); display: flex; flex-direction: column; gap: 2px; padding: 5px; z-index: 4; transition: right .25s ease; }
+.layers button { display: flex; align-items: center; gap: 9px; border: 0; background: none; padding: 8px 12px 8px 9px; border-radius: 8px; font-size: 13px; text-align: left; color: var(--muted); }
+.layers button.on { color: var(--ink); background: var(--soft); }
+.layers button i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.layers .sep { height: 1px; background: var(--line); margin: 4px 6px; }
+.layers label { display: flex; align-items: center; gap: 8px; padding: 6px 10px; font-size: 12px; color: var(--muted); cursor: pointer; }
+.zoom { position: fixed; right: 12px; display: flex; flex-direction: column; z-index: 4; overflow: hidden; transition: right .25s ease; }
+.zoom button { width: 38px; height: 36px; border: 0; background: none; font-size: 18px; }
+.zoom button + button { border-top: 1px solid var(--line); }
+body.p-open .layers, body.p-open .zoom { right: 464px; }
+
+.legend { position: fixed; left: 12px; bottom: calc(86px + env(safe-area-inset-bottom)); padding: 8px 10px; z-index: 4; font-size: 11px; min-width: 210px; }
+.legend .ramp { height: 8px; border-radius: 4px; margin: 6px 0 3px; }
+.legend .ends { display: flex; justify-content: space-between; color: var(--muted); gap: 8px; }
+.legend .cats { display: grid; gap: 4px; margin-top: 6px; }
+.legend .cats span { display: flex; align-items: center; gap: 7px; }
+.legend .cats i { width: 10px; height: 10px; border-radius: 50%; }
+.timeline { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 12px; padding: 9px 12px; z-index: 4; }
+.play { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.tl-time { min-width: 168px; line-height: 1.2; }
+.tl-time b { display: block; font-size: 15px; }
+.tl-time span { color: var(--muted); font-size: 12px; }
+.track { position: relative; flex: 1; height: 38px; touch-action: none; cursor: pointer; }
+.track canvas { width: 100%; height: 100%; display: block; }
+.tl-tz { border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 6px 6px; font-size: 12px; max-width: 190px; }
+.now-btn { border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+.attrib { position: fixed; right: 14px; bottom: calc(70px + env(safe-area-inset-bottom)); font-size: 10.5px; color: var(--muted); z-index: 3; text-align: right; pointer-events: none; }
+.tip { position: fixed; pointer-events: none; padding: 7px 10px; font-size: 12px; z-index: 6; display: none; white-space: nowrap; }
+.tip b { display: block; font-size: 13px; }
+
+.panel { position: fixed; top: calc(68px + env(safe-area-inset-top)); right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); width: 440px; z-index: 7; display: flex; flex-direction: column; transform: translateX(calc(100% + 24px)); transition: transform .25s ease; }
+.panel.open { transform: none; }
+.panel .grip { display: none; }
+.p-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: flex-start; }
+.p-head h2 { margin: 0; font-size: 19px; line-height: 1.2; text-wrap: balance; }
+.p-head .sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip { font-size: 11.5px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.chip.g-A { color: #1a8a4d; border-color: rgba(26,138,77,.4); } .chip.g-B { color: #a07400; border-color: rgba(160,116,0,.4); } .chip.g-C { color: #c0392b; border-color: rgba(192,57,43,.4); }
+:root[data-theme="dark"] .chip.g-A { color: #7ee2a8; } :root[data-theme="dark"] .chip.g-B { color: #f2cf6b; } :root[data-theme="dark"] .chip.g-C { color: #ff8f8f; }
+.x { margin-left: auto; border: 0; background: var(--soft); width: 32px; height: 32px; border-radius: 8px; flex: none; font-size: 16px; }
+.p-body { overflow: auto; padding: 12px 16px 18px; display: grid; gap: 14px; overscroll-behavior: contain; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: color-mix(in srgb, var(--glass) 60%, transparent); }
+.card h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
+.nowrow { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 10px; }
+.big { font-size: 26px; font-weight: 700; line-height: 1.1; }
+.lbl { font-size: 11.5px; color: var(--muted); }
+.trend { font-size: 12px; color: var(--accent); }
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.form label { display: grid; gap: 3px; font-size: 11.5px; color: var(--muted); }
+.form input, .form select { width: 100%; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--field); color: var(--ink); }
+.len { display: grid; grid-template-columns: 1fr 1.2fr; gap: 6px; }
+.run { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+.btn { border: 0; border-radius: 9px; padding: 9px 14px; background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 500; }
+.btn:disabled { opacity: .5; cursor: default; }
+.hint { font-size: 11.5px; color: var(--muted); }
+.prog { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; display: none; margin-top: 8px; }
+.prog i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .1s; }
+.chart { position: relative; height: 230px; margin-top: 10px; touch-action: none; }
+.chart canvas { width: 100%; height: 100%; display: block; }
+.chart .cross { position: absolute; top: 4px; right: 6px; font-size: 11.5px; color: var(--muted); text-align: right; pointer-events: none; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.stats div { font-size: 11.5px; color: var(--muted); }
+.stats b { display: block; font-size: 14px; color: var(--ink); }
+.tabs { display: flex; gap: 4px; margin: 12px 0 8px; }
+.tabs button { border: 1px solid var(--line); background: none; border-radius: 8px; padding: 6px 10px; font-size: 12.5px; color: var(--muted); }
+.tabs button.on { color: var(--ink); background: var(--soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; font-size: 11.5px; }
+td.r, th.r { text-align: right; }
+.hw { color: var(--hw); } .lw { color: var(--lw); }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.pager button { border: 1px solid var(--line); background: none; border-radius: 7px; padding: 4px 10px; }
+.exports { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12.5px; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; }
+.foot { font-size: 11px; color: var(--muted); text-align: center; padding-top: 4px; }
+.toast { position: fixed; left: 50%; top: calc(70px + env(safe-area-inset-top)); transform: translateX(-50%); padding: 9px 14px; z-index: 9; display: none; font-size: 13px; max-width: calc(100% - 24px); }
+
+@media (max-width: 760px) {
+  .brand small, .nav a.hide-m { display: none; }
+  .top { flex-wrap: wrap; }
+  .search { order: 3; width: 100%; }
+  body.p-open .layers { right: 12px; }
+  .layers { top: auto; bottom: calc(150px + env(safe-area-inset-bottom)); }
+  .layers button span, .layers label span { display: none; }
+  .layers button { padding: 9px; } .layers label { padding: 6px 9px; }
+  .zoom { display: none; }
+  .legend { bottom: calc(80px + env(safe-area-inset-bottom)); min-width: 0; max-width: 62vw; }
+  .timeline { gap: 8px; padding: 7px 9px; }
+  .tl-time { min-width: 100px; } .tl-time b { font-size: 13px; }
+  .tl-tz, .now-btn { display: none; }
+  .attrib { display: none; }
+  .panel { left: 0; right: 0; width: auto; top: auto; bottom: 0; height: 72%; border-radius: 16px 16px 0 0; transform: translateY(105%); }
+  .panel .grip { display: block; width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: 8px auto 0; }
+  .big { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .panel, .layers, .zoom { transition: none; } }
+</style>
+</head>
+<body>
+<canvas id="map" aria-label="Map of Indonesian tide stations"></canvas>
+
+<div class="top">
+  <a class="brand glass" href="index.html" title="Tidara">
+    <img src="assets/logo.svg" alt="">
+    <div><b>tidara</b><small data-i18n="tagline"></small></div>
+  </a>
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" autocomplete="off">
+    <div class="results glass" id="results"></div>
+  </div>
+  <div class="spacer"></div>
+  <nav class="nav glass">
+    <a href="guide.html" data-i18n="guide"></a>
+    <a href="science.html" class="hide-m" data-i18n="science"></a>
+    <button class="js-lang" type="button">ID</button>
+    <button class="js-theme" type="button"></button>
+  </nav>
+</div>
+
+<div class="layers glass" id="layers" role="radiogroup"></div>
+<div class="zoom glass" id="zoomctl"><button id="zin">+</button><button id="zout">−</button></div>
+<div class="legend glass" id="legend"></div>
+<div class="attrib" data-i18n="attrib"></div>
+
+<div class="timeline glass">
+  <button class="play" id="play"><svg id="playicon" width="14" height="14" viewBox="0 0 14 14"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg></button>
+  <div class="tl-time num"><b id="tlTime">—</b><span id="tlDate">—</span></div>
+  <div class="track" id="track"><canvas id="trackc"></canvas></div>
+  <button class="now-btn" id="nowbtn" data-i18n="now"></button>
+  <select class="tl-tz" id="tz"></select>
+</div>
+
+<div class="tip glass" id="tip"></div>
+<div class="toast glass" id="toast" role="status"></div>
+
+<aside class="panel glass" id="panel">
+  <div class="grip"></div>
+  <div class="p-head">
+    <div style="min-width:0">
+      <h2 id="pName"></h2>
+      <div class="sub" id="pSub"></div>
+      <div class="chips" id="pChips"></div>
+    </div>
+    <button class="x" id="pClose">✕</button>
+  </div>
+  <div class="p-body" id="pBody">
+    <section class="card">
+      <h3 data-i18n="atTime"></h3>
+      <div class="nowrow">
+        <div><div class="lbl" data-i18n="waterLevel"></div><div class="big num" id="nowH">—</div><div class="trend" id="nowTrend"></div></div>
+        <div><div class="lbl" data-i18n="nextHW"></div><div class="num" id="nextHW">—</div></div>
+        <div><div class="lbl" data-i18n="nextLW"></div><div class="num" id="nextLW">—</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3 data-i18n="prediction"></h3>
+      <form class="form" id="pf">
+        <label for="fStart"><span data-i18n="start"></span><input type="datetime-local" id="fStart" step="60"></label>
+        <label for="fLen"><span data-i18n="length"></span>
+          <span class="len"><input type="number" id="fLen" min="1" step="1" value="3"><select id="fUnit"><option value="h"></option><option value="d" selected></option><option value="m"></option><option value="y"></option></select></span>
+        </label>
+        <label for="fStep"><span data-i18n="interval"></span><select id="fStep"><option value="1"></option><option value="5"></option><option value="10" selected></option><option value="15"></option><option value="30"></option><option value="60"></option></select></label>
+        <label for="fTz"><span data-i18n="timeZone"></span><select id="fTz"></select></label>
+        <label for="fDatum" style="grid-column:1/-1"><span data-i18n="heights"></span><select id="fDatum"><option value="LAT"></option><option value="MSL"></option><option value="HAT"></option></select></label>
+        <div class="run"><button class="btn" id="fRun" type="submit" data-i18n="predict"></button><span class="hint" id="fHint"></span></div>
+      </form>
+      <div class="prog" id="prog"><i></i></div>
+      <div id="out" hidden>
+        <div class="stats num" id="stats"></div>
+        <div class="chart" id="chartbox"><canvas id="chart"></canvas><div class="cross num" id="cross"></div></div>
+        <div class="hint" data-i18n="chartHint"></div>
+        <div class="tabs" role="tablist"><button class="on" data-tab="ext" role="tab" data-i18n="tabExt"></button><button data-tab="ser" role="tab" data-i18n="tabSer"></button></div>
+        <div id="tbl"></div>
+        <div class="pager" id="pager"></div>
+        <div class="exports">
+          <button class="btn ghost" id="dlExt" type="button" data-i18n="dlExt"></button>
+          <button class="btn ghost" id="dlSer" type="button" data-i18n="dlSer"></button>
+          <button class="btn ghost" id="cpExt" type="button" data-i18n="cpExt"></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card"><h3 data-i18n="station"></h3><dl class="kv" id="pInfo"></dl></section>
+    <section class="card"><h3 data-i18n="levels"></h3><table id="pDatums"></table></section>
+    <section class="card">
+      <h3 data-i18n="constants"></h3>
+      <table id="pConst"></table>
+      <div class="exports"><button class="btn ghost" id="moreConst" type="button"></button></div>
+    </section>
+    <div class="foot" data-i18n="foot"></div>
+  </div>
+</aside>
+
+<script src="assets/tidara-data.js"></script>
+<script src="assets/basemap.js"></script>
+<script src="assets/tide-engine.js"></script>
+<script>
+"use strict";
+const DB = window.TIDARA_DB, E = window.TidaraEngine, PR = window.TidaraPrefs;
+const ST = DB.stations, NODATA = DB.nodata.filter((s) => s.lat != null);
+const byCode = Object.fromEntries(ST.map((s) => [s.code, s]));
+const $ = (id) => document.getElementById(id);
+const HOUR = 3600000, DAY = 86400000, dpr = () => Math.min(window.devicePixelRatio || 1, 2);
+
+/* ---------- language ---------- */
+const I18N = {
+  en: {
+    tagline: "Tides of the Nusantara seas", guide: "User guide", science: "Science", search: "Search 303 stations…", noMatch: "No station matches “{q}”.",
+    attrib: "© 2026 Aldwin Syahperdana · Observations: BIG tide gauges · Base map: Natural Earth",
+    now: "Now", play: "Play timeline", pause: "Pause timeline", mapTz: "Map time zone", zin: "Zoom in", zout: "Zoom out",
+    lyr_level: "Water level", lyr_range: "Tidal range", lyr_type: "Tide type", lyr_grade: "Data quality", noData: "Stations without data", layerGroup: "Map layer",
+    legLevel: "Water level now", legLow: "Lowest (LAT)", legHigh: "Highest (HAT)", legShare: "Share of each station's own tidal range",
+    legRange: "Tidal range (HAT − LAT)", legType: "Tide type", legGrade: "Data quality grade",
+    gA: "A · ≥ 1 year, ≥ 95% skill", gB: "B · good, shorter or 90–95%", gC: "C · use with care",
+    T_Semidiurnal: "Semidiurnal", "T_Mixed, mainly semidiurnal": "Mixed, mainly semidiurnal", "T_Mixed, mainly diurnal": "Mixed, mainly diurnal", T_Diurnal: "Diurnal",
+    aboveLAT: "m above LAT", relMSL: "m rel. MSL", rising: "rising", falling: "falling", grade: "Grade", skill: "skill", range: "Range",
+    atTime: "At the selected time", waterLevel: "Water level", nextHW: "Next high water", nextLW: "Next low water",
+    prediction: "Tide prediction", start: "Start", length: "Length", u_h: "hours", u_d: "days", u_m: "months", u_y: "years",
+    interval: "Interval", min1: "1 minute", minN: "{n} minutes", hour1: "1 hour", timeZone: "Time zone", heights: "Heights",
+    hLAT: "metres above LAT (chart datum)", hMSL: "metres relative to mean sea level", hHAT: "metres relative to HAT (0 = highest tide, below is negative)", relHAT: "m rel. HAT", predict: "Predict tides",
+    chartHint: "Drag to pan, scroll or pinch to zoom, double-click to reset.", tabExt: "High & low waters", tabSer: "Time series",
+    dlExt: "Download high/low CSV", dlSer: "Download series CSV", cpExt: "Copy high/low",
+    station: "Station", levels: "Tidal levels", constants: "Harmonic constants", showAll: "Show all {n} constituents", show10: "Show the 10 largest",
+    foot: "© 2026 Aldwin Syahperdana · Tidara. Astronomical tide only: weather can raise or lower the sea by tens of centimetres.",
+    location: "Location", position: "Position", localTime: "Local time", record: "Record", accuracy: "Accuracy", tideType: "Tide type",
+    recordTxt: "{a} to {b} · {n} clean days", accTxt: "{p}% of variance on unseen data · RMSE {r} cm", notTested: "not tested (record too short)", na: "not available",
+    level: "Level", aboveLATh: "above LAT", relMSLh: "rel. MSL", constituent: "Constituent", speed: "Speed °/h", amp: "Amplitude m", phase: "Phase °",
+    d_HAT: "Highest astronomical tide", d_MHWS: "Mean high water springs", d_MHWN: "Mean high water neaps", d_MSL: "Mean sea level", d_MLWN: "Mean low water neaps", d_MLWS: "Mean low water springs", d_LAT: "Lowest astronomical tide",
+    period: "Period", highest: "Highest", lowest: "Lowest", nHW: "High waters", nLW: "Low waters", points: "Data points", years: "{n} years", days: "{n} days", hours: "{n} hours",
+    date: "Date", time: "Time", dateTime: "Date and time", high: "High", low: "Low",
+    first: "« First", prev: "‹ Prev", next: "Next ›", last: "Last »", pageOf: "Page {a} of {b}",
+    chooseStart: "Choose a start date and time.", autoStep: "Interval set to {n} min so the series stays under 6 million points.", mpts: "{n} M points…",
+    saved: "Saved {f}.", tooLarge: "File too large here: try a 1-hour interval or the high/low table.", dlUnavail: "Download unavailable here. Use Copy instead.",
+    downloading: "Downloading {f} ({s} MB).", dlFail: "Download failed: {e}", tooBigCopy: "Too large to copy. Use Download instead.", copied: "Copied {n} high and low waters.", copyBlocked: "Copy was blocked by the browser.",
+    yourTime: "Your time", stationZone: "station", close: "Close station panel", panelLbl: "Station details", mapLbl: "Map of Indonesian tide stations",
+    csvTitle: "Tidara tide prediction", csvAstro: "astronomical tide only", csvTimes: "times", csvDate: "date_time", csvType: "type", csvHLAT: "height_m_above_LAT", csvHMSL: "height_m_rel_MSL", csvHHAT: "height_m_rel_HAT", csvHW: "HW", csvLW: "LW",
+    fileHL: "highlow", fileSer: "series",
+  },
+  id: {
+    tagline: "Pasang surut laut Nusantara", guide: "Panduan", science: "Sains", search: "Cari 303 stasiun…", noMatch: "Tidak ada stasiun yang cocok dengan “{q}”.",
+    attrib: "© 2026 Aldwin Syahperdana · Data pengamatan: stasiun pasut BIG · Peta dasar: Natural Earth",
+    now: "Sekarang", play: "Putar lini waktu", pause: "Jeda lini waktu", mapTz: "Zona waktu peta", zin: "Perbesar", zout: "Perkecil",
+    lyr_level: "Muka air", lyr_range: "Tunggang pasut", lyr_type: "Tipe pasut", lyr_grade: "Kualitas data", noData: "Stasiun tanpa data", layerGroup: "Lapisan peta",
+    legLevel: "Muka air saat ini", legLow: "Terendah (LAT)", legHigh: "Tertinggi (HAT)", legShare: "Persentase dari tunggang pasut tiap stasiun",
+    legRange: "Tunggang pasut (HAT − LAT)", legType: "Tipe pasut", legGrade: "Kelas kualitas data",
+    gA: "A · ≥ 1 tahun, akurasi ≥ 95%", gB: "B · baik, lebih pendek atau 90–95%", gC: "C · gunakan dengan hati-hati",
+    T_Semidiurnal: "Harian ganda", "T_Mixed, mainly semidiurnal": "Campuran condong harian ganda", "T_Mixed, mainly diurnal": "Campuran condong harian tunggal", T_Diurnal: "Harian tunggal",
+    aboveLAT: "m di atas LAT", relMSL: "m thd MSL", rising: "naik", falling: "turun", grade: "Kelas", skill: "akurasi", range: "Tunggang",
+    atTime: "Pada waktu terpilih", waterLevel: "Muka air", nextHW: "Air tinggi berikutnya", nextLW: "Air rendah berikutnya",
+    prediction: "Prediksi pasang surut", start: "Mulai", length: "Durasi", u_h: "jam", u_d: "hari", u_m: "bulan", u_y: "tahun",
+    interval: "Interval", min1: "1 menit", minN: "{n} menit", hour1: "1 jam", timeZone: "Zona waktu", heights: "Ketinggian",
+    hLAT: "meter di atas LAT (datum peta)", hMSL: "meter terhadap muka laut rata-rata", hHAT: "meter terhadap HAT (0 = pasang tertinggi, di bawahnya negatif)", relHAT: "m thd HAT", predict: "Hitung prediksi",
+    chartHint: "Geser untuk memindah, gulir atau cubit untuk memperbesar, klik dua kali untuk mengatur ulang.", tabExt: "Air tinggi & rendah", tabSer: "Deret waktu",
+    dlExt: "Unduh CSV tinggi/rendah", dlSer: "Unduh CSV deret waktu", cpExt: "Salin tinggi/rendah",
+    station: "Stasiun", levels: "Elevasi pasut", constants: "Konstanta harmonik", showAll: "Tampilkan semua {n} komponen", show10: "Tampilkan 10 terbesar",
+    foot: "© 2026 Aldwin Syahperdana · Tidara. Hanya pasut astronomis: cuaca dapat menaikkan atau menurunkan muka laut puluhan sentimeter.",
+    location: "Lokasi", position: "Posisi", localTime: "Waktu setempat", record: "Rekaman", accuracy: "Akurasi", tideType: "Tipe pasut",
+    recordTxt: "{a} s.d. {b} · {n} hari data bersih", accTxt: "{p}% varians pada data uji · RMSE {r} cm", notTested: "tidak diuji (rekaman terlalu pendek)", na: "tidak tersedia",
+    level: "Elevasi", aboveLATh: "di atas LAT", relMSLh: "thd MSL", constituent: "Komponen", speed: "Kecepatan °/jam", amp: "Amplitudo m", phase: "Fase °",
+    d_HAT: "Air tertinggi astronomis", d_MHWS: "Rata-rata air tinggi purnama", d_MHWN: "Rata-rata air tinggi perbani", d_MSL: "Muka laut rata-rata", d_MLWN: "Rata-rata air rendah perbani", d_MLWS: "Rata-rata air rendah purnama", d_LAT: "Air terendah astronomis",
+    period: "Periode", highest: "Tertinggi", lowest: "Terendah", nHW: "Air tinggi", nLW: "Air rendah", points: "Titik data", years: "{n} tahun", days: "{n} hari", hours: "{n} jam",
+    date: "Tanggal", time: "Jam", dateTime: "Tanggal dan jam", high: "Tinggi", low: "Rendah",
+    first: "« Awal", prev: "‹ Sebelumnya", next: "Berikutnya ›", last: "Akhir »", pageOf: "Halaman {a} dari {b}",
+    chooseStart: "Pilih tanggal dan jam mulai.", autoStep: "Interval diubah ke {n} menit agar deret tetap di bawah 6 juta titik.", mpts: "{n} juta titik…",
+    saved: "{f} tersimpan.", tooLarge: "Berkas terlalu besar: coba interval 1 jam atau tabel tinggi/rendah.", dlUnavail: "Unduhan tidak tersedia di sini. Gunakan Salin.",
+    downloading: "Mengunduh {f} ({s} MB).", dlFail: "Unduhan gagal: {e}", tooBigCopy: "Terlalu besar untuk disalin. Gunakan Unduh.", copied: "{n} air tinggi dan rendah disalin.", copyBlocked: "Penyalinan diblokir oleh peramban.",
+    yourTime: "Waktu Anda", stationZone: "stasiun", close: "Tutup panel stasiun", panelLbl: "Rincian stasiun", mapLbl: "Peta stasiun pasang surut Indonesia",
+    csvTitle: "Prediksi pasang surut Tidara", csvAstro: "hanya pasut astronomis", csvTimes: "waktu", csvDate: "tanggal_waktu", csvType: "jenis", csvHLAT: "tinggi_m_di_atas_LAT", csvHMSL: "tinggi_m_thd_MSL", csvHHAT: "tinggi_m_thd_HAT", csvHW: "Tinggi", csvLW: "Rendah",
+    fileHL: "tinggi-rendah", fileSer: "deret-waktu",
+  },
+};
+const t = (k, v) => { let s = (I18N[PR.lang] && I18N[PR.lang][k]) ?? I18N.en[k] ?? k; if (v) for (const n in v) s = s.replace("{" + n + "}", v[n]); return s; };
+const ID = () => PR.lang === "id";
+const nf = (v, d = 2) => (v == null || isNaN(v)) ? "—" : (ID() ? v.toFixed(d).replace(".", ",") : v.toFixed(d));
+const nint = (v) => v.toLocaleString(ID() ? "id-ID" : "en-US");
+const typeName = (s) => t("T_" + s);
+
+/* ---------- time zones: "local" = the viewer's own zone (follows daylight saving), or a fixed UTC offset ---------- */
+const USER_TZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { return ""; } })();
+const offH = (ms, tz) => tz === "local" ? -new Date(ms).getTimezoneOffset() / 60 : +tz;
+const offStr = (h) => { const s = h < 0 ? "−" : "+", a = Math.abs(h), m = Math.round((a % 1) * 60); return `UTC${s}${Math.floor(a)}${m ? ":" + String(m).padStart(2, "0") : ""}`; };
+const INDO = { 7: "WIB", 8: "WITA", 9: "WIT" };
+function zoneAbbr(ms, tz) {
+  const h = offH(ms, tz);
+  if (tz !== "local") return INDO[h] || (h === 0 ? "UTC" : offStr(h));
+  if (/^Asia\/(Jakarta|Pontianak|Makassar|Jayapura)$/.test(USER_TZ) && INDO[h]) return INDO[h];
+  return offStr(h);
+}
+function tzOptions(stTz) {
+  const now = Date.now(), loc = offH(now, "local");
+  const o = [["local", `${t("yourTime")} · ${zoneAbbr(now, "local")}${INDO[loc] ? " (" + offStr(loc) + ")" : ""}`]];
+  for (const h of [7, 8, 9]) o.push([String(h), `${INDO[h]} (${offStr(h)})${stTz === h ? " · " + t("stationZone") : ""}`]);
+  o.push(["0", "UTC"]);
+  return o.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+}
+
+/* ---------- formatting ---------- */
+const pad = (n) => String(n).padStart(2, "0");
+function parts(ms, tz) { const d = new Date(ms + offH(ms, tz) * HOUR); return { Y: d.getUTCFullYear(), M: d.getUTCMonth(), D: d.getUTCDate(), h: d.getUTCHours(), m: d.getUTCMinutes(), w: d.getUTCDay() }; }
+const MON = { en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], id: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"] };
+const WD = { en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], id: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"] };
+const mon = (i) => MON[PR.lang][i], wd = (i) => WD[PR.lang][i];
+const fTime = (ms, tz) => { const p = parts(ms, tz); return `${pad(p.h)}:${pad(p.m)}`; };
+const fDate = (ms, tz) => { const p = parts(ms, tz); return `${wd(p.w)} ${p.D} ${mon(p.M)} ${p.Y}`; };
+const fISO = (ms, tz) => { const p = parts(ms, tz); return `${p.Y}-${pad(p.M + 1)}-${pad(p.D)} ${pad(p.h)}:${pad(p.m)}`; };
+function toast(msg) { const x = $("toast"); x.textContent = msg; x.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => x.style.display = "none", 3400); }
+
+/* ---------- colour scales ---------- */
+const RAMP = [[0, [59, 42, 138]], [0.25, [43, 104, 214]], [0.5, [46, 196, 196]], [0.75, [235, 214, 100]], [1, [240, 128, 72]]];
+function ramp(v) {
+  v = Math.max(0, Math.min(1, v));
+  for (let i = 1; i < RAMP.length; i++) if (v <= RAMP[i][0]) {
+    const [t0, a] = RAMP[i - 1], [t1, b] = RAMP[i], k = (v - t0) / (t1 - t0);
+    return `rgb(${a.map((x, j) => Math.round(x + (b[j] - x) * k)).join(",")})`;
+  }
+  return "rgb(240,128,72)";
+}
+const rampCSS = `linear-gradient(90deg, ${RAMP.map(([v]) => ramp(v) + " " + v * 100 + "%").join(",")})`;
+const TYPE = { "Semidiurnal": "#4c8ff0", "Mixed, mainly semidiurnal": "#3bbfbf", "Mixed, mainly diurnal": "#f2a93b", "Diurnal": "#e5574a" };
+const GRADE = { A: "#2fb36f", B: "#e2b331", C: "#e45b5b" };
+const LAYERS = [
+  { id: "level", dot: rampCSS }, { id: "range", dot: "linear-gradient(90deg,#1e2f6e,#46c3c7,#f2df7a)" },
+  { id: "type", dot: "conic-gradient(#4c8ff0 0 25%,#3bbfbf 0 50%,#f2a93b 0 75%,#e5574a 0)" }, { id: "grade", dot: "conic-gradient(#2fb36f 0 34%,#e2b331 0 67%,#e45b5b 0)" },
+];
+const state = { layer: "level", t: Date.now(), tz: "local", showNoData: true, sel: null, playing: false };
+let C = {};   // canvas colours from the active theme
+function readTheme() { const cs = getComputedStyle(document.documentElement); for (const k of ["sea", "land", "coast", "border", "grid", "label-bg", "label-ink", "mark-edge", "accent", "ink", "muted", "line", "hw", "lw"]) C[k] = cs.getPropertyValue("--" + k).trim(); }
+
+/* ---------- map ---------- */
+const cv = $("map"), cx = cv.getContext("2d");
+const view = { lon: 118, lat: -2.3, s: 20 };
+function decode(str) {
+  return str.split(";").map((r) => { const v = r.split(",").map(Number), a = new Float32Array(v.length); let x = 0, y = 0;
+    for (let i = 0; i < v.length; i += 2) { x += v[i]; y += v[i + 1]; a[i] = x / 100; a[i + 1] = -y / 100; } return a; });
+}
+const landPath = new Path2D(), borderPath = new Path2D();
+for (const r of decode(window.TIDARA_LAND)) { landPath.moveTo(r[0], r[1]); for (let i = 2; i < r.length; i += 2) landPath.lineTo(r[i], r[i + 1]); landPath.closePath(); }
+for (const r of decode(window.TIDARA_BORDERS)) { borderPath.moveTo(r[0], r[1]); for (let i = 2; i < r.length; i += 2) borderPath.lineTo(r[i], r[i + 1]); }
+let W = innerWidth, H = innerHeight;
+function resize() { W = innerWidth; H = innerHeight; cv.width = W * dpr(); cv.height = H * dpr(); drawTrack(); draw(); }
+function fit() { view.s = Math.max(6, Math.min(W / 48, (H - 170) / 20)); view.lon = 118; view.lat = W < 760 ? -3.2 : -2.4; }
+const X = (lon) => (lon - view.lon) * view.s + W / 2, Y = (lat) => (view.lat - lat) * view.s + H / 2;
+const unX = (x) => (x - W / 2) / view.s + view.lon, unY = (y) => view.lat - (y - H / 2) / view.s;
+
+const values = new Map();
+function computeValues() {
+  for (const s of ST) {
+    if (state.layer === "level") {
+      const h = E.height(s, state.t), h2 = E.height(s, state.t + 600000);
+      values.set(s.code, { h, rise: h2 > h, color: ramp((h - s.datums.LAT) / (s.datums.HAT - s.datums.LAT)) });
+    } else if (state.layer === "range") { const r = s.datums.HAT - s.datums.LAT; values.set(s.code, { color: ramp(r / 4), r }); }
+    else if (state.layer === "type") values.set(s.code, { color: TYPE[s.type] });
+    else values.set(s.code, { color: GRADE[s.grade] });
+  }
+}
+let raf = 0;
+function draw() { if (!raf) raf = requestAnimationFrame(render); }
+function render() {
+  raf = 0; const k = dpr();
+  cx.setTransform(k, 0, 0, k, 0, 0); cx.fillStyle = C.sea; cx.fillRect(0, 0, W, H);
+  cx.strokeStyle = C.grid; cx.lineWidth = 1; cx.beginPath();
+  const g = view.s > 60 ? 1 : view.s > 25 ? 2 : 5;
+  for (let lo = Math.floor(unX(0) / g) * g; lo <= unX(W); lo += g) { cx.moveTo(X(lo), 0); cx.lineTo(X(lo), H); }
+  for (let la = Math.floor(unY(H) / g) * g; la <= unY(0); la += g) { cx.moveTo(0, Y(la)); cx.lineTo(W, Y(la)); }
+  cx.stroke();
+  cx.setTransform(k * view.s, 0, 0, k * view.s, k * (W / 2 - view.lon * view.s), k * (H / 2 + view.lat * view.s));
+  cx.fillStyle = C.land; cx.fill(landPath);
+  cx.lineWidth = 1 / view.s; cx.strokeStyle = C.coast; cx.stroke(landPath);
+  cx.setLineDash([4 / view.s, 3 / view.s]); cx.strokeStyle = C.border; cx.stroke(borderPath); cx.setLineDash([]);
+  cx.setTransform(k, 0, 0, k, 0, 0);
+  const r = Math.max(3.5, Math.min(8, view.s / 5));
+  if (state.showNoData) for (const s of NODATA) {
+    const x = X(s.lon), y = Y(s.lat); if (x < -10 || y < -10 || x > W + 10 || y > H + 10) continue;
+    cx.beginPath(); cx.arc(x, y, r * 0.7, 0, 7); cx.strokeStyle = C.muted; cx.lineWidth = 1.2; cx.stroke();
+  }
+  const labels = [];
+  for (const s of ST) {
+    if (s.lat == null) continue;
+    const x = X(s.lon), y = Y(s.lat); if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+    const v = values.get(s.code), sel = s === state.sel;
+    cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fillStyle = v.color; cx.fill();
+    cx.lineWidth = sel ? 3 : 1; cx.strokeStyle = sel ? C.ink : C["mark-edge"]; cx.stroke();
+    if (state.layer === "level" && view.s > 28) {
+      cx.fillStyle = "rgba(7,21,32,.88)"; cx.beginPath();
+      const d = v.rise ? -1 : 1, a = r * 0.55;
+      cx.moveTo(x - a, y - d * a * 0.4); cx.lineTo(x + a, y - d * a * 0.4); cx.lineTo(x, y + d * a * 0.7); cx.fill();
+    }
+    labels.push([s, x, y, v]);
+  }
+  if (view.s > 34) {
+    cx.font = "600 11.5px " + getComputedStyle(document.body).fontFamily; cx.textBaseline = "middle";
+    const boxes = [];
+    labels.sort((a, b) => (b[0] === state.sel) - (a[0] === state.sel));
+    for (const [s, x, y, v] of labels) {
+      const txt = state.layer === "level" ? `${s.name}  ${nf(v.h + s.mslLat)} m` : s.name;
+      const w = cx.measureText(txt).width, bx = x + r + 5, by = y - 8, bw = w + 8, bh = 16;
+      if (boxes.some(([a, b, c, d]) => bx < a + c && bx + bw > a && by < b + d && by + bh > b)) continue;
+      boxes.push([bx, by, bw, bh]);
+      cx.fillStyle = C["label-bg"]; cx.beginPath(); cx.roundRect ? cx.roundRect(bx, by, bw, bh, 4) : cx.rect(bx, by, bw, bh); cx.fill();
+      cx.fillStyle = C["label-ink"]; cx.fillText(txt, bx + 4, y);
+    }
+  }
+}
+
+const ptrs = new Map(); let pinch0 = null, moved = false, downAt = null;
+function zoomAt(f, px, py) { const lon = unX(px), lat = unY(py); view.s = Math.max(5, Math.min(900, view.s * f)); view.lon = lon - (px - W / 2) / view.s; view.lat = lat + (py - H / 2) / view.s; draw(); }
+cv.addEventListener("pointerdown", (e) => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; downAt = [e.clientX, e.clientY]; if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: view.s }; } });
+cv.addEventListener("pointermove", (e) => {
+  if (!ptrs.has(e.pointerId)) { hover(e); return; }
+  const prev = ptrs.get(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  if (ptrs.size === 2 && pinch0) { const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoomAt((pinch0.s * d / pinch0.d) / view.s, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); moved = true; return; }
+  if (Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4) { moved = true; cv.classList.add("drag"); }
+  view.lon -= (e.clientX - prev[0]) / view.s; view.lat += (e.clientY - prev[1]) / view.s; draw();
+});
+const up = (e) => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = null; cv.classList.remove("drag"); if (!moved && e.type === "pointerup") { const s = pick(e.clientX, e.clientY); if (s) select(s); } };
+cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+cv.addEventListener("wheel", (e) => { e.preventDefault(); zoomAt(Math.exp(-e.deltaY * 0.0016), e.clientX, e.clientY); }, { passive: false });
+cv.addEventListener("dblclick", (e) => zoomAt(2, e.clientX, e.clientY));
+$("zin").onclick = () => zoomAt(1.6, W / 2, H / 2); $("zout").onclick = () => zoomAt(1 / 1.6, W / 2, H / 2);
+function pick(x, y) { let best = null, bd = 18; for (const s of ST) { if (s.lat == null) continue; const d = Math.hypot(X(s.lon) - x, Y(s.lat) - y); if (d < bd) { bd = d; best = s; } } return best; }
+function hover(e) {
+  const tip = $("tip"), s = pick(e.clientX, e.clientY);
+  if (!s || e.pointerType === "touch") { tip.style.display = "none"; cv.style.cursor = ""; return; }
+  cv.style.cursor = "pointer";
+  const v = values.get(s.code);
+  let line = s.province || "";
+  if (state.layer === "level") line = `${nf(v.h + s.mslLat)} ${t("aboveLAT")} · ${v.rise ? t("rising") : t("falling")}`;
+  if (state.layer === "range") line = `HAT − LAT ${nf(v.r)} m`;
+  if (state.layer === "type") line = typeName(s.type);
+  if (state.layer === "grade") line = `${t("grade")} ${s.grade} · ${t("skill")} ${s.skill != null ? nf(s.skill, 1) : "—"}%`;
+  tip.innerHTML = `<b>${s.name} <span style="color:var(--muted);font-weight:500">${s.code}</span></b>${line}`;
+  tip.style.display = "block";
+  tip.style.left = Math.min(e.clientX + 14, W - tip.offsetWidth - 8) + "px"; tip.style.top = (e.clientY + 14) + "px";
+}
+
+/* ---------- layers + legend ---------- */
+function buildLayers() {
+  $("layers").setAttribute("aria-label", t("layerGroup"));
+  $("layers").innerHTML = LAYERS.map((l) => `<button role="radio" aria-checked="${l.id === state.layer}" class="${l.id === state.layer ? "on" : ""}" data-l="${l.id}" title="${t("lyr_" + l.id)}"><i style="background:${l.dot}"></i><span>${t("lyr_" + l.id)}</span></button>`).join("") +
+    `<div class="sep"></div><label><input type="checkbox" id="nd" ${state.showNoData ? "checked" : ""}><span>${t("noData")}</span></label>`;
+  $("layers").querySelectorAll("button").forEach((b) => b.onclick = () => { state.layer = b.dataset.l; buildLayers(); computeValues(); legend(); draw(); });
+  $("nd").onchange = (e) => { state.showNoData = e.target.checked; draw(); };
+  $("zoomctl").style.top = ($("layers").getBoundingClientRect().bottom + 10) + "px";
+}
+function legend() {
+  const L = $("legend");
+  if (state.layer === "level") L.innerHTML = `<b>${t("legLevel")}</b><div class="ramp" style="background:${rampCSS}"></div><div class="ends"><span>${t("legLow")}</span><span>${t("legHigh")}</span></div><div class="ends" style="margin-top:3px"><span>${t("legShare")}</span></div>`;
+  else if (state.layer === "range") L.innerHTML = `<b>${t("legRange")}</b><div class="ramp" style="background:${rampCSS}"></div><div class="ends num"><span>0 m</span><span>1 m</span><span>2 m</span><span>3 m</span><span>4 m+</span></div>`;
+  else if (state.layer === "type") L.innerHTML = `<b>${t("legType")}</b><div class="cats">${Object.entries(TYPE).map(([k, c]) => `<span><i style="background:${c}"></i>${typeName(k)}</span>`).join("")}</div>`;
+  else L.innerHTML = `<b>${t("legGrade")}</b><div class="cats"><span><i style="background:${GRADE.A}"></i>${t("gA")}</span><span><i style="background:${GRADE.B}"></i>${t("gB")}</span><span><i style="background:${GRADE.C}"></i>${t("gC")}</span></div>`;
+}
+
+/* ---------- timeline ---------- */
+const tl = { c: $("trackc"), start: 0, end: 0 };
+function setRange() { const n = Date.now(), o = offH(n, state.tz) * HOUR; const d0 = Math.floor((n + o) / DAY) * DAY - o; tl.start = d0 - DAY; tl.end = d0 + 8 * DAY; }
+function drawTrack() {
+  const c = tl.c, w = c.clientWidth, h = c.clientHeight, k = dpr(); if (!w) return;
+  c.width = w * k; c.height = h * k; const g = c.getContext("2d"); g.setTransform(k, 0, 0, k, 0, 0);
+  const x = (v) => (v - tl.start) / (tl.end - tl.start) * w;
+  g.fillStyle = C.line; g.fillRect(0, h / 2 - 2, w, 4);
+  g.fillStyle = C.accent; g.globalAlpha = .7; g.fillRect(0, h / 2 - 2, x(state.t), 4); g.globalAlpha = 1;
+  g.font = "11px " + getComputedStyle(document.body).fontFamily; g.textBaseline = "top"; g.fillStyle = C.muted;
+  for (let d = 0; d <= 9; d++) {
+    const ref = tl.start + d * DAY + 12 * HOUR, p = parts(ref, state.tz), tt = ref - (p.h * HOUR + p.m * 60000) + 0; // local midnight
+    const lx = x(tt); g.fillRect(lx, h / 2 - 6, 1, 12);
+    if (tt < tl.end) g.fillText(w > 520 ? `${wd(p.w)} ${p.D}` : `${p.D}`, lx + 4, h / 2 + 7);
+  }
+  g.fillStyle = "#f4b740"; g.fillRect(x(Date.now()) - 1, h / 2 - 9, 2, 18);
+  const px = x(state.t); g.beginPath(); g.arc(px, h / 2, 8, 0, 7); g.fillStyle = C.ink === "#13212b" ? "#ffffff" : "#e6f0f4"; g.fill(); g.lineWidth = 3; g.strokeStyle = C.accent; g.stroke();
+}
+function setTime(v, fromPlay) {
+  state.t = Math.max(tl.start, Math.min(tl.end, v));
+  $("tlTime").textContent = `${fTime(state.t, state.tz)} ${zoneAbbr(state.t, state.tz)}`;
+  $("tlDate").textContent = fDate(state.t, state.tz);
+  if (state.layer === "level") computeValues();
+  drawTrack(); draw(); if (state.sel) updateNow();
+  if (!fromPlay && state.playing) togglePlay();
+}
+(() => {
+  const tr = $("track"); let dragging = false;
+  const at = (e) => { const r = tr.getBoundingClientRect(); return tl.start + (e.clientX - r.left) / r.width * (tl.end - tl.start); };
+  tr.addEventListener("pointerdown", (e) => { dragging = true; tr.setPointerCapture(e.pointerId); setTime(Math.round(at(e) / 600000) * 600000); });
+  tr.addEventListener("pointermove", (e) => { if (dragging) setTime(Math.round(at(e) / 600000) * 600000); });
+  tr.addEventListener("pointerup", () => dragging = false);
+})();
+let playTimer = 0;
+function togglePlay() {
+  state.playing = !state.playing;
+  $("playicon").innerHTML = state.playing ? '<path d="M3 2h3v10H3zM8 2h3v10H8z" fill="currentColor"/>' : '<path d="M3 1.5v11l9-5.5z" fill="currentColor"/>';
+  $("play").setAttribute("aria-label", state.playing ? t("pause") : t("play"));
+  clearInterval(playTimer);
+  if (state.playing) playTimer = setInterval(() => { let v = state.t + HOUR; if (v > tl.end) v = tl.start; setTime(v, true); }, 140);
+}
+$("play").onclick = togglePlay;
+$("nowbtn").onclick = () => setTime(Date.now());
+$("tz").onchange = (e) => { state.tz = e.target.value; setRange(); setTime(state.t); };
+
+/* ---------- search ---------- */
+(() => {
+  const q = $("q"), res = $("results"); let items = [], on = 0;
+  const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[^a-z0-9 ]/g, "");
+  const show = () => {
+    const v = norm(q.value.trim());
+    if (!v) { res.classList.remove("show"); return; }
+    items = ST.filter((s) => norm(`${s.name} ${s.code} ${s.province} ${s.regency}`).includes(v)).slice(0, 12); on = 0;
+    res.innerHTML = items.length ? items.map((s, i) => `<button data-i="${i}" class="${i === on ? "on" : ""}"><span>${s.name} <small>${s.code}</small></span><small>${s.province || ""}</small></button>`).join("") : `<div class="hint" style="padding:8px 10px">${t("noMatch", { q: q.value.replace(/</g, "&lt;") })}</div>`;
+    res.classList.add("show");
+    res.querySelectorAll("button").forEach((b) => b.onclick = () => go(items[+b.dataset.i]));
+  };
+  const go = (s) => { if (!s) return; res.classList.remove("show"); q.value = ""; q.blur(); select(s, true); };
+  q.addEventListener("input", show);
+  q.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); on = (on + (e.key === "ArrowDown" ? 1 : items.length - 1)) % Math.max(1, items.length); res.querySelectorAll("button").forEach((b, i) => b.classList.toggle("on", i === on)); }
+    if (e.key === "Enter") go(items[on]);
+    if (e.key === "Escape") { res.classList.remove("show"); q.blur(); }
+  });
+  document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".search")) res.classList.remove("show"); });
+})();
+
+/* ---------- station panel ---------- */
+const panel = $("panel");
+function stationStatic() {
+  const s = state.sel; if (!s) return;
+  $("pName").textContent = s.name;
+  $("pSub").textContent = `${s.code} · ${[s.regency, s.province].filter(Boolean).join(", ")}`;
+  $("pChips").innerHTML = `<span class="chip g-${s.grade}">${t("grade")} ${s.grade}</span><span class="chip">${typeName(s.type)}</span><span class="chip num">${t("range")} ${nf(s.datums.HAT - s.datums.LAT)} m</span>`;
+  const lat = s.lat != null ? `${nf(Math.abs(s.lat), 5)}° ${s.lat < 0 ? (ID() ? "LS" : "S") : (ID() ? "LU" : "N")}, ${nf(s.lon, 5)}° ${ID() ? "BT" : "E"}` : t("na");
+  $("pInfo").innerHTML = [
+    [t("location"), s.location || "—"], [t("position"), lat], [t("localTime"), `${INDO[s.tz]} (${offStr(s.tz)})`],
+    [t("record"), t("recordTxt", { a: s.rec[0], b: s.rec[1], n: nint(s.rec[2]) })],
+    [t("accuracy"), s.skill != null ? t("accTxt", { p: nf(s.skill, 1), r: nf(s.rmse * 100, 1) }) : t("notTested")],
+    [t("tideType"), `${typeName(s.type)} (F = ${nf(s.F, 3)})`],
+  ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+  const D = s.datums, rows = ["HAT", "MHWS", "MHWN", "MSL", "MLWN", "MLWS", "LAT"];
+  $("pDatums").innerHTML = `<tr><th>${t("level")}</th><th class="r">${t("aboveLATh")}</th><th class="r">${t("relMSLh")}</th></tr>` +
+    rows.map((k) => { const v = k === "MSL" ? 0 : D[k]; return `<tr><td>${k} <span class="hint">${t("d_" + k)}</span></td><td class="r">${nf(v + s.mslLat, 3)}</td><td class="r">${nf(v, 3)}</td></tr>`; }).join("");
+  constTable(constTable.all);
+}
+function select(s, fly) {
+  state.sel = s; panel.classList.add("open"); document.body.classList.add("p-open");
+  if (fly && s.lat != null) { view.lon = s.lon + (W > 760 ? 6 / Math.max(1, view.s / 20) : 0); view.lat = s.lat - (W > 760 ? 0 : 3 / Math.max(1, view.s / 20)); view.s = Math.max(view.s, 40); }
+  try { history.replaceState(null, "", "#" + s.code); } catch (e) {}
+  $("fTz").innerHTML = tzOptions(s.tz); $("fTz").value = "local";
+  const p = parts(Date.now(), "local"); $("fStart").value = `${p.Y}-${pad(p.M + 1)}-${pad(p.D)}T00:00`;
+  $("out").hidden = true; result = null; constTable.all = false;
+  stationStatic(); updateNow(); draw();
+  setTimeout(() => runPrediction(), 30);
+}
+function constTable(all) {
+  constTable.all = all; const s = state.sel, list = Object.entries(s.c).slice(0, all ? 99 : 10);
+  $("pConst").innerHTML = `<tr><th>${t("constituent")}</th><th class="r">${t("speed")}</th><th class="r">${t("amp")}</th><th class="r">${t("phase")}</th></tr>` +
+    list.map(([n, [Hh, g]]) => `<tr><td>${n}</td><td class="r">${nf(E.speed(n), 4)}</td><td class="r">${nf(Hh, 4)}</td><td class="r">${nf(g, 1)}</td></tr>`).join("");
+  $("moreConst").textContent = all ? t("show10") : t("showAll", { n: Object.keys(s.c).length });
+  $("moreConst").onclick = () => constTable(!all);
+}
+function updateNow() {
+  const s = state.sel; if (!s) return;
+  const h = E.height(s, state.t), h2 = E.height(s, state.t + 600000), tz = state.tz;
+  $("nowH").textContent = `${nf(h + s.mslLat)} m`;
+  $("nowTrend").textContent = `${h2 > h ? "▲ " + t("rising") : "▼ " + t("falling")} · ${fTime(state.t, tz)} ${zoneAbbr(state.t, tz)}`;
+  const ex = E.extremes(s, state.t, state.t + 1.5 * DAY);
+  const find = (hw) => { for (let i = 0; i < ex.t.length; i++) if (ex.hw[i] === hw) return i; return -1; };
+  const f = (i) => i < 0 ? "—" : `<b>${nf(ex.h[i] + s.mslLat)} m</b><br><span class="lbl">${fTime(ex.t[i], tz)} ${zoneAbbr(ex.t[i], tz)}, ${fDate(ex.t[i], tz).slice(0, -5)}</span>`;
+  $("nextHW").innerHTML = f(find(1)); $("nextLW").innerHTML = f(find(0));
+}
+$("pClose").onclick = () => { panel.classList.remove("open"); document.body.classList.remove("p-open"); state.sel = null; try { history.replaceState(null, "", location.pathname); } catch (e) {} draw(); };
+(() => { let y0 = null;
+  [panel.querySelector(".grip"), panel.querySelector(".p-head")].forEach((el) => { el.addEventListener("touchstart", (e) => y0 = e.touches[0].clientY, { passive: true });
+    el.addEventListener("touchend", (e) => { if (y0 != null && e.changedTouches[0].clientY - y0 > 70) $("pClose").click(); y0 = null; }); });
+})();
+
+/* ---------- prediction runs (Web Worker for long periods) ---------- */
+let worker = null, result = null, page = 0, tab = "ext";
+function getWorker() {
+  if (worker) return worker;
+  const src = `${tidaraEngineFactory.toString()}\nconst E = tidaraEngineFactory();
+onmessage = (e) => { const m = e.data; let last = 0;
+  const prog = (p) => { if (p - last > 0.02) { last = p; postMessage({ type: "p", p }); } };
+  const series = E.series(m.st, m.start, m.step, m.n, (p) => prog(p * 0.5));
+  const ex = E.extremes(m.st, m.start, m.start + (m.n - 1) * m.step, (p) => prog(0.5 + p * 0.5));
+  postMessage({ type: "done", id: m.id, series, ex }, [series.buffer, ex.t.buffer, ex.h.buffer, ex.hw.buffer]); };`;
+  try { worker = new Worker(URL.createObjectURL(new Blob([src], { type: "text/javascript" }))); } catch (e) { worker = null; }
+  return worker;
+}
+const MAXPTS = 6e6;
+function runPrediction() {
+  const s = state.sel; if (!s) return;
+  const tz = $("fTz").value, v = $("fStart").value; if (!v) { toast(t("chooseStart")); return; }
+  const [d, tm] = v.split("T"), [Y, M, D] = d.split("-").map(Number), [hh, mm] = (tm || "00:00").split(":").map(Number);
+  const start = tz === "local" ? new Date(Y, M - 1, D, hh, mm).getTime() : Date.UTC(Y, M - 1, D, hh, mm) - (+tz) * HOUR;
+  const L = Math.max(1, +$("fLen").value || 1), u = $("fUnit").value;
+  let end;
+  if (u === "h") end = start + L * HOUR; else if (u === "d") end = start + L * DAY;
+  else { const e = new Date(start); if (u === "m") e.setUTCMonth(e.getUTCMonth() + L); else e.setUTCFullYear(e.getUTCFullYear() + L); end = e.getTime(); }
+  let step = +$("fStep").value * 60000, n = Math.floor((end - start) / step) + 1;
+  if (n > MAXPTS) {
+    const need = [1, 5, 10, 15, 30, 60].find((o) => (end - start) / (o * 60000) + 1 <= MAXPTS) || 60;
+    step = need * 60000; n = Math.floor((end - start) / step) + 1; $("fStep").value = need; toast(t("autoStep", { n: need }));
+  }
+  const msg = { id: Date.now(), st: { c: s.c }, start, step, n };
+  const prog = $("prog"), bar = prog.firstElementChild; $("fRun").disabled = true;
+  const finish = (series, ex) => {
+    $("fRun").disabled = false; prog.style.display = "none"; $("fHint").textContent = "";
+    result = { s, start, step, n, series, ex, tz, datum: $("fDatum").value, off: { LAT: s.mslLat, MSL: 0, HAT: -s.datums.HAT }[$("fDatum").value] };
+    result.view = [start, start + (n - 1) * step]; page = 0; showResult();
+  };
+  $("fHint").textContent = n > 200000 ? t("mpts", { n: nf(n / 1e6, 2) }) : "";
+  const w = n > 20000 ? getWorker() : null;
+  if (w) {
+    prog.style.display = "block"; bar.style.width = "0";
+    w.onmessage = (e) => { if (e.data.type === "p") bar.style.width = (e.data.p * 100).toFixed(1) + "%"; else if (e.data.id === msg.id) finish(e.data.series, e.data.ex); };
+    w.postMessage(msg);
+  } else finish(E.series(msg.st, start, step, n), E.extremes(msg.st, start, start + (n - 1) * step));
+}
+$("pf").addEventListener("submit", (e) => { e.preventDefault(); runPrediction(); });
+
+const unitOf = (r) => ({ LAT: t("aboveLAT"), MSL: t("relMSL"), HAT: t("relHAT") })[r.datum];
+function showResult() {
+  const r = result; if (!r) return; $("out").hidden = false;
+  let hi = -1e9, lo = 1e9, hiT = 0, loT = 0;
+  for (let i = 0; i < r.ex.t.length; i++) { const h = r.ex.h[i]; if (h > hi) { hi = h; hiT = r.ex.t[i]; } if (h < lo) { lo = h; loT = r.ex.t[i]; } }
+  let nh = 0; for (let i = 0; i < r.ex.hw.length; i++) nh += r.ex.hw[i];
+  const span = (r.n - 1) * r.step, unit = unitOf(r);
+  const per = span >= 365 * DAY ? t("years", { n: nf(span / 365.25 / DAY, 1) }) : span >= 2 * DAY ? t("days", { n: nf(span / DAY, 1) }) : t("hours", { n: Math.round(span / HOUR) });
+  $("stats").innerHTML = `<div>${t("period")}<b>${per}</b></div>` +
+    `<div>${t("highest")} (${unit})<b>${nf(hi + r.off)}</b><span>${r.ex.t.length ? fISO(hiT, r.tz) : ""}</span></div>` +
+    `<div>${t("lowest")} (${unit})<b>${nf(lo + r.off)}</b><span>${r.ex.t.length ? fISO(loT, r.tz) : ""}</span></div>` +
+    `<div>${t("nHW")}<b>${nint(nh)}</b></div><div>${t("nLW")}<b>${nint(r.ex.t.length - nh)}</b></div><div>${t("points")}<b>${nint(r.n)}</b></div>`;
+  drawChart(); table();
+}
+
+const ch = $("chart");
+function drawChart(cross) {
+  const r = result; if (!r) return;
+  const w = ch.clientWidth, h = ch.clientHeight, k = dpr(); ch.width = w * k; ch.height = h * k;
+  const g = ch.getContext("2d"); g.setTransform(k, 0, 0, k, 0, 0);
+  const L = 40, R = 8, T = 10, B = 22, pw = w - L - R, ph = h - T - B;
+  const [v0, v1] = r.view, i0 = Math.max(0, Math.floor((v0 - r.start) / r.step)), i1 = Math.min(r.n - 1, Math.ceil((v1 - r.start) / r.step));
+  const cols = Math.max(1, Math.floor(pw)), mn = new Float32Array(cols).fill(1e9), mx = new Float32Array(cols).fill(-1e9);
+  let ylo = 1e9, yhi = -1e9;
+  for (let i = i0; i <= i1; i++) {
+    const tt = r.start + i * r.step, c = Math.min(cols - 1, Math.max(0, Math.floor((tt - v0) / (v1 - v0) * cols))), z = r.series[i] + r.off;
+    if (z < mn[c]) mn[c] = z; if (z > mx[c]) mx[c] = z; if (z < ylo) ylo = z; if (z > yhi) yhi = z;
+  }
+  if (ylo > yhi) { ylo = 0; yhi = 1; }
+  const padY = (yhi - ylo) * 0.08 || 0.1; ylo -= padY; yhi += padY;
+  const xs = (v) => L + (v - v0) / (v1 - v0) * pw, ys = (z) => T + (yhi - z) / (yhi - ylo) * ph;
+  g.font = "10.5px " + getComputedStyle(document.body).fontFamily; g.fillStyle = C.muted; g.strokeStyle = C.line; g.lineWidth = 1;
+  const rng = yhi - ylo, st = [0.05, 0.1, 0.2, 0.25, 0.5, 1, 2].find((x) => rng / x <= 6) || 5;
+  g.textBaseline = "middle";
+  for (let z = Math.ceil(ylo / st) * st; z <= yhi; z += st) { g.beginPath(); g.moveTo(L, ys(z)); g.lineTo(w - R, ys(z)); g.stroke(); g.fillText(nf(z, st < 0.1 ? 2 : 1), 4, ys(z)); }
+  const span = v1 - v0, cand = [HOUR, 3 * HOUR, 6 * HOUR, 12 * HOUR, DAY, 2 * DAY, 7 * DAY, 30.44 * DAY, 91.3 * DAY, 365.25 * DAY, 5 * 365.25 * DAY, 10 * 365.25 * DAY, 25 * 365.25 * DAY];
+  const tk = cand.find((c) => span / c <= Math.max(3, pw / 80)) || cand[cand.length - 1];
+  g.textBaseline = "top";
+  const off = offH(v0, r.tz) * HOUR; let v = Math.ceil((v0 + off) / tk) * tk - off;
+  if (tk >= 30 * DAY) { const p = parts(v0, r.tz); v = Date.UTC(p.Y, tk >= 365 * DAY ? 0 : p.M, 1) - off; }
+  for (let guard = 0; v <= v1 && guard < 200; guard++) {
+    if (v >= v0) {
+      const p = parts(v, r.tz), lab = tk < DAY ? `${pad(p.h)}:${pad(p.m)}` : tk < 30 * DAY ? `${p.D} ${mon(p.M)}` : tk < 365 * DAY ? `${mon(p.M)} ${p.Y}` : `${p.Y}`;
+      g.beginPath(); g.moveTo(xs(v), T); g.lineTo(xs(v), T + ph); g.stroke();
+      if (xs(v) + 3 + g.measureText(lab).width < w) g.fillText(lab, xs(v) + 3, T + ph + 5);
+    }
+    if (tk >= 365 * DAY) { const p = parts(v, r.tz); v = Date.UTC(p.Y + Math.round(tk / (365.25 * DAY)), 0, 1) - off; }
+    else if (tk >= 30 * DAY) { const p = parts(v, r.tz); v = Date.UTC(p.Y, p.M + Math.round(tk / (30.44 * DAY)), 1) - off; }
+    else v += tk;
+  }
+  const grad = g.createLinearGradient(0, T, 0, T + ph); grad.addColorStop(0, C.accent + "59"); grad.addColorStop(1, C.accent + "00");
+  g.beginPath(); let started = false;
+  for (let c = 0; c < cols; c++) { if (mx[c] < -1e8) continue; const x = L + c + 0.5; if (!started) { g.moveTo(x, ys(mx[c])); started = true; } else g.lineTo(x, ys(mx[c])); }
+  for (let c = cols - 1; c >= 0; c--) { if (mx[c] < -1e8) continue; g.lineTo(L + c + 0.5, ys(mn[c])); }
+  g.closePath(); g.fillStyle = grad;
+  if ((i1 - i0) > cols * 1.5) { g.fill(); g.strokeStyle = C.accent; g.lineWidth = 1; g.stroke(); }
+  else {
+    g.beginPath(); for (let i = i0; i <= i1; i++) { const x = xs(r.start + i * r.step), y = ys(r.series[i] + r.off); i === i0 ? g.moveTo(x, y) : g.lineTo(x, y); }
+    g.strokeStyle = C.accent; g.lineWidth = 2; g.stroke();
+    const ex = r.ex; let cnt = 0;
+    for (let j = 0; j < ex.t.length && cnt < 400; j++) { if (ex.t[j] < v0 || ex.t[j] > v1) continue; cnt++;
+      g.beginPath(); g.arc(xs(ex.t[j]), ys(ex.h[j] + r.off), 3.2, 0, 7); g.fillStyle = ex.hw[j] ? C.hw : C.lw; g.fill(); }
+  }
+  if (cross) {
+    const tt = v0 + (cross - L) / pw * (v1 - v0);
+    if (tt >= r.start && tt <= r.start + (r.n - 1) * r.step) {
+      const i = Math.round((tt - r.start) / r.step), z = r.series[i] + r.off, x = xs(r.start + i * r.step);
+      g.strokeStyle = C.muted; g.beginPath(); g.moveTo(x, T); g.lineTo(x, T + ph); g.stroke();
+      g.beginPath(); g.arc(x, ys(z), 4, 0, 7); g.fillStyle = C.ink; g.fill();
+      $("cross").textContent = `${fISO(r.start + i * r.step, r.tz)} ${zoneAbbr(r.start + i * r.step, r.tz)} · ${nf(z, 3)} m`;
+    }
+  } else $("cross").textContent = "";
+}
+(() => {
+  const box = $("chartbox"), P = new Map(); let p0 = null;
+  const rel = (e) => e.clientX - box.getBoundingClientRect().left;
+  const clamp = () => { const r = result, a = r.start, b = r.start + (r.n - 1) * r.step; let [v0, v1] = r.view; const w = Math.min(b - a, Math.max(v1 - v0, r.step * 10));
+    if (v0 < a) v0 = a; if (v0 + w > b) v0 = b - w; r.view = [Math.max(a, v0), Math.max(a, v0) + w]; };
+  const zoom = (f, x) => { const r = result; if (!r) return; const pw = box.clientWidth - 48, [v0, v1] = r.view, tt = v0 + (x - 40) / pw * (v1 - v0); r.view = [tt - (tt - v0) * f, tt + (v1 - tt) * f]; clamp(); drawChart(); };
+  box.addEventListener("wheel", (e) => { if (!result) return; e.preventDefault(); zoom(Math.exp(e.deltaY * 0.0018), rel(e)); }, { passive: false });
+  box.addEventListener("pointerdown", (e) => { box.setPointerCapture(e.pointerId); P.set(e.pointerId, e.clientX); if (P.size === 2) { const [a, b] = [...P.values()]; p0 = { d: Math.abs(a - b), v: result.view.slice() }; } });
+  box.addEventListener("pointermove", (e) => {
+    if (!result) return;
+    if (!P.has(e.pointerId)) { drawChart(rel(e)); return; }
+    const prev = P.get(e.pointerId); P.set(e.pointerId, e.clientX);
+    if (P.size === 2 && p0) { const [a, b] = [...P.values()], d = Math.abs(a - b) || 1; const c = (p0.v[0] + p0.v[1]) / 2, half = (p0.v[1] - p0.v[0]) / 2 * p0.d / d; result.view = [c - half, c + half]; clamp(); drawChart(); return; }
+    const dt = (e.clientX - prev) / (box.clientWidth - 48) * (result.view[1] - result.view[0]);
+    result.view = [result.view[0] - dt, result.view[1] - dt]; clamp(); drawChart(rel(e));
+  });
+  const end = (e) => { P.delete(e.pointerId); if (P.size < 2) p0 = null; };
+  box.addEventListener("pointerup", end); box.addEventListener("pointercancel", end);
+  box.addEventListener("pointerleave", () => result && drawChart());
+  box.addEventListener("dblclick", () => { if (result) { result.view = [result.start, result.start + (result.n - 1) * result.step]; drawChart(); } });
+})();
+
+document.querySelectorAll(".tabs button").forEach((b) => b.onclick = () => { tab = b.dataset.tab; page = 0; document.querySelectorAll(".tabs button").forEach((x) => x.classList.toggle("on", x === b)); table(); });
+const PER = 50;
+function table() {
+  const r = result; if (!r) return;
+  const unit = unitOf(r), zl = zoneAbbr(r.start, r.tz);
+  const total = tab === "ext" ? r.ex.t.length : r.n, pages = Math.max(1, Math.ceil(total / PER));
+  page = Math.max(0, Math.min(pages - 1, page)); const a = page * PER, b = Math.min(total, a + PER);
+  let html;
+  if (tab === "ext") {
+    html = `<tr><th>${t("date")}</th><th>${t("time")} (${zl})</th><th></th><th class="r">${unit}</th></tr>`;
+    for (let i = a; i < b; i++) { const v = r.ex.t[i], hw = r.ex.hw[i]; html += `<tr><td>${fDate(v, r.tz)}</td><td>${fTime(v, r.tz)}</td><td class="${hw ? "hw" : "lw"}">${hw ? t("high") : t("low")}</td><td class="r">${nf(r.ex.h[i] + r.off)}</td></tr>`; }
+  } else {
+    html = `<tr><th>${t("dateTime")} (${zl})</th><th class="r">${unit}</th></tr>`;
+    for (let i = a; i < b; i++) html += `<tr><td>${fISO(r.start + i * r.step, r.tz)}</td><td class="r">${nf(r.series[i] + r.off, 3)}</td></tr>`;
+  }
+  $("tbl").innerHTML = `<table>${html}</table>`;
+  $("pager").innerHTML = `<button id="pg0" ${page ? "" : "disabled"}>${t("first")}</button><button id="pgp" ${page ? "" : "disabled"}>${t("prev")}</button><span class="num">${t("pageOf", { a: nint(page + 1), b: nint(pages) })}</span><button id="pgn" ${page < pages - 1 ? "" : "disabled"}>${t("next")}</button><button id="pgl" ${page < pages - 1 ? "" : "disabled"}>${t("last")}</button>`;
+  $("pg0").onclick = () => { page = 0; table(); }; $("pgp").onclick = () => { page--; table(); };
+  $("pgn").onclick = () => { page++; table(); }; $("pgl").onclick = () => { page = pages - 1; table(); };
+}
+
+/* CSV export. English: comma-separated, decimal point. Indonesian: semicolon-separated, decimal comma
+   (opens directly in Excel set to Indonesian regional settings). */
+function csvParts(kind) {
+  const r = result, id = ID(), sep = id ? ";" : ",", num = (v, d) => id ? v.toFixed(d).replace(".", ",") : v.toFixed(d);
+  const hcol = { LAT: t("csvHLAT"), MSL: t("csvHMSL"), HAT: t("csvHHAT") }[r.datum], za = zoneAbbr(r.start, r.tz), zo = offStr(offH(r.start, r.tz)), zl = za === zo ? za : `${za} (${zo})`;
+  const head = `﻿# ${t("csvTitle")} - ${r.s.name} (${r.s.code}); ${t("csvAstro")}; ${t("csvTimes")} ${zl}; (c) 2026 Aldwin Syahperdana\n`;
+  const out = [];
+  if (kind === "ext") {
+    let buf = head + [t("csvDate"), t("csvType"), hcol].join(sep) + "\n";
+    for (let i = 0; i < r.ex.t.length; i++) { buf += `${fISO(r.ex.t[i], r.tz)}${sep}${r.ex.hw[i] ? t("csvHW") : t("csvLW")}${sep}${num(r.ex.h[i] + r.off, 3)}\n`; if (buf.length > 1e6) { out.push(buf); buf = ""; } }
+    out.push(buf);
+  } else {
+    let buf = head + [t("csvDate"), hcol].join(sep) + "\n";
+    for (let i = 0; i < r.n; i++) { buf += `${fISO(r.start + i * r.step, r.tz)}${sep}${num(r.series[i] + r.off, 3)}\n`; if (buf.length > 4e6) { out.push(buf); buf = ""; } }
+    out.push(buf);
+  }
+  return out;
+}
+let saver = null;
+try { if (window.claude && typeof window.claude.use === "function") window.claude.use("downloads").then((d) => { saver = d; }).catch(() => {}); } catch (e) {}
+async function download(kind) {
+  if (!result) return;
+  const r = result, name = `tidara_${r.s.code}_${fISO(r.start, r.tz).slice(0, 10)}_${kind === "ext" ? t("fileHL") : t("fileSer")}.csv`;
+  const blob = new Blob(csvParts(kind), { type: "text/csv" });
+  if (saver) {
+    try { await saver.save({ filename: name, data: blob }); toast(t("saved", { f: name })); }
+    catch (e) { if (e && e.code !== "declined") toast(e.code === "too_large" ? t("tooLarge") : t("dlUnavail")); }
+    return;
+  }
+  try {
+    const url = URL.createObjectURL(blob), a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000); toast(t("downloading", { f: name, s: nf(blob.size / 1e6, 1) }));
+  } catch (e) { toast(t("dlFail", { e: e.message })); }
+}
+$("dlExt").onclick = () => download("ext"); $("dlSer").onclick = () => download("ser");
+$("cpExt").onclick = async () => {
+  if (!result) return; const txt = csvParts("ext").join("").replace(/^﻿/, "");
+  if (txt.length > 8e6) { toast(t("tooBigCopy")); return; }
+  try { await navigator.clipboard.writeText(txt); toast(t("copied", { n: nint(result.ex.t.length) })); } catch (e) { toast(t("copyBlocked")); }
+};
+
+/* ---------- language / theme refresh ---------- */
+function applyLang() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => el.textContent = t(el.dataset.i18n));
+  $("q").placeholder = t("search"); $("q").setAttribute("aria-label", t("search"));
+  $("map").setAttribute("aria-label", t("mapLbl")); panel.setAttribute("aria-label", t("panelLbl")); $("pClose").setAttribute("aria-label", t("close"));
+  $("zin").setAttribute("aria-label", t("zin")); $("zout").setAttribute("aria-label", t("zout"));
+  $("play").setAttribute("aria-label", state.playing ? t("pause") : t("play")); $("tz").setAttribute("aria-label", t("mapTz"));
+  const u = $("fUnit").options; ["h", "d", "m", "y"].forEach((k, i) => u[i].textContent = t("u_" + k));
+  const st = $("fStep").options; [1, 5, 10, 15, 30, 60].forEach((n, i) => st[i].textContent = n === 1 ? t("min1") : n === 60 ? t("hour1") : t("minN", { n }));
+  const dm = $("fDatum").options; dm[0].textContent = t("hLAT"); dm[1].textContent = t("hMSL"); dm[2].textContent = t("hHAT");
+  const keepTz = $("tz").value || "local"; $("tz").innerHTML = tzOptions(-1); $("tz").value = keepTz;
+  if (state.sel) { const k = $("fTz").value; $("fTz").innerHTML = tzOptions(state.sel.tz); $("fTz").value = k || "local"; stationStatic(); updateNow(); }
+  buildLayers(); legend(); setTime(state.t, true); showResult();
+}
+PR.onChange(() => { readTheme(); applyLang(); drawTrack(); draw(); if (result) drawChart(); });
+
+/* ---------- start ---------- */
+addEventListener("resize", () => { resize(); if (result) drawChart(); });
+readTheme(); setRange(); computeValues(); fit(); resize(); applyLang(); setTime(Date.now());
+setInterval(() => { if (!state.playing && Math.abs(state.t - Date.now()) < 120000) setTime(Date.now(), true); }, 60000);
+const h0 = (location.hash || "").slice(1).toUpperCase();
+if (byCode[h0]) select(byCode[h0], true);
+addEventListener("hashchange", () => { const c = location.hash.slice(1).toUpperCase(); if (byCode[c] && state.sel !== byCode[c]) select(byCode[c], true); });
+</script>
+</body>
+</html>

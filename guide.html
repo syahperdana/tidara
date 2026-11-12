@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidara User Guide</title>
+<meta name="description" content="How to use Tidara, the Indonesian tide prediction map.">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<script src="assets/prefs.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="site"><div class="in">
+  <a class="brand" href="index.html"><img src="assets/logo.svg" alt="">tidara</a>
+  <nav><a href="guide.html" aria-current="page"><span data-l="en">User guide</span><span data-l="id">Panduan</span></a><a href="science.html"><span data-l="en">Science</span><span data-l="id">Sains</span></a><a class="cta" href="index.html"><span data-l="en">Open the map</span><span data-l="id">Buka peta</span></a><button class="js-lang" type="button">ID</button><button class="js-theme" type="button"></button></nav>
+</div></header>
+
+<div class="wrap" data-l="en">
+  <aside class="toc">
+    <b>On this page</b>
+    <a href="#features">Features</a>
+    <a href="#start">Getting started</a>
+    <a href="#map">Using the map</a>
+    <a href="#station">The station panel</a>
+    <a href="#predict">Running a prediction</a>
+    <a href="#results">Reading the results</a>
+    <a href="#export">Exporting data</a>
+    <a href="#numbers">What the numbers mean</a>
+    <a href="#faq">Questions</a>
+    <a href="#hosting">Hosting the site</a>
+  </aside>
+  <main>
+    <h1>User guide</h1>
+    <p class="lede">Tidara predicts the tide at 303 tide gauge stations around Indonesia, from a few hours ahead to a hundred years ahead, using harmonic constants derived from the national tide gauge network.</p>
+
+    <h2 id="features">Features</h2>
+    <div class="features">
+      <div class="feat"><span class="k">MAP</span><b>303 stations on one map</b><span>Every station with harmonic constants, from Sabang to Merauke. Stations without data are shown as hollow rings.</span></div>
+      <div class="feat"><span class="k">LIVE</span><b>Water level right now</b><span>Each station is coloured by where the tide is within its own range, with an arrow for rising or falling.</span></div>
+      <div class="feat"><span class="k">TIMELINE</span><b>Play the next week</b><span>Drag or play the timeline to watch high and low water sweep across the archipelago, hour by hour.</span></div>
+      <div class="feat"><span class="k">LAYERS</span><b>Four ways to view the network</b><span>Water level, tidal range (HAT − LAT), tide type and data quality grade.</span></div>
+      <div class="feat"><span class="k">PREDICT</span><b>Hours to 100 years</b><span>Any start date, any length, at 1 to 60 minute intervals. Long runs are computed in the background in a few seconds.</span></div>
+      <div class="feat"><span class="k">TABLES</span><b>High and low waters</b><span>Times and heights of every high and low water, plus the full time series, page by page.</span></div>
+      <div class="feat"><span class="k">CHART</span><b>Zoomable tide curve</b><span>Pan and zoom from a 100-year overview down to individual tides, on mouse or touch.</span></div>
+      <div class="feat"><span class="k">EXPORT</span><b>CSV download and copy</b><span>Save high/low waters or the full series as CSV for Excel, GIS or engineering software.</span></div>
+      <div class="feat"><span class="k">LOCAL</span><b>Local time and datums</b><span>Times in your zone, WIB, WITA, WIT or UTC; heights above LAT (chart datum), relative to mean sea level or relative to HAT.</span></div>
+      <div class="feat"><span class="k">TRANSPARENT</span><b>Constants and accuracy</b><span>Each station shows its tidal levels, harmonic constants and how well it predicted data it had never seen.</span></div>
+      <div class="feat"><span class="k">MOBILE</span><b>Works on phones</b><span>Touch-friendly map with pinch zoom and a bottom sheet for station details.</span></div>
+      <div class="feat"><span class="k">THEMES</span><b>Day and night mode</b><span>A light day theme and a dark night theme. Tidara follows your device setting; switch any time with the sun/moon button.</span></div>
+      <div class="feat"><span class="k">LANGUAGE</span><b>English and Bahasa Indonesia</b><span>The whole site, including this guide and the CSV exports, is available in both languages. Press <b>ID</b> or <b>EN</b> in the top bar.</span></div>
+      <div class="feat"><span class="k">YOUR TIME</span><b>Your own time zone</b><span>Clocks and predictions open in your device's time zone (including daylight saving abroad), with WIB, WITA, WIT and UTC one click away.</span></div>
+      <div class="feat"><span class="k">LIGHT</span><b>Small and self-contained</b><span>About 200 KB to download (compressed), no server and no map tiles: copy the folder to any web host.</span></div>
+    </div>
+
+    <h2 id="start">Getting started</h2>
+    <ol class="steps">
+      <li><b>Find a station.</b> Click a dot on the map, or type a name, code or province in the search box (for example <kbd>Makassar</kbd>, <kbd>UJPD</kbd> or <kbd>Maluku</kbd>) and press Enter.</li>
+      <li><b>Read the current tide.</b> The panel opens with the water level at the selected time, whether it is rising or falling, and the next high and low water.</li>
+      <li><b>Run a prediction.</b> A 3-day prediction starting today runs automatically. Change the start, length, interval, time zone or height reference and press <b>Predict tides</b>.</li>
+      <li><b>Explore and export.</b> Zoom the chart, page through the high and low water table, and download or copy the results.</li>
+    </ol>
+    <div class="note">You can link straight to a station by adding its code to the address, for example <code>index.html#SRBY</code> opens Surabaya.</div>
+
+    <h2 id="map">Using the map</h2>
+    <div class="tbl"><table>
+      <tr><th>To</th><th>Mouse</th><th>Touch</th></tr>
+      <tr><td>Move the map</td><td>Drag</td><td>Drag with one finger</td></tr>
+      <tr><td>Zoom</td><td>Scroll wheel, double-click, or the + and − buttons</td><td>Pinch</td></tr>
+      <tr><td>See a station's value</td><td>Hover over the dot</td><td>Tap the dot (opens the panel)</td></tr>
+      <tr><td>Open a station</td><td>Click the dot</td><td>Tap the dot</td></tr>
+      <tr><td>Change the map time</td><td>Drag the timeline handle or click on the track</td><td>Drag the timeline handle</td></tr>
+      <tr><td>Animate the tide</td><td>Press the play button (one hour per step); press again to pause</td><td>Same</td></tr>
+    </table></div>
+    <p>The timeline covers yesterday to seven days ahead. The yellow tick marks the current time and <b>Now</b> jumps back to it. The clock opens in <b>your time</b>, the time zone of your device, so a visitor in Jakarta sees WIB and a visitor in London sees UK time. The selector beside the timeline switches the map to WIB, WITA, WIT or UTC.</p>
+    <h3>Day and night mode, language</h3>
+    <p>The sun/moon button in the top bar switches between the light day theme and the dark night theme; by default Tidara follows your device. The <b>ID</b> / <b>EN</b> button switches the whole site between English and Bahasa Indonesia. Both choices are remembered on your device.</p>
+    <h3>Map layers</h3>
+    <div class="tbl"><table>
+      <tr><th>Layer</th><th>What the colour shows</th></tr>
+      <tr><td>Water level</td><td>Where the predicted tide is between the station's lowest (LAT, purple) and highest (HAT, orange) astronomical tide. Because each station is scaled to its own range, a station with a 0.8 m range and one with a 6 m range can both show "high water" in orange. When zoomed in, labels give the height above LAT and a small arrow shows rising or falling.</td></tr>
+      <tr><td>Tidal range</td><td>HAT − LAT in metres, from under 1 m (northern Sumatra) to over 6 m (Merauke).</td></tr>
+      <tr><td>Tide type</td><td>Semidiurnal (two tides a day), mixed, or diurnal (one tide a day), from the Formzahl ratio.</td></tr>
+      <tr><td>Data quality</td><td>Grade A, B or C (see <a href="#numbers">What the numbers mean</a>).</td></tr>
+    </table></div>
+    <p>Untick <b>Stations without data</b> to hide the hollow rings for gauges that had no usable observations.</p>
+
+    <h2 id="station">The station panel</h2>
+    <p>On a computer the panel opens on the right; on a phone it slides up from the bottom (swipe the header down or press ✕ to close). It contains:</p>
+    <ul>
+      <li><b>At the selected time:</b> the water level at the timeline time, the trend, and the next high and low water.</li>
+      <li><b>Tide prediction:</b> the prediction form, results, chart, tables and exports.</li>
+      <li><b>Station:</b> location, coordinates, local time zone, the observation record used, accuracy and tide type.</li>
+      <li><b>Tidal levels:</b> HAT, MHWS, MHWN, MSL, MLWN, MLWS and LAT, both above LAT and relative to MSL.</li>
+      <li><b>Harmonic constants:</b> amplitude and phase of each constituent (the ten largest, or all of them).</li>
+    </ul>
+
+    <h2 id="predict">Running a prediction</h2>
+    <div class="tbl"><table>
+      <tr><th>Setting</th><th>Meaning</th></tr>
+      <tr><td>Start</td><td>Date and time of the first value, in the chosen time zone.</td></tr>
+      <tr><td>Length</td><td>A number of hours, days, months or years. There is no upper limit on length; 100 years is fine.</td></tr>
+      <tr><td>Interval</td><td>Time between values in the series: 1, 5, 10, 15, 30 or 60 minutes. High and low waters are always found to the minute, whatever interval you choose.</td></tr>
+      <tr><td>Time zone</td><td><b>Your time</b> (default: your device's zone, including daylight saving where it applies), or WIB (UTC+7), WITA (UTC+8), WIT (UTC+9) or UTC. The station's own zone is marked "station" in the list.</td></tr>
+      <tr><td>Heights</td><td>Metres above LAT (chart datum, matches nautical charts and BIG's tide tables), metres relative to mean sea level, or metres relative to HAT (0 at the highest astronomical tide, values below it negative, useful for clearance under bridges and structures).</td></tr>
+    </table></div>
+    <p>A single run can hold up to 6 million values. If a long run at a short interval would exceed that, Tidara raises the interval automatically and tells you (for example, 100 years at 10-minute steps is 5.3 million values and runs as asked; 100 years at 1-minute steps is set to 10 minutes). On a typical laptop a 100-year run takes 2 to 5 seconds, with a progress bar.</p>
+
+    <h2 id="results">Reading the results</h2>
+    <ul>
+      <li><b>Summary:</b> period, highest and lowest predicted water with their times, number of high and low waters, and number of values.</li>
+      <li><b>Chart:</b> the tide curve with high waters (blue dots) and low waters (orange dots) when zoomed in. Drag to pan, scroll or pinch to zoom, double-click to reset. Hover or touch to read the exact time and height.</li>
+      <li><b>High &amp; low waters:</b> date, time, type and height of every turning point.</li>
+      <li><b>Time series:</b> every value at the chosen interval.</li>
+    </ul>
+
+    <h2 id="export">Exporting data</h2>
+    <p><b>Download high/low CSV</b> and <b>Download series CSV</b> save comma-separated files with a one-line header describing the station, time zone and height reference, then columns <code>date_time,type,height_m_above_LAT</code> (or <code>height_m_rel_MSL</code>, <code>height_m_rel_HAT</code>). <b>Copy high/low</b> puts the same table on the clipboard, ready to paste into Excel.</p>
+    <p>When the site is in Bahasa Indonesia, the CSV is written in Indonesian too: column names <code>tanggal_waktu;jenis;tinggi_m_di_atas_LAT</code>, types <code>Tinggi</code>/<code>Rendah</code>, semicolons between columns and a decimal comma (for example <code>1,483</code>), which Excel with Indonesian regional settings opens correctly.</p>
+    <div class="note">A 100-year series at 10-minute steps is about 120 MB of CSV. For long periods, export the high and low waters (about 4 MB per 100 years), or use a 1-hour interval. When Tidara is viewed inside Claude, each download asks you to confirm first; on your own web server or from the files on your computer it downloads straight away.</div>
+
+    <h2 id="numbers">What the numbers mean</h2>
+    <div class="tbl"><table>
+      <tr><th>Term</th><th>Meaning</th></tr>
+      <tr><td>LAT</td><td>Lowest Astronomical Tide: the lowest level predicted over an 18.6-year lunar nodal cycle. Used as chart datum.</td></tr>
+      <tr><td>HAT</td><td>Highest Astronomical Tide: the highest level predicted over the same cycle.</td></tr>
+      <tr><td>MSL</td><td>Mean sea level over the station's observation record (2021–2026).</td></tr>
+      <tr><td>MHWS / MLWS</td><td>Mean high / low water springs: MSL ± (M2 + S2).</td></tr>
+      <tr><td>MHWN / MLWN</td><td>Mean high / low water neaps: MSL ± (M2 − S2). Where S2 is larger than M2 these come out reversed; use HAT/LAT and the predicted tides there.</td></tr>
+      <tr><td>Grade A</td><td>At least a year of clean data and at least 95% of the water-level variance explained on data held back from the analysis.</td></tr>
+      <tr><td>Grade B</td><td>Good constants from a shorter record, or 90–95% skill.</td></tr>
+      <tr><td>Grade C</td><td>Short or difficult records. Check predictions against observations before relying on them.</td></tr>
+      <tr><td>Skill and RMSE</td><td>From the hold-out test: share of variance explained and root-mean-square error in the held-back period.</td></tr>
+    </table></div>
+
+    <h2 id="faq">Questions</h2>
+    <h3>Why does the real sea level differ from the prediction?</h3>
+    <p>Tidara predicts the astronomical tide. Wind, air pressure, monsoon sea-level changes, river floods and waves can add or remove tens of centimetres, more during storms. Typical differences are 5–15 cm.</p>
+    <h3>Why can a long prediction go slightly below LAT?</h3>
+    <p>LAT is computed over 2026–2044. Over a century the lunar and solar cycles line up in ways that can produce a tide a few centimetres lower or higher, so values marginally below 0 m above LAT are expected in very long runs.</p>
+    <h3>Are 100-year predictions reliable?</h3>
+    <p>The astronomy is predictable for centuries, so the timing and size of the tides stay accurate. What the prediction cannot know is how mean sea level will change through sea-level rise, land subsidence or harbour works. Add a sea-level scenario separately for long-term design.</p>
+    <h3>Which time zone should I use?</h3>
+    <p>Your own time zone is selected automatically. For a tide table to use at the station, pick the zone marked "station". Use UTC to combine stations across zones or for scientific work.</p>
+
+    <h2 id="hosting">Hosting the site</h2>
+    <p>Tidara is a static website: copy the whole folder to any web host (GitHub Pages, Netlify, an S3 bucket or a company web server) and open <code>index.html</code>. It also runs straight from the folder on your computer. The files are:</p>
+    <div class="tbl"><table>
+      <tr><th>File</th><th>Purpose</th></tr>
+      <tr><td><code>index.html</code></td><td>The map and prediction tool</td></tr>
+      <tr><td><code>guide.html</code>, <code>science.html</code></td><td>This guide and the science background</td></tr>
+      <tr><td><code>assets/tidara-data.js</code></td><td>Station metadata, tidal levels and harmonic constants</td></tr>
+      <tr><td><code>assets/tide-engine.js</code></td><td>The prediction engine (also used in a background worker)</td></tr>
+      <tr><td><code>assets/basemap.js</code></td><td>Coastlines and borders (Natural Earth, public domain)</td></tr>
+      <tr><td><code>assets/prefs.js</code></td><td>Remembers language and day/night mode</td></tr>
+      <tr><td><code>assets/site.css</code>, <code>assets/logo.svg</code></td><td>Styles for these pages and the logo</td></tr>
+    </table></div>
+    <p>To update the constants after a new analysis, replace <code>assets/tidara-data.js</code>.</p>
+  </main>
+</div>
+<div class="wrap" data-l="id">
+  <aside class="toc">
+    <b>Di halaman ini</b>
+    <a href="#id-features">Fitur</a>
+    <a href="#id-start">Memulai</a>
+    <a href="#id-map">Menggunakan peta</a>
+    <a href="#id-station">Panel stasiun</a>
+    <a href="#id-predict">Menjalankan prediksi</a>
+    <a href="#id-results">Membaca hasil</a>
+    <a href="#id-export">Mengekspor data</a>
+    <a href="#id-numbers">Arti angka-angka</a>
+    <a href="#id-faq">Pertanyaan</a>
+    <a href="#id-hosting">Memasang situs</a>
+  </aside>
+  <main>
+    <h1>Panduan pengguna</h1>
+    <p class="lede">Tidara memprediksi pasang surut di 303 stasiun pengamatan pasut di seluruh Indonesia, mulai dari beberapa jam hingga seratus tahun ke depan, menggunakan konstanta harmonik yang diturunkan dari jaringan stasiun pasut nasional.</p>
+
+    <h2 id="id-features">Fitur</h2>
+    <div class="features">
+      <div class="feat"><span class="k">PETA</span><b>303 stasiun dalam satu peta</b><span>Semua stasiun yang memiliki konstanta harmonik, dari Sabang sampai Merauke. Stasiun tanpa data ditampilkan sebagai lingkaran kosong.</span></div>
+      <div class="feat"><span class="k">LANGSUNG</span><b>Muka air saat ini</b><span>Setiap stasiun diberi warna sesuai posisi pasut dalam rentang tunggangnya sendiri, dengan panah naik atau turun.</span></div>
+      <div class="feat"><span class="k">LINI WAKTU</span><b>Putar seminggu ke depan</b><span>Geser atau putar lini waktu untuk melihat air tinggi dan air rendah bergerak melintasi Nusantara, jam demi jam.</span></div>
+      <div class="feat"><span class="k">LAPISAN</span><b>Empat cara melihat jaringan</b><span>Muka air, tunggang pasut (HAT − LAT), tipe pasut, dan kelas kualitas data.</span></div>
+      <div class="feat"><span class="k">PREDIKSI</span><b>Dari jam hingga 100 tahun</b><span>Tanggal mulai bebas, durasi bebas, interval 1 sampai 60 menit. Perhitungan panjang berjalan di latar belakang dalam beberapa detik.</span></div>
+      <div class="feat"><span class="k">TABEL</span><b>Air tinggi dan air rendah</b><span>Waktu dan ketinggian setiap air tinggi dan air rendah, serta deret waktu lengkap, per halaman.</span></div>
+      <div class="feat"><span class="k">GRAFIK</span><b>Kurva pasut yang dapat diperbesar</b><span>Geser dan perbesar dari ringkasan 100 tahun hingga satu siklus pasut, dengan tetikus atau sentuhan.</span></div>
+      <div class="feat"><span class="k">EKSPOR</span><b>Unduh CSV dan salin</b><span>Simpan air tinggi/rendah atau deret waktu lengkap sebagai CSV untuk Excel, GIS, atau perangkat lunak rekayasa.</span></div>
+      <div class="feat"><span class="k">LOKAL</span><b>Waktu setempat dan datum peta</b><span>Waktu dalam zona Anda, WIB, WITA, WIT, atau UTC; ketinggian di atas LAT (datum peta), terhadap muka laut rata-rata, atau terhadap HAT.</span></div>
+      <div class="feat"><span class="k">TEMA</span><b>Mode siang dan malam</b><span>Tema terang untuk siang dan tema gelap untuk malam. Tidara mengikuti pengaturan perangkat Anda; ganti kapan saja dengan tombol matahari/bulan.</span></div>
+      <div class="feat"><span class="k">BAHASA</span><b>Bahasa Inggris dan Indonesia</b><span>Seluruh situs, termasuk panduan ini dan berkas CSV, tersedia dalam dua bahasa. Tekan <b>ID</b> atau <b>EN</b> di bilah atas.</span></div>
+      <div class="feat"><span class="k">WAKTU ANDA</span><b>Zona waktu Anda sendiri</b><span>Jam dan prediksi otomatis memakai zona waktu perangkat Anda (termasuk waktu musim panas di luar negeri); WIB, WITA, WIT, dan UTC tinggal satu klik.</span></div>
+      <div class="feat"><span class="k">TRANSPARAN</span><b>Konstanta dan akurasi</b><span>Setiap stasiun menampilkan elevasi pasut, konstanta harmonik, dan seberapa baik prediksinya pada data yang belum pernah dilihat.</span></div>
+      <div class="feat"><span class="k">PONSEL</span><b>Nyaman di ponsel</b><span>Peta ramah sentuhan dengan cubit untuk memperbesar dan lembar bawah untuk rincian stasiun.</span></div>
+      <div class="feat"><span class="k">RINGAN</span><b>Kecil dan mandiri</b><span>Sekitar 200 KB untuk diunduh (terkompresi), tanpa server dan tanpa ubin peta: cukup salin foldernya ke hosting web mana pun.</span></div>
+    </div>
+
+    <h2 id="id-start">Memulai</h2>
+    <ol class="steps">
+      <li><b>Cari stasiun.</b> Klik titik di peta, atau ketik nama, kode, atau provinsi di kotak pencarian (misalnya <kbd>Makassar</kbd>, <kbd>UJPD</kbd>, atau <kbd>Maluku</kbd>) lalu tekan Enter.</li>
+      <li><b>Baca kondisi pasut.</b> Panel terbuka dengan muka air pada waktu terpilih, apakah sedang naik atau turun, serta air tinggi dan air rendah berikutnya.</li>
+      <li><b>Jalankan prediksi.</b> Prediksi 3 hari mulai hari ini berjalan otomatis. Ubah waktu mulai, durasi, interval, zona waktu, atau acuan ketinggian lalu tekan <b>Hitung prediksi</b>.</li>
+      <li><b>Jelajahi dan ekspor.</b> Perbesar grafik, telusuri tabel air tinggi dan rendah per halaman, lalu unduh atau salin hasilnya.</li>
+    </ol>
+    <div class="note">Anda dapat menautkan langsung ke sebuah stasiun dengan menambahkan kodenya di alamat, misalnya <code>index.html#SRBY</code> membuka Surabaya.</div>
+
+    <h2 id="id-map">Menggunakan peta</h2>
+    <div class="tbl"><table>
+      <tr><th>Untuk</th><th>Tetikus</th><th>Sentuhan</th></tr>
+      <tr><td>Menggeser peta</td><td>Seret</td><td>Seret dengan satu jari</td></tr>
+      <tr><td>Memperbesar</td><td>Roda gulir, klik dua kali, atau tombol + dan −</td><td>Cubit</td></tr>
+      <tr><td>Melihat nilai stasiun</td><td>Arahkan kursor ke titik</td><td>Ketuk titik (membuka panel)</td></tr>
+      <tr><td>Membuka stasiun</td><td>Klik titik</td><td>Ketuk titik</td></tr>
+      <tr><td>Mengubah waktu peta</td><td>Seret pegangan lini waktu atau klik pada jalurnya</td><td>Seret pegangan lini waktu</td></tr>
+      <tr><td>Menganimasikan pasut</td><td>Tekan tombol putar (satu jam per langkah); tekan lagi untuk jeda</td><td>Sama</td></tr>
+    </table></div>
+    <p>Lini waktu mencakup kemarin hingga tujuh hari ke depan. Garis kuning menandai waktu sekarang dan tombol <b>Sekarang</b> kembali ke sana. Jam otomatis memakai <b>waktu Anda</b>, yaitu zona waktu perangkat Anda: pengunjung di Jakarta melihat WIB, pengunjung di London melihat waktu Inggris. Pilihan di samping lini waktu dapat mengganti jam peta ke WIB, WITA, WIT, atau UTC.</p>
+    <h3>Mode siang dan malam, bahasa</h3>
+    <p>Tombol matahari/bulan di bilah atas mengganti tema terang (siang) dan tema gelap (malam); bawaannya mengikuti perangkat Anda. Tombol <b>ID</b> / <b>EN</b> mengganti seluruh situs antara Bahasa Indonesia dan Bahasa Inggris. Kedua pilihan diingat di perangkat Anda.</p>
+    <h3>Lapisan peta</h3>
+    <div class="tbl"><table>
+      <tr><th>Lapisan</th><th>Arti warna</th></tr>
+      <tr><td>Muka air</td><td>Posisi pasut prediksi di antara air terendah astronomis (LAT, ungu) dan air tertinggi astronomis (HAT, jingga) stasiun itu sendiri. Karena tiap stasiun diskalakan dengan rentangnya sendiri, stasiun dengan tunggang 0,8 m dan stasiun dengan tunggang 6 m sama-sama tampil jingga saat air tinggi. Saat diperbesar, label menunjukkan ketinggian di atas LAT dan panah kecil menunjukkan naik atau turun.</td></tr>
+      <tr><td>Tunggang pasut</td><td>HAT − LAT dalam meter, dari kurang dari 1 m (Sumatra bagian utara) hingga lebih dari 6 m (Merauke).</td></tr>
+      <tr><td>Tipe pasut</td><td>Harian ganda (dua kali pasang sehari), campuran, atau harian tunggal (sekali pasang sehari), berdasarkan bilangan Formzahl.</td></tr>
+      <tr><td>Kualitas data</td><td>Kelas A, B, atau C (lihat <a href="#id-numbers">Arti angka-angka</a>).</td></tr>
+    </table></div>
+    <p>Hilangkan centang <b>Stasiun tanpa data</b> untuk menyembunyikan lingkaran kosong bagi stasiun yang tidak memiliki data pengamatan yang dapat dipakai.</p>
+
+    <h2 id="id-station">Panel stasiun</h2>
+    <p>Di komputer panel terbuka di sisi kanan; di ponsel panel muncul dari bawah (usap kepala panel ke bawah atau tekan ✕ untuk menutup). Isinya:</p>
+    <ul>
+      <li><b>Pada waktu terpilih:</b> muka air pada waktu lini waktu, arahnya, serta air tinggi dan air rendah berikutnya.</li>
+      <li><b>Prediksi pasang surut:</b> formulir prediksi, hasil, grafik, tabel, dan ekspor.</li>
+      <li><b>Stasiun:</b> lokasi, koordinat, zona waktu setempat, rekaman data yang dipakai, akurasi, dan tipe pasut.</li>
+      <li><b>Elevasi pasut:</b> HAT, MHWS, MHWN, MSL, MLWN, MLWS, dan LAT, baik di atas LAT maupun terhadap MSL.</li>
+      <li><b>Konstanta harmonik:</b> amplitudo dan fase setiap komponen pasut (sepuluh terbesar, atau semuanya).</li>
+    </ul>
+
+    <h2 id="id-predict">Menjalankan prediksi</h2>
+    <div class="tbl"><table>
+      <tr><th>Pengaturan</th><th>Arti</th></tr>
+      <tr><td>Mulai</td><td>Tanggal dan jam nilai pertama, dalam zona waktu yang dipilih.</td></tr>
+      <tr><td>Durasi</td><td>Jumlah jam, hari, bulan, atau tahun. Tidak ada batas atas durasi; 100 tahun tidak masalah.</td></tr>
+      <tr><td>Interval</td><td>Jarak waktu antarnilai dalam deret: 1, 5, 10, 15, 30, atau 60 menit. Air tinggi dan air rendah selalu dihitung hingga ketelitian menit, berapa pun intervalnya.</td></tr>
+      <tr><td>Zona waktu</td><td><b>Waktu Anda</b> (bawaan: zona perangkat Anda, termasuk waktu musim panas bila berlaku), atau WIB (UTC+7), WITA (UTC+8), WIT (UTC+9), atau UTC. Zona stasiun ditandai "stasiun" dalam daftar.</td></tr>
+      <tr><td>Ketinggian</td><td>Meter di atas LAT (datum peta, sesuai peta laut dan tabel pasut BIG), meter terhadap muka laut rata-rata, atau meter terhadap HAT (0 pada air tertinggi astronomis, nilai di bawahnya negatif, berguna untuk ruang bebas di bawah jembatan dan bangunan).</td></tr>
+    </table></div>
+    <p>Satu perhitungan dapat memuat hingga 6 juta nilai. Bila perhitungan panjang dengan interval pendek melebihi batas itu, Tidara otomatis memperbesar interval dan memberi tahu Anda (misalnya, 100 tahun dengan interval 10 menit berisi 5,3 juta nilai dan berjalan sesuai permintaan; 100 tahun dengan interval 1 menit diubah menjadi 10 menit). Pada laptop biasa, perhitungan 100 tahun memakan waktu 2 sampai 5 detik, dengan bilah kemajuan.</p>
+
+    <h2 id="id-results">Membaca hasil</h2>
+    <ul>
+      <li><b>Ringkasan:</b> periode, air tertinggi dan terendah beserta waktunya, jumlah air tinggi dan air rendah, serta jumlah nilai.</li>
+      <li><b>Grafik:</b> kurva pasut dengan air tinggi (titik biru) dan air rendah (titik jingga) saat diperbesar. Seret untuk menggeser, gulir atau cubit untuk memperbesar, klik dua kali untuk mengatur ulang. Arahkan kursor atau sentuh untuk membaca waktu dan ketinggian.</li>
+      <li><b>Air tinggi &amp; rendah:</b> tanggal, jam, jenis, dan ketinggian setiap titik balik.</li>
+      <li><b>Deret waktu:</b> setiap nilai pada interval yang dipilih.</li>
+    </ul>
+
+    <h2 id="id-export">Mengekspor data</h2>
+    <p><b>Unduh CSV tinggi/rendah</b> dan <b>Unduh CSV deret waktu</b> menyimpan berkas dengan satu baris keterangan (stasiun, zona waktu, dan acuan ketinggian), lalu kolom data. <b>Salin tinggi/rendah</b> menyalin tabel yang sama ke papan klip, siap ditempel ke Excel.</p>
+    <p>Dalam Bahasa Indonesia, CSV juga ditulis dalam Bahasa Indonesia: kolom <code>tanggal_waktu;jenis;tinggi_m_di_atas_LAT</code> (atau <code>tinggi_m_thd_MSL</code>, <code>tinggi_m_thd_HAT</code>), jenis <code>Tinggi</code>/<code>Rendah</code>, titik koma sebagai pemisah kolom, dan koma desimal (misalnya <code>1,483</code>), sehingga langsung terbaca benar oleh Excel dengan pengaturan wilayah Indonesia. Dalam Bahasa Inggris, CSV memakai koma sebagai pemisah dan titik desimal.</p>
+    <div class="note">Deret 100 tahun dengan interval 10 menit berukuran sekitar 120 MB. Untuk periode panjang, ekspor air tinggi dan rendah saja (sekitar 4 MB per 100 tahun), atau gunakan interval 1 jam. Saat Tidara dibuka di dalam Claude, setiap unduhan meminta konfirmasi terlebih dahulu; di server web Anda sendiri atau dari berkas di komputer, unduhan langsung berjalan.</div>
+
+    <h2 id="id-numbers">Arti angka-angka</h2>
+    <div class="tbl"><table>
+      <tr><th>Istilah</th><th>Arti</th></tr>
+      <tr><td>LAT</td><td>Lowest Astronomical Tide (air terendah astronomis): muka air terendah yang diprediksi selama satu siklus nodal bulan 18,6 tahun. Dipakai sebagai datum peta.</td></tr>
+      <tr><td>HAT</td><td>Highest Astronomical Tide (air tertinggi astronomis): muka air tertinggi dalam siklus yang sama.</td></tr>
+      <tr><td>MSL</td><td>Mean Sea Level (muka laut rata-rata) selama periode rekaman stasiun (2021–2026).</td></tr>
+      <tr><td>MHWS / MLWS</td><td>Rata-rata air tinggi / rendah purnama: MSL ± (M2 + S2).</td></tr>
+      <tr><td>MHWN / MLWN</td><td>Rata-rata air tinggi / rendah perbani: MSL ± (M2 − S2). Di lokasi dengan S2 lebih besar daripada M2 nilainya terbalik; gunakan HAT/LAT dan pasut prediksi di lokasi tersebut.</td></tr>
+      <tr><td>Kelas A</td><td>Minimal satu tahun data bersih dan minimal 95% varians muka air terjelaskan pada data uji yang disisihkan dari analisis.</td></tr>
+      <tr><td>Kelas B</td><td>Konstanta baik dari rekaman yang lebih pendek, atau akurasi 90–95%.</td></tr>
+      <tr><td>Kelas C</td><td>Rekaman pendek atau bermasalah. Periksa prediksi terhadap pengamatan sebelum diandalkan.</td></tr>
+      <tr><td>Akurasi dan RMSE</td><td>Dari uji data yang disisihkan: persentase varians terjelaskan dan galat akar kuadrat rata-rata pada periode uji.</td></tr>
+    </table></div>
+
+    <h2 id="id-faq">Pertanyaan</h2>
+    <h3>Mengapa muka laut sebenarnya berbeda dari prediksi?</h3>
+    <p>Tidara memprediksi pasut astronomis. Angin, tekanan udara, perubahan muka laut musiman (monsun), banjir sungai, dan gelombang dapat menambah atau mengurangi puluhan sentimeter, lebih besar lagi saat badai. Selisih umumnya 5–15 cm.</p>
+    <h3>Mengapa prediksi panjang dapat sedikit di bawah LAT?</h3>
+    <p>LAT dihitung untuk periode 2026–2044. Dalam satu abad, siklus bulan dan matahari dapat berpadu sehingga pasut beberapa sentimeter lebih rendah atau lebih tinggi, sehingga nilai sedikit di bawah 0 m di atas LAT wajar pada prediksi yang sangat panjang.</p>
+    <h3>Apakah prediksi 100 tahun dapat diandalkan?</h3>
+    <p>Gerak benda langit dapat diprediksi hingga berabad-abad, sehingga waktu dan besar pasut tetap akurat. Yang tidak dapat diketahui adalah perubahan muka laut rata-rata akibat kenaikan muka laut, penurunan tanah, atau pembangunan pelabuhan. Tambahkan skenario muka laut secara terpisah untuk perencanaan jangka panjang.</p>
+    <h3>Zona waktu mana yang sebaiknya dipakai?</h3>
+    <p>Zona waktu Anda dipilih otomatis. Untuk tabel pasut yang dipakai di lokasi stasiun, pilih zona yang bertanda "stasiun". Gunakan UTC untuk menggabungkan stasiun lintas zona atau untuk keperluan ilmiah.</p>
+
+    <h2 id="id-hosting">Memasang situs</h2>
+    <p>Tidara adalah situs statis: salin seluruh folder ke hosting web mana pun (GitHub Pages, Netlify, bucket S3, atau server web kantor) lalu buka <code>index.html</code>. Situs juga dapat dibuka langsung dari folder di komputer Anda. Berkasnya:</p>
+    <div class="tbl"><table>
+      <tr><th>Berkas</th><th>Fungsi</th></tr>
+      <tr><td><code>index.html</code></td><td>Peta dan alat prediksi</td></tr>
+      <tr><td><code>guide.html</code>, <code>science.html</code></td><td>Panduan ini dan latar belakang ilmiah</td></tr>
+      <tr><td><code>assets/tidara-data.js</code></td><td>Metadata stasiun, elevasi pasut, dan konstanta harmonik</td></tr>
+      <tr><td><code>assets/tide-engine.js</code></td><td>Mesin prediksi (juga dipakai di pekerja latar belakang)</td></tr>
+      <tr><td><code>assets/basemap.js</code></td><td>Garis pantai dan batas negara (Natural Earth, domain publik)</td></tr>
+      <tr><td><code>assets/prefs.js</code></td><td>Mengingat pilihan bahasa dan mode siang/malam</td></tr>
+      <tr><td><code>assets/site.css</code>, <code>assets/logo.svg</code></td><td>Gaya halaman ini dan logo</td></tr>
+    </table></div>
+    <p>Untuk memperbarui konstanta setelah analisis baru, ganti berkas <code>assets/tidara-data.js</code>.</p>
+  </main>
+</div>
+<footer class="site"><div class="in">
+  <span><span data-l="en">© 2026 Aldwin Syahperdana. All rights reserved.</span><span data-l="id">© 2026 Aldwin Syahperdana. Hak cipta dilindungi.</span></span>
+  <span><span data-l="en">Observations: Badan Informasi Geospasial (BIG) tide gauge network · Base map: Natural Earth</span><span data-l="id">Data pengamatan: jaringan stasiun pasut Badan Informasi Geospasial (BIG) · Peta dasar: Natural Earth</span></span>
+</div></footer>
+<script>TidaraPrefs.onChange(() => { document.title = TidaraPrefs.lang === "id" ? 'Panduan Tidara' : 'Tidara User Guide'; });</script>
+</body>
+</html>

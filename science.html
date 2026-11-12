@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Science Behind Tidara</title>
+<meta name="description" content="Data, methods and validation behind the Tidara tide predictions for Indonesia.">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<script src="assets/prefs.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  .fig-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 14px; margin-bottom: 8px; }
+  .fig-controls select { font: inherit; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  #anat { width: 100%; height: 420px; display: block; }
+  .fig-controls select { max-width: 100%; min-width: 0; }
+  @media (max-width: 600px) { #anat { height: 300px; } .fig-controls label { width: 100%; } .fig-controls select { width: 100%; } }
+  .keys { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+  .keys i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+</style>
+</head>
+<body>
+<header class="site"><div class="in">
+  <a class="brand" href="index.html"><img src="assets/logo.svg" alt="">tidara</a>
+  <nav><a href="guide.html"><span data-l="en">User guide</span><span data-l="id">Panduan</span></a><a href="science.html" aria-current="page"><span data-l="en">Science</span><span data-l="id">Sains</span></a><a class="cta" href="index.html"><span data-l="en">Open the map</span><span data-l="id">Buka peta</span></a><button class="js-lang" type="button">ID</button><button class="js-theme" type="button"></button></nav>
+</div></header>
+
+<div class="wrap" data-l="en">
+  <aside class="toc">
+    <b>On this page</b>
+    <a href="#tides">Why the sea rises and falls</a>
+    <a href="#anatomy">Anatomy of a tide</a>
+    <a href="#method">Harmonic analysis</a>
+    <a href="#data">The observations</a>
+    <a href="#qc">Quality control</a>
+    <a href="#validation">How accurate is it?</a>
+    <a href="#datums">Tidal levels and tide types</a>
+    <a href="#limits">Limitations</a>
+    <a href="#glossary">Glossary</a>
+    <a href="#refs">References</a>
+  </aside>
+  <main>
+    <h1>The science behind Tidara</h1>
+    <p class="lede">Tidara's predictions come from harmonic constants that were derived independently from 4.6 years of one-minute sea-level records at Indonesia's national tide gauges, then tested against data the analysis had never seen.</p>
+    <div class="kpis">
+      <div><b>303</b>stations with constants</div>
+      <div><b>3.0 yr</b>median clean record per station</div>
+      <div><b>48</b>tidal constituents (typical)</div>
+      <div><b>97.9%</b>median skill on unseen data</div>
+      <div><b>6.4 cm</b>median prediction error (RMSE)</div>
+    </div>
+
+    <h2 id="tides">Why the sea rises and falls</h2>
+    <p>The Moon and the Sun pull slightly harder on the side of the Earth facing them than on its centre, and slightly less on the far side. The ocean responds with two bulges that the Earth rotates beneath, which is why many coasts see two high waters a day. The Moon's orbit is tilted and elliptical, the Sun adds its own pull, and each ocean basin resonates in its own way, so the real tide at any harbour is a blend of many regular oscillations.</p>
+    <p>Each oscillation is a <b>tidal constituent</b> with a precisely known speed set by astronomy. The principal lunar semidiurnal constituent M2 repeats every 12.42 hours; the solar S2 every 12.00 hours; the luni-solar diurnal K1 every 23.93 hours; the lunar diurnal O1 every 25.82 hours. When M2 and S2 line up (new and full Moon) the range is largest: <b>spring tides</b>. When they oppose, the range is smallest: <b>neap tides</b>.</p>
+    <p>Indonesia sits where the Indian and Pacific Oceans meet through dozens of straits and shallow seas, so its tides are unusually varied: semidiurnal along the Indian Ocean coast of Sumatra and Java, diurnal in parts of the Java Sea and Makassar Strait, and a range of more than 6 m at Merauke on the Arafura Sea.</p>
+
+    <h2 id="anatomy">Anatomy of a tide</h2>
+    <p>Pick a station to see how its four largest constituents add up to the tide. The thin lines are the constituents, the thick line is the full prediction from all constituents.</p>
+    <div class="fig-slot" data-fig="en"></div>
+
+    <h2 id="method">Harmonic analysis</h2>
+    <p>The water level at a station is modelled as mean sea level plus a sum of cosine waves, one per constituent:</p>
+    <div class="eq"><i>h</i>(<i>t</i>) = <i>Z</i><sub>0</sub> + Σ<sub><i>j</i></sub> <i>f<sub>j</sub></i>(<i>t</i>) · <i>H<sub>j</sub></i> · cos[ <i>V<sub>j</sub></i>(<i>t</i>) + <i>u<sub>j</sub></i>(<i>t</i>) − <i>g<sub>j</sub></i> ]</div>
+    <div class="tbl"><table>
+      <tr><th>Symbol</th><th>Meaning</th><th>Where it comes from</th></tr>
+      <tr><td><i>Z</i><sub>0</sub></td><td>Mean sea level at the gauge</td><td>Fitted from the observations</td></tr>
+      <tr><td><i>H<sub>j</sub></i>, <i>g<sub>j</sub></i></td><td>Amplitude (m) and Greenwich phase lag (°) of constituent <i>j</i>: the harmonic constants</td><td>Fitted from the observations, one pair per constituent</td></tr>
+      <tr><td><i>V<sub>j</sub></i>(<i>t</i>)</td><td>Equilibrium argument: the astronomical phase of the constituent at time <i>t</i></td><td>Computed from the mean longitudes of the Moon (<i>s</i>), Sun (<i>h</i>), lunar perigee (<i>p</i>), lunar node (<i>N</i>), solar perigee and the hour angle of the mean Sun, following Schureman (1958)</td></tr>
+      <tr><td><i>f<sub>j</sub></i>, <i>u<sub>j</sub></i></td><td>Nodal corrections to amplitude and phase</td><td>Slow modulation by the 18.61-year cycle of the lunar node (about ±19% for O1, ±11% for K1 and ±4% for M2)</td></tr>
+    </table></div>
+    <p>Because <i>V</i>, <i>f</i> and <i>u</i> are pure astronomy, once <i>H</i> and <i>g</i> are known the tide can be computed for any moment in the past or future. That is what the Tidara engine does in your browser.</p>
+    <h3>Fitting the constants</h3>
+    <p>For each station, the constants were found by least squares: the model above is fitted to every valid hourly observation at once, with the cosine and sine parts of each constituent as unknowns. Outliers beyond five robust standard deviations were down-weighted in up to four iterations. Up to 48 constituents were used, chosen in priority order and kept only when the record is long enough to separate them from their neighbours (the Rayleigh criterion: the record must contain at least one full beat cycle between two constituents). With the typical three-year record all 48 are resolved, including the annual Sa and semi-annual Ssa cycles and shallow-water constituents such as M4, MS4 and M6. For short records, P1, K2, ν2 and T2 were inferred from K1, S2 and N2 using their equilibrium amplitude ratios.</p>
+    <div class="tbl"><table>
+      <tr><th>Group</th><th>Constituents</th></tr>
+      <tr><td>Long period</td><td>Sa, Ssa, Mm, MSf, Mf</td></tr>
+      <tr><td>Diurnal</td><td>2Q1, σ1, Q1, ρ1, O1, M1, π1, P1, S1, K1, ψ1, φ1, θ1, J1, SO1, OO1</td></tr>
+      <tr><td>Semidiurnal</td><td>2N2, μ2, N2, ν2, M2, λ2, L2, T2, S2, R2, K2, 2SM2</td></tr>
+      <tr><td>Shallow water</td><td>MO3, M3, SO3, MK3, SK3, MN4, M4, MS4, MK4, S4, 2MN6, M6, 2MS6, 2SM6, M8</td></tr>
+    </table></div>
+
+    <h2 id="data">The observations</h2>
+    <p>The data are the one-minute records of the tide gauge network operated by Badan Informasi Geospasial (BIG), from October 2021 to May 2026. Most gauges carry up to three independent sensors: a pressure transducer (PRS1), a float with a shaft encoder (ENC1) and a radar (RAD1). All times are UTC, which was confirmed from the daily cycle of each gauge's solar-panel voltage.</p>
+    <ul>
+      <li>318 station data folders and 319 station description sheets were processed, about 100 GB of 14-day and 24-day files.</li>
+      <li>On the data owner's computer, every file was reduced to one value per hour and per sensor: the median of the readings within ±5 minutes of the hour. A short median removes spikes without smoothing the tide (a full-hour average would flatten M2 by about 1% and M6 by about 10%).</li>
+      <li>Station positions, addresses and BIG's published tidal levels were read from the station description sheets.</li>
+    </ul>
+
+    <h2 id="qc">Quality control</h2>
+    <p>Raw tide gauge records contain stuck sensors, drifts, spikes and re-levelling jumps. Each station went through the same automatic steps:</p>
+    <ol class="steps">
+      <li><b>Remove impossible values and dead sensors.</b> Zero readings, gross outliers and flat lines (a 13-hour window with almost no change) were rejected. A sensor that is flat throughout was dropped.</li>
+      <li><b>Choose a reference sensor.</b> Each sensor was fitted on its own; the one whose tide model explained the most variance became the reference, so a drifting float cannot steer the result.</li>
+      <li><b>Check each sensor against the tide.</b> Hours far from the predicted tide (spikes) were removed, and whole days were removed when the daily tidal amplitude was wrong (gain outside 0.75–1.25, as when a float sticks) or when one sensor's level drifted away from the others.</li>
+      <li><b>Combine sensors.</b> Valid sensors were aligned to the reference and combined by median.</li>
+      <li><b>Fix datum steps.</b> Level jumps of more than 0.2 m after maintenance or re-installation were detected from daily residual levels and the affected segments shifted back, or dropped if shorter than three days.</li>
+      <li><b>Handle low-water clipping.</b> Where a gauge dries out at low tide, values pile up at a floor; those hours were excluded so they cannot bias the fit.</li>
+      <li><b>Final sweep.</b> Remaining outliers and isolated single hours were removed before the final analysis.</li>
+    </ol>
+    <p>After quality control the median station kept 66% of all hours in the 4.6-year period. Thirteen stations had empty data folders and two had too little data to analyse; they are listed in the project report.</p>
+
+    <h2 id="validation">How accurate is it?</h2>
+    <h3>Hold-out test</h3>
+    <p>For every station the last 10% of its record (30 to 90 days) was set aside. Constants were fitted on the rest, used to predict the held-back period, and compared with what the gauge measured. Across 296 testable stations the predictions explained a median <b>97.9%</b> of the water-level variance; <b>246</b> stations reached 95% or more and 284 reached 90%. The median root-mean-square error was <b>6.4 cm</b>. Almost all of the remaining error is weather and seasonal sea level, which no astronomical prediction can capture.</p>
+    <p>The weakest results are on the north coast of Java (Semarang, Pekalongan, Cirebon, Sunda Kelapa), where the tide is small, the land is subsiding and rivers affect the gauges, and at a few short or difficult records.</p>
+    <h3>Comparison with BIG's published levels</h3>
+    <p>BIG's station sheets give MSL and LAT computed from nine constituents over one year (2024). Processing Tidara's constants the same way reproduces BIG's MSL−LAT within 5 cm at 76% and within 10 cm at 89% of the 261 stations that publish it. Tidara's own LAT uses all constituents over the full 18.6-year nodal cycle (the IHO definition), so it is typically 10–20 cm lower than BIG's.</p>
+    <h3>Quality grades</h3>
+    <div class="tbl"><table>
+      <tr><th>Grade</th><th>Rule</th><th class="n">Stations</th></tr>
+      <tr><td>A</td><td>At least 1 year of clean data and at least 95% skill in the hold-out test</td><td class="n">236</td></tr>
+      <tr><td>B</td><td>At least 6 months and at least 90% skill (or no valid hold-out test), or grade A with low-water clipping</td><td class="n">46</td></tr>
+      <tr><td>C</td><td>Shorter or lower-skill records</td><td class="n">21</td></tr>
+    </table></div>
+
+    <h2 id="datums">Tidal levels and tide types</h2>
+    <p>HAT and LAT are the highest and lowest values of an 18.61-year prediction (2026–2044, 20-minute steps) using all astronomical constituents. MHWS and MLWS are MSL ± (M2 + S2); MHWN and MLWN are MSL ± (M2 − S2). Tidara reports every level relative to MSL and gives MSL above LAT, so heights can be shown on chart datum.</p>
+    <p>The tide type follows the Formzahl ratio <i>F</i> = (K1 + O1) / (M2 + S2):</p>
+    <div class="tbl"><table>
+      <tr><th>Formzahl</th><th>Type</th><th>What you see</th><th class="n">Stations</th></tr>
+      <tr><td>F ≤ 0.25</td><td>Semidiurnal</td><td>Two similar high and low waters a day</td><td class="n">7</td></tr>
+      <tr><td>0.25 – 1.5</td><td>Mixed, mainly semidiurnal</td><td>Two tides a day of unequal height</td><td class="n">267</td></tr>
+      <tr><td>1.5 – 3.0</td><td>Mixed, mainly diurnal</td><td>Often one tide a day, two at times</td><td class="n">14</td></tr>
+      <tr><td>F &gt; 3.0</td><td>Diurnal</td><td>One high and one low water a day</td><td class="n">15</td></tr>
+    </table></div>
+
+    <h2 id="limits">Limitations</h2>
+    <ul>
+      <li><b>Astronomical tide only.</b> Storm surges, wind set-up, monsoon sea-level anomalies, river discharge and waves are not included.</li>
+      <li><b>Local mean sea level.</b> MSL is the mean of each gauge's 2021–2026 record. It is not tied to a national vertical datum or to the station's benchmark (TKG), and it does not include future sea-level rise or land subsidence, which matter for predictions decades ahead.</li>
+      <li><b>Station changes.</b> If a gauge is moved or the harbour is dredged, its tide can change; constants should be refreshed with new data.</li>
+      <li><b>Short records.</b> Grade C stations and records under a year resolve fewer constituents and capture the seasonal cycle less well.</li>
+      <li><b>Not for navigation.</b> Use official tide tables and charts for navigation and safety-critical work.</li>
+    </ul>
+
+    <h2 id="glossary">Glossary</h2>
+    <div class="tbl"><table>
+      <tr><td><b>Amplitude (H)</b></td><td>Half the height swing of one constituent, in metres.</td></tr>
+      <tr><td><b>Phase lag (g)</b></td><td>How far, in degrees, the constituent's high water lags its astronomical forcing at Greenwich (UTC).</td></tr>
+      <tr><td><b>Chart datum</b></td><td>The reference level for depths on nautical charts; in Indonesia, LAT.</td></tr>
+      <tr><td><b>Nodal cycle</b></td><td>The 18.61-year rotation of the Moon's orbital plane that slowly modulates the tides.</td></tr>
+      <tr><td><b>Rayleigh criterion</b></td><td>Two constituents can be separated only if the record covers at least one cycle of their difference in speed.</td></tr>
+      <tr><td><b>Spring and neap tides</b></td><td>The largest and smallest tidal ranges of the roughly 14.8-day cycle.</td></tr>
+      <tr><td><b>Hold-out test</b></td><td>Checking a model on data it was not fitted to.</td></tr>
+    </table></div>
+
+    <h2 id="refs">References</h2>
+    <ul>
+      <li>Pugh, D. and Woodworth, P. (2014). <i>Sea-Level Science: Understanding Tides, Surges, Tsunamis and Mean Sea-Level Changes.</i> Cambridge University Press.</li>
+      <li>Schureman, P. (1958). <i>Manual of Harmonic Analysis and Prediction of Tides.</i> US Coast and Geodetic Survey, Special Publication 98.</li>
+      <li>Foreman, M. G. G. (1977, revised 2004). <i>Manual for Tidal Heights Analysis and Prediction.</i> Institute of Ocean Sciences, Pacific Marine Science Report 77-10.</li>
+      <li>Pawlowicz, R., Beardsley, B. and Lentz, S. (2002). Classical tidal harmonic analysis including error estimates in MATLAB using T_TIDE. <i>Computers &amp; Geosciences</i> 28, 929–937.</li>
+      <li>Meeus, J. (1998). <i>Astronomical Algorithms</i>, 2nd ed. Willmann-Bell.</li>
+      <li>International Hydrographic Organization. <i>IHO Hydrographic Dictionary</i> and IHO Resolution 3/1919 on chart datum (LAT).</li>
+      <li>Badan Informasi Geospasial. Tide gauge station description sheets and one-minute observations.</li>
+    </ul>
+  </main>
+</div>
+<div class="wrap" data-l="id">
+  <aside class="toc">
+    <b>Di halaman ini</b>
+    <a href="#id-tides">Mengapa laut naik dan turun</a>
+    <a href="#id-anatomy">Anatomi pasang surut</a>
+    <a href="#id-method">Analisis harmonik</a>
+    <a href="#id-data">Data pengamatan</a>
+    <a href="#id-qc">Kendali mutu</a>
+    <a href="#id-validation">Seberapa akurat?</a>
+    <a href="#id-datums">Elevasi dan tipe pasut</a>
+    <a href="#id-limits">Keterbatasan</a>
+    <a href="#id-glossary">Glosarium</a>
+    <a href="#id-refs">Pustaka</a>
+  </aside>
+  <main>
+    <h1>Sains di balik Tidara</h1>
+    <p class="lede">Prediksi Tidara berasal dari konstanta harmonik yang diturunkan secara mandiri dari rekaman muka laut per menit selama 4,6 tahun di stasiun pasut nasional Indonesia, lalu diuji pada data yang belum pernah dilihat oleh analisis.</p>
+    <div class="kpis">
+      <div><b>303</b>stasiun dengan konstanta</div>
+      <div><b>3,0 thn</b>median rekaman bersih per stasiun</div>
+      <div><b>48</b>komponen pasut (umumnya)</div>
+      <div><b>97,9%</b>median akurasi pada data uji</div>
+      <div><b>6,4 cm</b>median galat prediksi (RMSE)</div>
+    </div>
+
+    <h2 id="id-tides">Mengapa laut naik dan turun</h2>
+    <p>Bulan dan matahari menarik sisi bumi yang menghadap mereka sedikit lebih kuat daripada pusat bumi, dan sisi yang membelakangi sedikit lebih lemah. Lautan menanggapinya dengan dua tonjolan yang dilalui bumi saat berotasi; karena itu banyak pantai mengalami dua kali air tinggi sehari. Orbit bulan miring dan lonjong, matahari menambah tarikannya sendiri, dan setiap cekungan laut beresonansi dengan caranya sendiri, sehingga pasut di suatu pelabuhan merupakan perpaduan banyak osilasi yang teratur.</p>
+    <p>Setiap osilasi adalah sebuah <b>komponen pasut</b> dengan kecepatan yang diketahui dengan tepat dari astronomi. Komponen bulan harian ganda utama M2 berulang setiap 12,42 jam; komponen matahari S2 setiap 12,00 jam; komponen bulan-matahari harian K1 setiap 23,93 jam; komponen bulan harian O1 setiap 25,82 jam. Saat M2 dan S2 sefase (bulan baru dan purnama) tunggang pasut paling besar: <b>pasang purnama</b>. Saat berlawanan, tunggangnya paling kecil: <b>pasang perbani</b>.</p>
+    <p>Indonesia terletak di pertemuan Samudra Hindia dan Samudra Pasifik melalui puluhan selat dan laut dangkal, sehingga pasutnya sangat beragam: harian ganda di pantai barat Sumatra dan selatan Jawa, harian tunggal di sebagian Laut Jawa dan Selat Makassar, serta tunggang lebih dari 6 m di Merauke di Laut Arafura.</p>
+
+    <h2 id="id-anatomy">Anatomi pasang surut</h2>
+    <p>Pilih stasiun untuk melihat bagaimana empat komponen terbesarnya bersama-sama membentuk pasut. Garis tipis adalah komponen, garis tebal adalah prediksi lengkap dari semua komponen.</p>
+    <div class="fig-slot" data-fig="id"></div>
+
+    <h2 id="id-method">Analisis harmonik</h2>
+    <p>Muka air di sebuah stasiun dimodelkan sebagai muka laut rata-rata ditambah jumlah gelombang kosinus, satu untuk setiap komponen:</p>
+    <div class="eq"><i>h</i>(<i>t</i>) = <i>Z</i><sub>0</sub> + Σ<sub><i>j</i></sub> <i>f<sub>j</sub></i>(<i>t</i>) · <i>H<sub>j</sub></i> · cos[ <i>V<sub>j</sub></i>(<i>t</i>) + <i>u<sub>j</sub></i>(<i>t</i>) − <i>g<sub>j</sub></i> ]</div>
+    <div class="tbl"><table>
+      <tr><th>Simbol</th><th>Arti</th><th>Asal</th></tr>
+      <tr><td><i>Z</i><sub>0</sub></td><td>Muka laut rata-rata di stasiun</td><td>Diestimasi dari pengamatan</td></tr>
+      <tr><td><i>H<sub>j</sub></i>, <i>g<sub>j</sub></i></td><td>Amplitudo (m) dan keterlambatan fase Greenwich (°) komponen <i>j</i>: konstanta harmonik</td><td>Diestimasi dari pengamatan, satu pasang per komponen</td></tr>
+      <tr><td><i>V<sub>j</sub></i>(<i>t</i>)</td><td>Argumen setimbang: fase astronomis komponen pada waktu <i>t</i></td><td>Dihitung dari bujur rata-rata bulan (<i>s</i>), matahari (<i>h</i>), perigee bulan (<i>p</i>), simpul bulan (<i>N</i>), perihelion matahari, dan sudut jam matahari rata-rata, mengikuti Schureman (1958)</td></tr>
+      <tr><td><i>f<sub>j</sub></i>, <i>u<sub>j</sub></i></td><td>Koreksi nodal amplitudo dan fase</td><td>Modulasi lambat oleh siklus simpul bulan 18,61 tahun (sekitar ±19% untuk O1, ±11% untuk K1, dan ±4% untuk M2)</td></tr>
+    </table></div>
+    <p>Karena <i>V</i>, <i>f</i>, dan <i>u</i> murni astronomis, setelah <i>H</i> dan <i>g</i> diketahui pasut dapat dihitung untuk kapan pun di masa lalu maupun masa depan. Itulah yang dikerjakan mesin Tidara di peramban Anda.</p>
+    <h3>Mengestimasi konstanta</h3>
+    <p>Untuk setiap stasiun, konstanta dicari dengan metode kuadrat terkecil: model di atas dicocokkan sekaligus dengan semua pengamatan per jam yang valid, dengan bagian kosinus dan sinus setiap komponen sebagai bilangan tak diketahui. Pencilan di luar lima simpangan baku robust diberi bobot rendah dalam hingga empat iterasi. Hingga 48 komponen dipakai, dipilih menurut urutan prioritas dan dipertahankan hanya bila rekaman cukup panjang untuk memisahkannya dari komponen di dekatnya (kriteria Rayleigh: rekaman harus mencakup minimal satu siklus beda kecepatan dua komponen). Dengan rekaman umumnya tiga tahun, ke-48 komponen terpisahkan, termasuk siklus tahunan Sa dan setengah tahunan Ssa serta komponen perairan dangkal seperti M4, MS4, dan M6. Untuk rekaman pendek, P1, K2, ν2, dan T2 diturunkan dari K1, S2, dan N2 menggunakan rasio amplitudo setimbangnya.</p>
+    <div class="tbl"><table>
+      <tr><th>Kelompok</th><th>Komponen</th></tr>
+      <tr><td>Periode panjang</td><td>Sa, Ssa, Mm, MSf, Mf</td></tr>
+      <tr><td>Harian tunggal</td><td>2Q1, σ1, Q1, ρ1, O1, M1, π1, P1, S1, K1, ψ1, φ1, θ1, J1, SO1, OO1</td></tr>
+      <tr><td>Harian ganda</td><td>2N2, μ2, N2, ν2, M2, λ2, L2, T2, S2, R2, K2, 2SM2</td></tr>
+      <tr><td>Perairan dangkal</td><td>MO3, M3, SO3, MK3, SK3, MN4, M4, MS4, MK4, S4, 2MN6, M6, 2MS6, 2SM6, M8</td></tr>
+    </table></div>
+
+    <h2 id="id-data">Data pengamatan</h2>
+    <p>Data yang dipakai adalah rekaman per menit dari jaringan stasiun pasut yang dikelola Badan Informasi Geospasial (BIG), Oktober 2021 hingga Mei 2026. Sebagian besar stasiun memiliki hingga tiga sensor independen: sensor tekanan (PRS1), pelampung dengan penyandi poros (ENC1), dan radar (RAD1). Semua waktu dalam UTC, yang dipastikan dari siklus harian tegangan panel surya setiap stasiun.</p>
+    <ul>
+      <li>318 folder data stasiun dan 319 lembar deskripsi stasiun diolah, sekitar 100 GB berkas 14 harian dan 24 harian.</li>
+      <li>Di komputer pemilik data, setiap berkas diringkas menjadi satu nilai per jam per sensor: median pembacaan dalam ±5 menit dari setiap jam. Median singkat ini menghapus lonjakan tanpa menghaluskan pasut (rata-rata satu jam penuh akan meredam M2 sekitar 1% dan M6 sekitar 10%).</li>
+      <li>Posisi stasiun, alamat, dan elevasi pasut terbitan BIG dibaca dari lembar deskripsi stasiun.</li>
+    </ul>
+
+    <h2 id="id-qc">Kendali mutu</h2>
+    <p>Rekaman stasiun pasut mentah mengandung sensor macet, pergeseran, lonjakan, dan loncatan akibat penyetelan ulang. Setiap stasiun melalui langkah otomatis yang sama:</p>
+    <ol class="steps">
+      <li><b>Buang nilai mustahil dan sensor mati.</b> Pembacaan nol, pencilan besar, dan garis datar (jendela 13 jam yang hampir tidak berubah) ditolak. Sensor yang datar sepanjang rekaman tidak dipakai.</li>
+      <li><b>Pilih sensor acuan.</b> Setiap sensor dianalisis sendiri-sendiri; sensor yang model pasutnya menjelaskan varians terbesar menjadi acuan, sehingga pelampung yang bergeser tidak dapat memengaruhi hasil.</li>
+      <li><b>Periksa setiap sensor terhadap pasut.</b> Jam yang jauh dari pasut prediksi (lonjakan) dihapus, dan hari penuh dihapus bila amplitudo pasut hariannya salah (penguatan di luar 0,75–1,25, misalnya pelampung tersangkut) atau bila elevasi satu sensor bergeser menjauhi sensor lain.</li>
+      <li><b>Gabungkan sensor.</b> Sensor yang valid diselaraskan dengan acuan lalu digabung dengan median.</li>
+      <li><b>Perbaiki loncatan datum.</b> Loncatan elevasi lebih dari 0,2 m setelah perawatan atau pemasangan ulang dideteksi dari elevasi residu harian, lalu segmen yang terdampak digeser kembali, atau dibuang bila lebih pendek dari tiga hari.</li>
+      <li><b>Tangani pemotongan air rendah.</b> Bila stasiun mengering saat surut, nilai menumpuk di satu batas bawah; jam-jam tersebut dikeluarkan agar tidak membiaskan analisis.</li>
+      <li><b>Penyaringan akhir.</b> Pencilan yang tersisa dan nilai per jam yang terisolasi dihapus sebelum analisis akhir.</li>
+    </ol>
+    <p>Setelah kendali mutu, median stasiun mempertahankan 66% dari seluruh jam dalam periode 4,6 tahun. Tiga belas stasiun memiliki folder data kosong dan dua memiliki data terlalu sedikit untuk dianalisis; daftarnya ada di laporan proyek.</p>
+
+    <h2 id="id-validation">Seberapa akurat?</h2>
+    <h3>Uji data yang disisihkan</h3>
+    <p>Untuk setiap stasiun, 10% terakhir rekamannya (30 hingga 90 hari) disisihkan. Konstanta diestimasi dari sisanya, dipakai untuk memprediksi periode yang disisihkan, lalu dibandingkan dengan hasil ukur stasiun. Dari 296 stasiun yang dapat diuji, prediksi menjelaskan median <b>97,9%</b> varians muka air; <b>246</b> stasiun mencapai 95% atau lebih dan 284 mencapai 90%. Median galat akar kuadrat rata-rata adalah <b>6,4 cm</b>. Hampir seluruh sisa galat berasal dari cuaca dan muka laut musiman, yang tidak dapat ditangkap oleh prediksi astronomis mana pun.</p>
+    <p>Hasil terlemah berada di pantai utara Jawa (Semarang, Pekalongan, Cirebon, Sunda Kelapa), tempat pasutnya kecil, tanahnya mengalami penurunan, dan sungai memengaruhi stasiun, serta pada beberapa rekaman yang pendek atau bermasalah.</p>
+    <h3>Perbandingan dengan elevasi terbitan BIG</h3>
+    <p>Lembar stasiun BIG memuat MSL dan LAT yang dihitung dari sembilan komponen selama satu tahun (2024). Bila konstanta Tidara diolah dengan cara yang sama, nilai MSL−LAT BIG tereproduksi dalam selisih 5 cm pada 76% dan dalam 10 cm pada 89% dari 261 stasiun yang mencantumkannya. LAT Tidara sendiri memakai semua komponen selama siklus nodal 18,6 tahun penuh (definisi IHO), sehingga umumnya 10–20 cm lebih rendah daripada LAT BIG.</p>
+    <h3>Kelas kualitas</h3>
+    <div class="tbl"><table>
+      <tr><th>Kelas</th><th>Aturan</th><th class="n">Stasiun</th></tr>
+      <tr><td>A</td><td>Minimal 1 tahun data bersih dan akurasi minimal 95% pada uji data yang disisihkan</td><td class="n">236</td></tr>
+      <tr><td>B</td><td>Minimal 6 bulan dan akurasi minimal 90% (atau tanpa uji yang valid), atau kelas A dengan pemotongan air rendah</td><td class="n">46</td></tr>
+      <tr><td>C</td><td>Rekaman lebih pendek atau akurasi lebih rendah</td><td class="n">21</td></tr>
+    </table></div>
+
+    <h2 id="id-datums">Elevasi dan tipe pasut</h2>
+    <p>HAT dan LAT adalah nilai tertinggi dan terendah dari prediksi 18,61 tahun (2026–2044, langkah 20 menit) menggunakan semua komponen astronomis. MHWS dan MLWS adalah MSL ± (M2 + S2); MHWN dan MLWN adalah MSL ± (M2 − S2). Tidara melaporkan setiap elevasi terhadap MSL dan mencantumkan MSL di atas LAT, sehingga ketinggian dapat ditampilkan terhadap datum peta.</p>
+    <p>Tipe pasut ditentukan dengan bilangan Formzahl <i>F</i> = (K1 + O1) / (M2 + S2):</p>
+    <div class="tbl"><table>
+      <tr><th>Formzahl</th><th>Tipe</th><th>Yang terlihat</th><th class="n">Stasiun</th></tr>
+      <tr><td>F ≤ 0,25</td><td>Harian ganda</td><td>Dua kali air tinggi dan air rendah yang hampir sama setiap hari</td><td class="n">7</td></tr>
+      <tr><td>0,25 – 1,5</td><td>Campuran condong harian ganda</td><td>Dua kali pasang sehari dengan ketinggian berbeda</td><td class="n">267</td></tr>
+      <tr><td>1,5 – 3,0</td><td>Campuran condong harian tunggal</td><td>Sering sekali pasang sehari, kadang dua kali</td><td class="n">14</td></tr>
+      <tr><td>F &gt; 3,0</td><td>Harian tunggal</td><td>Satu kali air tinggi dan satu kali air rendah setiap hari</td><td class="n">15</td></tr>
+    </table></div>
+
+    <h2 id="id-limits">Keterbatasan</h2>
+    <ul>
+      <li><b>Hanya pasut astronomis.</b> Gelombang badai, pembendungan oleh angin, anomali muka laut monsun, debit sungai, dan gelombang tidak diperhitungkan.</li>
+      <li><b>Muka laut rata-rata setempat.</b> MSL adalah rata-rata rekaman 2021–2026 setiap stasiun. Nilai ini tidak terikat pada datum vertikal nasional maupun titik kontrol stasiun (TKG), dan tidak memuat kenaikan muka laut atau penurunan tanah di masa depan, yang penting untuk prediksi puluhan tahun ke depan.</li>
+      <li><b>Perubahan stasiun.</b> Bila stasiun dipindah atau pelabuhan dikeruk, pasutnya dapat berubah; konstanta perlu diperbarui dengan data baru.</li>
+      <li><b>Rekaman pendek.</b> Stasiun kelas C dan rekaman kurang dari satu tahun memisahkan lebih sedikit komponen dan kurang menangkap siklus musiman.</li>
+      <li><b>Bukan untuk navigasi.</b> Gunakan tabel pasut dan peta laut resmi untuk navigasi dan pekerjaan yang menyangkut keselamatan.</li>
+    </ul>
+
+    <h2 id="id-glossary">Glosarium</h2>
+    <div class="tbl"><table>
+      <tr><td><b>Amplitudo (H)</b></td><td>Setengah dari ayunan ketinggian satu komponen, dalam meter.</td></tr>
+      <tr><td><b>Keterlambatan fase (g)</b></td><td>Seberapa jauh, dalam derajat, air tinggi suatu komponen tertinggal dari gaya pembangkitnya di Greenwich (UTC).</td></tr>
+      <tr><td><b>Datum peta</b></td><td>Bidang acuan kedalaman pada peta laut; di Indonesia, LAT.</td></tr>
+      <tr><td><b>Siklus nodal</b></td><td>Perputaran bidang orbit bulan selama 18,61 tahun yang perlahan memodulasi pasut.</td></tr>
+      <tr><td><b>Kriteria Rayleigh</b></td><td>Dua komponen hanya dapat dipisahkan bila rekaman mencakup minimal satu siklus beda kecepatannya.</td></tr>
+      <tr><td><b>Pasang purnama dan perbani</b></td><td>Tunggang pasut terbesar dan terkecil dalam siklus sekitar 14,8 hari.</td></tr>
+      <tr><td><b>Uji data yang disisihkan</b></td><td>Menguji model pada data yang tidak dipakai untuk membangunnya.</td></tr>
+    </table></div>
+
+    <h2 id="id-refs">Pustaka</h2>
+    <ul>
+      <li>Pugh, D. dan Woodworth, P. (2014). <i>Sea-Level Science: Understanding Tides, Surges, Tsunamis and Mean Sea-Level Changes.</i> Cambridge University Press.</li>
+      <li>Schureman, P. (1958). <i>Manual of Harmonic Analysis and Prediction of Tides.</i> US Coast and Geodetic Survey, Special Publication 98.</li>
+      <li>Foreman, M. G. G. (1977, revisi 2004). <i>Manual for Tidal Heights Analysis and Prediction.</i> Institute of Ocean Sciences, Pacific Marine Science Report 77-10.</li>
+      <li>Pawlowicz, R., Beardsley, B. dan Lentz, S. (2002). Classical tidal harmonic analysis including error estimates in MATLAB using T_TIDE. <i>Computers &amp; Geosciences</i> 28, 929–937.</li>
+      <li>Meeus, J. (1998). <i>Astronomical Algorithms</i>, edisi ke-2. Willmann-Bell.</li>
+      <li>International Hydrographic Organization. <i>IHO Hydrographic Dictionary</i> dan Resolusi IHO 3/1919 tentang datum peta (LAT).</li>
+      <li>Badan Informasi Geospasial. Lembar deskripsi stasiun pasang surut dan data pengamatan per menit.</li>
+    </ul>
+  </main>
+</div>
+<div id="figHome" hidden><figure>
+      <div class="fig-controls">
+        <label for="st" id="lblSt">Station</label><select id="st"></select>
+        <label for="span" id="lblSpan">Period</label><select id="span"><option value="3"></option><option value="15" selected></option><option value="30"></option></select>
+      </div>
+      <canvas id="anat"></canvas>
+      <div class="keys" id="keys"></div>
+      <figcaption id="cap">Heights relative to mean sea level, starting today (UTC).</figcaption>
+    </figure></div>
+<footer class="site"><div class="in">
+  <span><span data-l="en">© 2026 Aldwin Syahperdana. All rights reserved.</span><span data-l="id">© 2026 Aldwin Syahperdana. Hak cipta dilindungi.</span></span>
+  <span><span data-l="en">Observations: Badan Informasi Geospasial (BIG) tide gauge network · Base map: Natural Earth</span><span data-l="id">Data pengamatan: jaringan stasiun pasut Badan Informasi Geospasial (BIG) · Peta dasar: Natural Earth</span></span>
+</div></footer>
+
+<script src="assets/tidara-data.js"></script>
+<script src="assets/tide-engine.js"></script>
+<script>
+(() => {
+  const DB = window.TIDARA_DB, E = window.TidaraEngine, PR = window.TidaraPrefs, sel = document.getElementById("st"), span = document.getElementById("span");
+  const fig = document.querySelector("#figHome figure");
+  const TXT = {
+    en: { st: "Station", span: "Period", d3: "3 days", d15: "15 days (spring–neap cycle)", d30: "30 days", full: "Full prediction ({n} constituents)",
+          cap: "{name}: heights relative to mean sea level from today (UTC). Tide type {type}, Formzahl F = {F}.",
+          mon: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          T: { "Semidiurnal": "semidiurnal", "Mixed, mainly semidiurnal": "mixed, mainly semidiurnal", "Mixed, mainly diurnal": "mixed, mainly diurnal", "Diurnal": "diurnal" } },
+    id: { st: "Stasiun", span: "Periode", d3: "3 hari", d15: "15 hari (siklus purnama–perbani)", d30: "30 hari", full: "Prediksi lengkap ({n} komponen)",
+          cap: "{name}: ketinggian terhadap muka laut rata-rata mulai hari ini (UTC). Tipe pasut {type}, Formzahl F = {F}.",
+          mon: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"],
+          T: { "Semidiurnal": "harian ganda", "Mixed, mainly semidiurnal": "campuran condong harian ganda", "Mixed, mainly diurnal": "campuran condong harian tunggal", "Diurnal": "harian tunggal" } },
+  };
+  const L = () => TXT[PR.lang] || TXT.en, dec = (v, d) => PR.lang === "id" ? v.toFixed(d).replace(".", ",") : v.toFixed(d);
+  const list = DB.stations.slice().sort((a, b) => a.name.localeCompare(b.name));
+  function labels() {
+    const T = L();
+    document.getElementById("lblSt").textContent = T.st; document.getElementById("lblSpan").textContent = T.span;
+    span.options[0].textContent = T.d3; span.options[1].textContent = T.d15; span.options[2].textContent = T.d30;
+    const v = sel.value || "SRBY";
+    sel.innerHTML = list.map((s) => `<option value="${s.code}">${s.name} (${s.code}) · ${T.T[s.type]}</option>`).join(""); sel.value = v;
+    const slot = document.querySelector(`.fig-slot[data-fig="${PR.lang}"]`) || document.querySelector('.fig-slot[data-fig="en"]');
+    if (fig.parentElement !== slot) slot.appendChild(fig);
+  }
+  const COL = ["#2b7de9", "#e8833a", "#16a394", "#b45cc8"];
+  function draw() {
+    const T = L(), s = DB.stations.find((x) => x.code === sel.value), days = +span.value;
+    const cv = document.getElementById("anat"), w = cv.clientWidth, h = cv.clientHeight, k = Math.min(devicePixelRatio || 1, 2);
+    if (!w) return;
+    cv.width = w * k; cv.height = h * k; const g = cv.getContext("2d"); g.setTransform(k, 0, 0, k, 0, 0);
+    const css = getComputedStyle(document.documentElement), ink = css.getPropertyValue("--ink").trim(), muted = css.getPropertyValue("--muted").trim(), line = css.getPropertyValue("--line").trim();
+    const top4 = Object.keys(s.c).filter((n) => !["Sa", "Ssa"].includes(n)).slice(0, 4);
+    const t0 = Math.floor(Date.now() / 86400000) * 86400000, step = days > 10 ? 1800000 : 600000, n = Math.round(days * 86400000 / step) + 1;
+    const total = E.series(s, t0, step, n), parts = top4.map((name) => E.series({ c: { [name]: s.c[name] } }, t0, step, n));
+    let lo = 0, hi = 0; for (const v of total) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+    const Lm = 48, R = 10, Tp = 10, B = 26, pw = w - Lm - R, ph = h - Tp - B;
+    const xs = (i) => Lm + i / (n - 1) * pw, ys = (z) => Tp + (hi - z) / (hi - lo) * ph;
+    g.font = "12px " + getComputedStyle(document.body).fontFamily; g.fillStyle = muted; g.strokeStyle = line; g.lineWidth = 1; g.textBaseline = "middle";
+    const st = [0.1, 0.2, 0.25, 0.5, 1, 2].find((v) => (hi - lo) / v <= 7) || 2;
+    for (let z = Math.ceil(lo / st) * st; z <= hi; z += st) { g.beginPath(); g.moveTo(Lm, ys(z)); g.lineTo(w - R, ys(z)); g.stroke(); g.fillText(dec(z, st < 1 ? (st < 0.25 ? 2 : 1) : 0) + " m", 2, ys(z)); }
+    g.textBaseline = "top"; const dstep = days > 15 ? 5 : days > 3 ? 2 : 1;
+    for (let d = 0; d <= days; d += dstep) { const x = Lm + d / days * pw; g.beginPath(); g.moveTo(x, Tp); g.lineTo(x, Tp + ph); g.stroke(); const dt = new Date(t0 + d * 86400000); if (x + 40 < w) g.fillText(`${dt.getUTCDate()} ${T.mon[dt.getUTCMonth()]}`, x + 3, Tp + ph + 6); }
+    parts.forEach((p, j) => { g.beginPath(); for (let i = 0; i < n; i++) i ? g.lineTo(xs(i), ys(p[i])) : g.moveTo(xs(i), ys(p[i])); g.strokeStyle = COL[j]; g.globalAlpha = .75; g.lineWidth = 1.2; g.stroke(); });
+    g.globalAlpha = 1; g.beginPath(); for (let i = 0; i < n; i++) i ? g.lineTo(xs(i), ys(total[i])) : g.moveTo(xs(i), ys(total[i])); g.strokeStyle = ink; g.lineWidth = 2.2; g.stroke();
+    document.getElementById("keys").innerHTML = top4.map((name, j) => `<span><i style="background:${COL[j]}"></i>${name} · ${dec(s.c[name][0], 3)} m</span>`).join("") + `<span><i style="background:${ink};height:4px"></i>${T.full.replace("{n}", Object.keys(s.c).length)}</span>`;
+    document.getElementById("cap").textContent = T.cap.replace("{name}", s.name).replace("{type}", T.T[s.type]).replace("{F}", dec(s.F, 3));
+  }
+  sel.onchange = draw; span.onchange = draw; addEventListener("resize", draw);
+  PR.onChange(() => { labels(); draw(); });
+  labels(); draw();
+})();
+</script>
+<script>TidaraPrefs.onChange(() => { document.title = TidaraPrefs.lang === "id" ? 'Sains di Balik Tidara' : 'The Science Behind Tidara'; });</script>
+</body>
+</html>
