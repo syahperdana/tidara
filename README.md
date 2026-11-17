@@ -8,7 +8,7 @@
 
 Interactive map and tide prediction tool for 303 tide gauge stations across Indonesia, built on harmonic constants derived from 4.6 years of 1-minute sea-level observations.
 
-[**Open the live site**](https://YOUR-USERNAME.github.io/tidara/) · [User guide](https://YOUR-USERNAME.github.io/tidara/guide.html) · [Science & methods](https://YOUR-USERNAME.github.io/tidara/science.html)
+[**Open the live site**](https://syahperdana.github.io/tidara/) · [User guide](https://syahperdana.github.io/tidara/guide.html) · [Science & methods](https://syahperdana.github.io/tidara/science.html)
 
 ![Stations](https://img.shields.io/badge/stations-303-0b8c83)
 ![Constituents](https://img.shields.io/badge/tidal%20constituents-up%20to%2048-1b3f8f)
