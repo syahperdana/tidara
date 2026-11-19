@@ -27,7 +27,9 @@
     <a href="#station">The station panel</a>
     <a href="#predict">Running a prediction</a>
     <a href="#results">Reading the results</a>
+    <a href="#seapoint">Any point at sea</a>
     <a href="#export">Exporting data</a>
+    <a href="#survey">Survey software files</a>
     <a href="#numbers">What the numbers mean</a>
     <a href="#faq">Questions</a>
     <a href="#hosting">Hosting the site</a>
@@ -96,6 +98,7 @@
       <li><b>Tidal levels:</b> HAT, MHWS, MHWN, MSL, MLWN, MLWS and LAT, both above LAT and relative to MSL.</li>
       <li><b>Harmonic constants:</b> amplitude and phase of each constituent (the ten largest, or all of them).</li>
     </ul>
+    <p><b>Station warnings:</b> a few gauges sit where the water level doesn't follow the nearby sea, for example in a river mouth. Their panel shows a red warning with the expected error. At the moment this applies to Sungai Liat (LIAT), where the tide is damped and low waters are held up, especially from December to March.</p>
 
     <h2 id="predict">Running a prediction</h2>
     <div class="tbl"><table>
@@ -116,10 +119,42 @@
       <li><b>Time series:</b> every value at the chosen interval.</li>
     </ul>
 
+    <h2 id="seapoint">Any point at sea</h2>
+    <p>Tap anywhere on the sea (away from a station marker) to get a prediction for that exact point from the <b>Tidara Indonesian tide model v1.0</b>: a weighted average of three global tide models (EOT20, GOT5.5/5.6 and FES2022, with FES2022 counted twice), corrected towards the BIG and Pushidrosal tide gauges. The point works like a station: water level now, predictions up to 100 years, tidal levels (HAT and LAT are computed over a full 18.61-year cycle) and harmonic constants. The seasonal terms Sa and Ssa are taken from the nearest station. The link in the address bar (for example <code>#@-6.0000,106.8000</code>) opens the same point again.</p>
+    <p><b>Entering coordinates:</b> click the crosshair button at the right of the search box and choose a format: decimal degrees (<kbd>-6.175392</kbd>, <kbd>106.827153</kbd>), degrees and decimal minutes (6° 10.5235′ S), degrees, minutes and seconds (6° 10′ 31.41″ S) or UTM (zone 46 to 54, N or S, easting and northing in metres). All coordinates are WGS 84. While you type, Tidara shows the same point in the other formats; switching format converts what you entered. <b>Predict at this point</b> opens the point. You can also type decimal coordinates straight into the search box, for example <kbd>-6.05, 106.85</kbd>. The point panel lists the position in all formats under <b>Other formats</b>. A point on land, or too close to the coast for the model grid, has no model data: move a little offshore or use a nearby station.</p>
+    <p>Each point shows a <b>confidence badge</b> with the estimated error:</p>
+    <ul>
+      <li><b>High</b> (green, under about 5 cm RMS): open water where both models agree.</li>
+      <li><b>Medium</b> (amber, 5–10 cm): fine for planning; compare with a nearby station when accuracy matters.</li>
+      <li><b>Low</b> (red, over 10 cm): bays, river mouths and narrow straits that are smaller than the model grid (about 14 km), for example around Dumai, Bengkalis, Nunukan or Tarakan. Use the result at your own risk.</li>
+    </ul>
+    <p>Below the badge, Tidara lists the three nearest stations <i>by sea distance</i> (the shortest path through water, so a station across an island is never suggested). <b>Use this station</b> switches to that station's own constants, which are tested against real data the analysis didn't use: a median of 98% of variance explained.</p>
+    <div class="note">Tapping a station marker always uses that station's own constants, never the model. The model is only used for points between stations.</div>
+
     <h2 id="export">Exporting data</h2>
     <p><b>Download high/low CSV</b> and <b>Download series CSV</b> save comma-separated files with a one-line header describing the station, time zone and height reference, then columns <code>date_time,type,height_m_above_LAT</code> (or <code>height_m_rel_MSL</code>, <code>height_m_rel_HAT</code>). <b>Copy high/low</b> puts the same table on the clipboard, ready to paste into Excel.</p>
     <p>When the site is in Bahasa Indonesia, the CSV is written in Indonesian too: column names <code>tanggal_waktu;jenis;tinggi_m_di_atas_LAT</code>, types <code>Tinggi</code>/<code>Rendah</code>, semicolons between columns and a decimal comma (for example <code>1,483</code>), which Excel with Indonesian regional settings opens correctly.</p>
     <div class="note">A 100-year series at 10-minute steps is about 120 MB of CSV. For long periods, export the high and low waters (about 4 MB per 100 years), or use a 1-hour interval. When Tidara is viewed inside Claude, each download asks you to confirm first; on your own web server or from the files on your computer it downloads straight away.</div>
+
+    <h2 id="survey">Survey software files</h2>
+    <p>Under the CSV buttons, <b>Survey software file</b> writes the predicted series (at the interval you chose) in formats that survey software reads directly. Heights follow the <b>Heights</b> setting (above LAT, relative to MSL or relative to HAT), positive up. Survey software normally expects <b>UTC</b>: choose UTC in <b>Time zone</b> and predict again before exporting. Tidara shows a warning when the times are not UTC.</p>
+    <div class="tbl"><table>
+      <tr><th>Format</th><th>Example line</th></tr>
+      <tr><td>EIVA NaviPac (.npt)</td><td><code>13-11-2026, 00:00:00, 2.550</code></td></tr>
+      <tr><td>EIVA (.wsv)</td><td><code>13.11.26 00:00:00 2.550</code></td></tr>
+      <tr><td>CARIS HIPS (.tid)</td><td><code>--------</code> then <code>2026/11/13 00:00 2.550</code></td></tr>
+      <tr><td>HYPACK Manual Tides import (.txt)</td><td><code>13/11/2026&#9;00:00:00&#9;2.550</code> (tab-separated)</td></tr>
+      <tr><td>Qinsy tide data (.qtd)</td><td>binary file (one record per time step)</td></tr>
+    </table></div>
+    <p>Survey files always use a decimal point, whatever the site language.</p>
+    <p><b>HYPACK:</b> open Manual Tides, import the .txt (tab delimiter, DD/MM date format, skip problem lines), then save the .TID with <b>Invert Tides</b> on, because HYPACK stores tide as a correction.</p>
+    <p><b>Qinsy (.qtd):</b> a binary tide data file in the layout Qinsy writes. Times are always stored in UTC, whatever time zone you chose. Heights are relative to MSL; the station block holds MSL above LAT (Z0) and the station's M2, S2, K1 and O1 constants. The station name is shortened to 12 characters (code and name, or latitude,longitude for a sea point). The layout was worked out from a Qinsy sample file, so check the first file in Qinsy before survey use.</p>
+    <p><b>CARIS tide zones (.zdf):</b> enter the survey area (north, south, west, east in decimal degrees) and a zone size. Tidara splits the area into rectangular zones and downloads a zip with the .zdf, the .tid file(s) and a README:</p>
+    <ul>
+      <li><b>From a station:</b> one .tid predicted from the station's own constants. Each zone gets a time correction (minutes, positive means the tide is later than at the station) and a range ratio, both taken from the model.</li>
+      <li><b>From a sea point:</b> each zone gets its own .tid predicted by the model at the zone centre (time correction 0, range ratio 1.000).</li>
+    </ul>
+    <div class="note">The model grid is about 14 km, so zones much smaller than that get almost the same corrections. The zone uncertainty written to the .zdf is the 95% value (1.96 × the estimated RMS error). Qinsy (.qtd/.qtf) files are binary and are not supported yet.</div>
 
     <h2 id="numbers">What the numbers mean</h2>
     <div class="tbl"><table>
@@ -169,7 +204,9 @@
     <a href="#id-station">Panel stasiun</a>
     <a href="#id-predict">Menjalankan prediksi</a>
     <a href="#id-results">Membaca hasil</a>
+    <a href="#id-seapoint">Titik mana pun di laut</a>
     <a href="#id-export">Mengekspor data</a>
+    <a href="#id-survey">Berkas perangkat lunak survei</a>
     <a href="#id-numbers">Arti angka-angka</a>
     <a href="#id-faq">Pertanyaan</a>
     <a href="#id-hosting">Memasang situs</a>
@@ -238,6 +275,7 @@
       <li><b>Elevasi pasut:</b> HAT, MHWS, MHWN, MSL, MLWN, MLWS, dan LAT, baik di atas LAT maupun terhadap MSL.</li>
       <li><b>Konstanta harmonik:</b> amplitudo dan fase setiap komponen pasut (sepuluh terbesar, atau semuanya).</li>
     </ul>
+    <p><b>Peringatan stasiun:</b> beberapa stasiun berada di tempat yang muka airnya tidak mengikuti laut di dekatnya, misalnya di muara sungai. Panelnya menampilkan peringatan merah beserta perkiraan galatnya. Saat ini berlaku untuk Sungai Liat (LIAT), tempat pasut teredam dan air rendah tertahan, terutama pada Desember sampai Maret.</p>
 
     <h2 id="id-predict">Menjalankan prediksi</h2>
     <div class="tbl"><table>
@@ -258,10 +296,42 @@
       <li><b>Deret waktu:</b> setiap nilai pada interval yang dipilih.</li>
     </ul>
 
+    <h2 id="id-seapoint">Titik mana pun di laut</h2>
+    <p>Ketuk laut di mana saja (di luar penanda stasiun) untuk mendapatkan prediksi di titik itu dari <b>Model pasut Indonesia Tidara v1.0</b>: rata-rata berbobot tiga model pasut global (EOT20, GOT5.5/5.6 dan FES2022, dengan FES2022 dihitung dua kali) yang dikoreksi dengan stasiun pasut BIG dan Pushidrosal. Titik ini berfungsi seperti stasiun: muka air saat ini, prediksi hingga 100 tahun, elevasi pasut (HAT dan LAT dihitung dari satu siklus penuh 18,61 tahun), dan konstanta harmonik. Komponen musiman Sa dan Ssa diambil dari stasiun terdekat. Tautan di bilah alamat (misalnya <code>#@-6.0000,106.8000</code>) membuka titik yang sama lagi.</p>
+    <p><b>Memasukkan koordinat:</b> klik tombol bidik di kanan kotak pencarian lalu pilih format: derajat desimal (<kbd>-6,175392</kbd>, <kbd>106,827153</kbd>), derajat dan menit desimal (6° 10,5235′ S), derajat, menit dan detik (6° 10′ 31,41″ S) atau UTM (zona 46 sampai 54, N atau S, easting dan northing dalam meter). Semua koordinat memakai WGS 84. Saat Anda mengetik, Tidara menampilkan titik yang sama dalam format lain; mengganti format akan mengonversi isian Anda. <b>Prediksi di titik ini</b> membuka titik tersebut. Koordinat desimal juga bisa diketik langsung di kotak pencarian, misalnya <kbd>-6.05, 106.85</kbd>. Panel titik menampilkan posisi dalam semua format pada <b>Format lain</b>. Titik di darat, atau terlalu dekat pantai untuk grid model, tidak memiliki data model: geser sedikit ke laut atau gunakan stasiun terdekat.</p>
+    <p>Setiap titik menampilkan <b>lencana keyakinan</b> dengan perkiraan galat:</p>
+    <ul>
+      <li><b>Tinggi</b> (hijau, di bawah sekitar 5 cm RMS): perairan terbuka, kedua model sesuai.</li>
+      <li><b>Sedang</b> (kuning, 5–10 cm): cukup untuk perencanaan; bandingkan dengan stasiun terdekat bila akurasi penting.</li>
+      <li><b>Rendah</b> (merah, di atas 10 cm): teluk, muara sungai dan selat sempit yang lebih kecil dari grid model (sekitar 14 km), misalnya sekitar Dumai, Bengkalis, Nunukan atau Tarakan. Risiko penggunaan ditanggung pengguna.</li>
+    </ul>
+    <p>Di bawah lencana, Tidara menampilkan tiga stasiun terdekat <i>menurut jarak laut</i> (lintasan terpendek melalui air, sehingga stasiun di seberang pulau tidak akan disarankan). <b>Pakai stasiun ini</b> beralih ke konstanta stasiun itu sendiri, yang diuji pada data yang tidak dipakai dalam analisis: median 98% varians terjelaskan.</p>
+    <div class="note">Mengetuk penanda stasiun selalu memakai konstanta stasiun itu sendiri, bukan model. Model hanya dipakai untuk titik di antara stasiun.</div>
+
     <h2 id="id-export">Mengekspor data</h2>
     <p><b>Unduh CSV tinggi/rendah</b> dan <b>Unduh CSV deret waktu</b> menyimpan berkas dengan satu baris keterangan (stasiun, zona waktu, dan acuan ketinggian), lalu kolom data. <b>Salin tinggi/rendah</b> menyalin tabel yang sama ke papan klip, siap ditempel ke Excel.</p>
     <p>Dalam Bahasa Indonesia, CSV juga ditulis dalam Bahasa Indonesia: kolom <code>tanggal_waktu;jenis;tinggi_m_di_atas_LAT</code> (atau <code>tinggi_m_thd_MSL</code>, <code>tinggi_m_thd_HAT</code>), jenis <code>Tinggi</code>/<code>Rendah</code>, titik koma sebagai pemisah kolom, dan koma desimal (misalnya <code>1,483</code>), sehingga langsung terbaca benar oleh Excel dengan pengaturan wilayah Indonesia. Dalam Bahasa Inggris, CSV memakai koma sebagai pemisah dan titik desimal.</p>
     <div class="note">Deret 100 tahun dengan interval 10 menit berukuran sekitar 120 MB. Untuk periode panjang, ekspor air tinggi dan rendah saja (sekitar 4 MB per 100 tahun), atau gunakan interval 1 jam. Saat Tidara dibuka di dalam Claude, setiap unduhan meminta konfirmasi terlebih dahulu; di server web Anda sendiri atau dari berkas di komputer, unduhan langsung berjalan.</div>
+
+    <h2 id="id-survey">Berkas perangkat lunak survei</h2>
+    <p>Di bawah tombol CSV, <b>Berkas perangkat lunak survei</b> menulis deret prediksi (dengan interval yang Anda pilih) dalam format yang langsung dibaca perangkat lunak survei. Ketinggian mengikuti pilihan <b>Ketinggian</b> (di atas LAT, terhadap MSL atau terhadap HAT), positif ke atas. Perangkat lunak survei umumnya memakai <b>UTC</b>: pilih UTC pada <b>Zona waktu</b> lalu prediksi ulang sebelum mengekspor. Tidara menampilkan peringatan bila waktunya bukan UTC.</p>
+    <div class="tbl"><table>
+      <tr><th>Format</th><th>Contoh baris</th></tr>
+      <tr><td>EIVA NaviPac (.npt)</td><td><code>13-11-2026, 00:00:00, 2.550</code></td></tr>
+      <tr><td>EIVA (.wsv)</td><td><code>13.11.26 00:00:00 2.550</code></td></tr>
+      <tr><td>CARIS HIPS (.tid)</td><td><code>--------</code> lalu <code>2026/11/13 00:00 2.550</code></td></tr>
+      <tr><td>Impor HYPACK Manual Tides (.txt)</td><td><code>13/11/2026&#9;00:00:00&#9;2.550</code> (dipisah tab)</td></tr>
+      <tr><td>Data pasut Qinsy (.qtd)</td><td>berkas biner (satu rekaman per langkah waktu)</td></tr>
+    </table></div>
+    <p>Berkas survei selalu memakai titik desimal, apa pun bahasa situs.</p>
+    <p><b>HYPACK:</b> buka Manual Tides, impor .txt (pemisah tab, format tanggal DD/MM, lewati baris bermasalah), lalu simpan .TID dengan <b>Invert Tides</b> aktif, karena HYPACK menyimpan pasut sebagai koreksi.</p>
+    <p><b>Qinsy (.qtd):</b> berkas data pasut biner dengan susunan seperti yang ditulis Qinsy. Waktu selalu disimpan dalam UTC, apa pun zona waktu yang dipilih. Tinggi relatif terhadap MSL; blok stasiun berisi MSL di atas LAT (Z0) serta konstanta M2, S2, K1 dan O1 stasiun. Nama stasiun dipendekkan menjadi 12 karakter (kode dan nama, atau lintang,bujur untuk titik laut). Susunan berkas diturunkan dari contoh berkas Qinsy, jadi periksa berkas pertama di Qinsy sebelum dipakai untuk survei.</p>
+    <p><b>Zona pasut CARIS (.zdf):</b> isi area survei (utara, selatan, barat, timur dalam derajat desimal) dan ukuran zona. Tidara membagi area menjadi zona persegi dan mengunduh zip berisi .zdf, berkas .tid, dan README:</p>
+    <ul>
+      <li><b>Dari stasiun:</b> satu .tid dari konstanta stasiun. Setiap zona mendapat koreksi waktu (menit, positif berarti pasut lebih lambat daripada di stasiun) dan rasio tunggang, keduanya dari model.</li>
+      <li><b>Dari titik laut:</b> setiap zona mendapat .tid sendiri dari model di pusat zona (koreksi waktu 0, rasio tunggang 1,000).</li>
+    </ul>
+    <div class="note">Grid model sekitar 14 km, sehingga zona yang jauh lebih kecil mendapat koreksi yang hampir sama. Ketidakpastian zona dalam .zdf adalah nilai 95% (1,96 × perkiraan galat RMS). Berkas Qinsy (.qtd/.qtf) berformat biner dan belum didukung.</div>
 
     <h2 id="id-numbers">Arti angka-angka</h2>
     <div class="tbl"><table>
@@ -304,7 +374,7 @@
 </div>
 <footer class="site"><div class="in">
   <span><span data-l="en">© 2026 Aldwin Syahperdana. All rights reserved.</span><span data-l="id">© 2026 Aldwin Syahperdana. Hak cipta dilindungi.</span></span>
-  <span><span data-l="en">Observations: Badan Informasi Geospasial (BIG) tide gauge network · Base map: Natural Earth</span><span data-l="id">Data pengamatan: jaringan stasiun pasut Badan Informasi Geospasial (BIG) · Peta dasar: Natural Earth</span></span>
+  <span><span data-l="en">Observations: Badan Informasi Geospasial (BIG) tide gauge network; Pusat Hidro-Oseanografi TNI AL (Pushidrosal) tide gauges, used with permission · Global model: FES2022 Tide (funded by CNES, produced by LEGOS, NOVELTIS and CLS, made freely available by AVISO; <a href="https://www.aviso.altimetry.fr/fileadmin/documents/data/License_Aviso.pdf">licence</a>; Tidara predictions are derived from it), EOT20 (DGFI-TUM), GOT5.5/5.6 (NASA GSFC) · Base map: Natural Earth</span><span data-l="id">Data pengamatan: jaringan stasiun pasut Badan Informasi Geospasial (BIG); stasiun pasut Pusat Hidro-Oseanografi TNI AL (Pushidrosal), digunakan dengan izin · Model global: FES2022 Tide (didanai CNES, dibuat oleh LEGOS, NOVELTIS dan CLS, disediakan gratis oleh AVISO; <a href="https://www.aviso.altimetry.fr/fileadmin/documents/data/License_Aviso.pdf">lisensi</a>; prediksi Tidara diturunkan darinya), EOT20 (DGFI-TUM), GOT5.5/5.6 (NASA GSFC) · Peta dasar: Natural Earth</span></span>
 </div></footer>
 <script>TidaraPrefs.onChange(() => { document.title = TidaraPrefs.lang === "id" ? 'Panduan Tidara' : 'Tidara User Guide'; });</script>
 </body>

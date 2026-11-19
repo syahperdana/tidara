@@ -49,7 +49,25 @@ select option { background: var(--menu); color: var(--ink); }
 .brand small { display: block; font-size: 10.5px; color: var(--muted); margin-top: -3px; letter-spacing: .02em; }
 .search { position: relative; width: min(320px, 100%); }
 .search input { width: 100%; padding: 11px 12px 11px 36px; border-radius: 12px; border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(10px); box-shadow: var(--shadow); }
-.search svg { position: absolute; left: 12px; top: 13px; opacity: .7; z-index: 1; pointer-events: none; }
+.search > svg { position: absolute; left: 12px; top: 13px; opacity: .7; z-index: 1; pointer-events: none; }
+.search input { padding-right: 42px; }
+.cbtn { position: absolute; right: 6px; top: 6px; width: 30px; height: 30px; border: 0; border-radius: 8px; background: none; display: grid; place-items: center; color: var(--ink); opacity: .8; z-index: 2; }
+.cbtn:hover, .cbtn[aria-expanded="true"] { background: var(--soft); opacity: 1; }
+.coordbox { position: absolute; top: 46px; left: 0; width: min(350px, calc(100vw - 24px)); padding: 12px; z-index: 6; }
+.coordbox[hidden] { display: none; }
+.top.copen { z-index: 8; }
+.chead { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; } .chead b { font-size: 14px; }
+.chead .x { width: 28px; height: 28px; font-size: 14px; }
+.cseg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 3px; border-radius: 10px; background: var(--soft); margin-bottom: 8px; }
+.cseg button { border: 0; background: none; padding: 6px 4px; border-radius: 7px; font-size: 12.5px; font-weight: 500; color: var(--ink); }
+.cseg button.on { background: var(--glass); box-shadow: 0 1px 3px rgba(0,0,0,.15); font-weight: 600; }
+.crow { display: grid; grid-template-columns: 82px 1fr; align-items: center; gap: 8px; margin: 6px 0; }
+.crow > span { font-size: 12.5px; color: var(--muted); }
+.crow input, .crow select { padding: 7px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--field); color: var(--ink); min-width: 0; font-variant-numeric: tabular-nums; }
+.cparts { display: flex; align-items: center; gap: 4px; min-width: 0; } .cparts i { font-style: normal; color: var(--muted); }
+#cPrev { margin: 8px 0 10px; line-height: 1.55; font-variant-numeric: tabular-nums; } #cPrev:empty { display: none; }
+.cerr { color: #c0392b; } :root[data-theme="dark"] .cerr { color: #ff8f8f; }
+.coordbox .btn { width: 100%; }
 .results { position: absolute; top: 46px; left: 0; right: 0; max-height: 50vh; overflow: auto; padding: 4px; display: none; }
 .results.show { display: block; }
 .results button { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; padding: 8px 10px; border: 0; background: none; border-radius: 8px; }
@@ -143,6 +161,47 @@ td.r, th.r { text-align: right; }
 .foot { font-size: 11px; color: var(--muted); text-align: center; padding-top: 4px; }
 .toast { position: fixed; left: 50%; top: calc(70px + env(safe-area-inset-top)); transform: translateX(-50%); padding: 9px 14px; z-index: 9; display: none; font-size: 13px; max-width: calc(100% - 24px); }
 
+/* sea-point mode */
+.conf { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); }
+.conf .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; margin-top: 4px; }
+.conf.c-hi .dot { background: #0ca30c; } .conf.c-md .dot { background: #fab219; } .conf.c-lo .dot { background: #d03b3b; }
+.conf.c-lo { border-color: rgba(208,59,59,.45); background: rgba(208,59,59,.06); }
+.conf.c-md { border-color: rgba(250,178,25,.5); background: rgba(250,178,25,.07); }
+.conf b { display: block; font-size: 13.5px; margin-bottom: 2px; }
+.near:empty { display: none; }
+.conf p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.near { display: grid; gap: 6px; margin-top: 10px; }
+.near .row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; }
+.near .row span { flex: 1; min-width: 0; } .near .row small { color: var(--muted); display: block; }
+.near .row button { border: 1px solid var(--line); background: none; border-radius: 7px; padding: 4px 10px; font-size: 12px; white-space: nowrap; }
+.chip.c-hi { color: #0a7f0a; border-color: rgba(12,163,12,.45); } .chip.c-md { color: #9a6a00; border-color: rgba(250,178,25,.6); } .chip.c-lo { color: #c0392b; border-color: rgba(208,59,59,.5); }
+:root[data-theme="dark"] .chip.c-hi { color: #7ee2a8; } :root[data-theme="dark"] .chip.c-md { color: #f2cf6b; } :root[data-theme="dark"] .chip.c-lo { color: #ff8f8f; }
+.svx { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 12px; align-items: end; }
+.svx label { display: grid; gap: 3px; font-size: 11.5px; color: var(--muted); }
+.svx select, .zgrid input { width: 100%; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--field); color: var(--ink); }
+.zgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.zgrid label { display: grid; gap: 3px; font-size: 11px; color: var(--muted); }
+.warn-tz { color: #b06d00; } :root[data-theme="dark"] .warn-tz { color: #f2cf6b; }
+@media (max-width: 760px) { .zgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* wide panel + quick nav */
+.p-nav { flex: none; display: flex; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+.p-nav::-webkit-scrollbar { display: none; }
+.p-nav button { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 4px 11px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.p-nav button:hover { color: var(--ink); background: var(--soft); }
+.p-btns { margin-left: auto; display: flex; gap: 6px; flex: none; }
+.p-btns .x { margin-left: 0; display: grid; place-items: center; }
+.side { display: grid; gap: 14px; align-content: start; }
+.cgrid { display: grid; gap: 0 18px; grid-template-columns: repeat(var(--ccols, 1), minmax(0, 1fr)); }
+.cgrid table + table { margin-top: 0; }
+.panel.wide { width: min(920px, calc(100vw - 24px)); }
+.panel.wide .p-body { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); grid-template-areas: "conf conf" "now side" "pred side" "const const" "foot foot"; align-items: start; }
+.panel.wide #cConf { grid-area: conf; } .panel.wide #cNow { grid-area: now; } .panel.wide #cPred { grid-area: pred; } .panel.wide .side { grid-area: side; }
+.panel.wide #cConst { grid-area: const; } .panel.wide .foot { grid-area: foot; }
+body.p-open.p-wide .layers, body.p-open.p-wide .zoom { right: calc(min(920px, 100vw - 24px) + 24px); }
+#wideBtn { display: grid; }
+@media (max-width: 1000px) { #wideBtn { display: none; } .panel.wide { width: 440px; } .panel.wide .p-body { grid-template-columns: 1fr; grid-template-areas: none; } .panel.wide .p-body > * { grid-area: auto !important; } body.p-open.p-wide .layers, body.p-open.p-wide .zoom { right: 464px; } }
+
 @media (max-width: 760px) {
   .brand small, .nav a.hide-m { display: none; }
   .top { flex-wrap: wrap; }
@@ -157,7 +216,7 @@ td.r, th.r { text-align: right; }
   .tl-time { min-width: 100px; } .tl-time b { font-size: 13px; }
   .tl-tz, .now-btn { display: none; }
   .attrib { display: none; }
-  .panel { left: 0; right: 0; width: auto; top: auto; bottom: 0; height: 72%; border-radius: 16px 16px 0 0; transform: translateY(105%); }
+  .panel, .panel.wide { left: 0; right: 0; width: auto; top: auto; bottom: 0; height: 72%; border-radius: 16px 16px 0 0; transform: translateY(105%); }
   .panel .grip { display: block; width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: 8px auto 0; }
   .big { font-size: 22px; }
 }
@@ -175,7 +234,15 @@ td.r, th.r { text-align: right; }
   <div class="search">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
     <input id="q" type="search" autocomplete="off">
+    <button class="cbtn" id="coordBtn" type="button" aria-expanded="false" aria-controls="coordBox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
     <div class="results glass" id="results"></div>
+    <div class="coordbox glass" id="coordBox" role="dialog" aria-labelledby="cTitle" hidden>
+      <div class="chead"><b id="cTitle" data-i18n="coordTitle"></b><button class="x" id="cX" type="button" aria-label="Close">✕</button></div>
+      <div class="cseg" role="radiogroup"><button type="button" role="radio" data-cf="DD" data-i18n="cDD"></button><button type="button" role="radio" data-cf="DDM" data-i18n="cDDM"></button><button type="button" role="radio" data-cf="DMS" data-i18n="cDMS"></button><button type="button" role="radio" data-cf="UTM">UTM</button></div>
+      <div id="cFields"></div>
+      <div class="hint" id="cPrev" aria-live="polite"></div>
+      <button class="btn" id="cGo" type="button" data-i18n="cGo" disabled></button>
+    </div>
   </div>
   <div class="spacer"></div>
   <nav class="nav glass">
@@ -210,10 +277,20 @@ td.r, th.r { text-align: right; }
       <div class="sub" id="pSub"></div>
       <div class="chips" id="pChips"></div>
     </div>
-    <button class="x" id="pClose">✕</button>
+    <div class="p-btns"><button class="x" id="wideBtn" type="button" aria-pressed="false"></button><button class="x" id="pClose" type="button">✕</button></div>
   </div>
+  <nav class="p-nav" id="pNav">
+    <button type="button" data-go="cPred" data-i18n="prediction"></button>
+    <button type="button" data-go="cLevels" data-i18n="levels"></button>
+    <button type="button" data-go="cConst" data-i18n="constants"></button>
+    <button type="button" data-go="cInfo" data-i18n="station"></button>
+  </nav>
   <div class="p-body" id="pBody">
-    <section class="card">
+    <section class="card" id="cConf" hidden>
+      <div class="conf" id="confBox"><i class="dot"></i><div><b id="confT"></b><p id="confP"></p></div></div>
+      <div class="near" id="nearList"></div>
+    </section>
+    <section class="card" id="cNow">
       <h3 data-i18n="atTime"></h3>
       <div class="nowrow">
         <div><div class="lbl" data-i18n="waterLevel"></div><div class="big num" id="nowH">—</div><div class="trend" id="nowTrend"></div></div>
@@ -222,7 +299,7 @@ td.r, th.r { text-align: right; }
       </div>
     </section>
 
-    <section class="card">
+    <section class="card" id="cPred">
       <h3 data-i18n="prediction"></h3>
       <form class="form" id="pf">
         <label for="fStart"><span data-i18n="start"></span><input type="datetime-local" id="fStart" step="60"></label>
@@ -247,14 +324,32 @@ td.r, th.r { text-align: right; }
           <button class="btn ghost" id="dlSer" type="button" data-i18n="dlSer"></button>
           <button class="btn ghost" id="cpExt" type="button" data-i18n="cpExt"></button>
         </div>
+        <div class="svx">
+          <label for="svFmt"><span data-i18n="svTitle"></span><select id="svFmt">
+            <option value="npt"></option><option value="wsv"></option><option value="tid"></option><option value="zdf"></option><option value="hyp"></option><option value="qtd"></option></select></label>
+          <button class="btn ghost" id="svGo" type="button" data-i18n="svGo"></button>
+        </div>
+        <div id="zdfBox" hidden>
+          <div class="hint" id="zdfHint"></div>
+          <div class="zgrid">
+            <label><span data-i18n="zN"></span><input type="number" id="zN" step="0.001"></label>
+            <label><span data-i18n="zS"></span><input type="number" id="zS" step="0.001"></label>
+            <label><span data-i18n="zW"></span><input type="number" id="zW" step="0.001"></label>
+            <label><span data-i18n="zE"></span><input type="number" id="zE" step="0.001"></label>
+            <label><span data-i18n="zSize"></span><input type="number" id="zSize" min="0.5" step="0.5" value="10"></label>
+          </div>
+        </div>
+        <div class="hint" id="svHint"></div>
       </div>
     </section>
 
-    <section class="card"><h3 data-i18n="station"></h3><dl class="kv" id="pInfo"></dl></section>
-    <section class="card"><h3 data-i18n="levels"></h3><table id="pDatums"></table></section>
-    <section class="card">
+    <div class="side">
+      <section class="card" id="cInfo"><h3 data-i18n="station"></h3><dl class="kv" id="pInfo"></dl></section>
+      <section class="card" id="cLevels"><h3 data-i18n="levels"></h3><table id="pDatums"></table></section>
+    </div>
+    <section class="card" id="cConst">
       <h3 data-i18n="constants"></h3>
-      <table id="pConst"></table>
+      <div class="cgrid" id="pConst"></div>
       <div class="exports"><button class="btn ghost" id="moreConst" type="button"></button></div>
     </section>
     <div class="foot" data-i18n="foot"></div>
@@ -264,6 +359,7 @@ td.r, th.r { text-align: right; }
 <script src="assets/tidara-data.js"></script>
 <script src="assets/basemap.js"></script>
 <script src="assets/tide-engine.js"></script>
+<script src="assets/model/meta.js"></script>
 <script>
 "use strict";
 const DB = window.TIDARA_DB, E = window.TidaraEngine, PR = window.TidaraPrefs;
@@ -276,7 +372,7 @@ const HOUR = 3600000, DAY = 86400000, dpr = () => Math.min(window.devicePixelRat
 const I18N = {
   en: {
     tagline: "Tides of the Nusantara seas", guide: "User guide", science: "Science", search: "Search 303 stations…", noMatch: "No station matches “{q}”.",
-    attrib: "© 2026 Aldwin Syahperdana · Observations: BIG tide gauges · Base map: Natural Earth",
+    attrib: "© 2026 Aldwin Syahperdana · Observations: BIG and Pushidrosal tide gauges · Model includes FES2022 (CNES/AVISO) · Base map: Natural Earth",
     now: "Now", play: "Play timeline", pause: "Pause timeline", mapTz: "Map time zone", zin: "Zoom in", zout: "Zoom out",
     lyr_level: "Water level", lyr_range: "Tidal range", lyr_type: "Tide type", lyr_grade: "Data quality", noData: "Stations without data", layerGroup: "Map layer",
     legLevel: "Water level now", legLow: "Lowest (LAT)", legHigh: "Highest (HAT)", legShare: "Share of each station's own tidal range",
@@ -290,7 +386,7 @@ const I18N = {
     hLAT: "metres above LAT (chart datum)", hMSL: "metres relative to mean sea level", hHAT: "metres relative to HAT (0 = highest tide, below is negative)", relHAT: "m rel. HAT", predict: "Predict tides",
     chartHint: "Drag to pan, scroll or pinch to zoom, double-click to reset.", tabExt: "High & low waters", tabSer: "Time series",
     dlExt: "Download high/low CSV", dlSer: "Download series CSV", cpExt: "Copy high/low",
-    station: "Station", levels: "Tidal levels", constants: "Harmonic constants", showAll: "Show all {n} constituents", show10: "Show the 10 largest",
+    station: "Station", levels: "Tidal levels", constants: "Harmonic constants", widePanel: "Wider panel", narrowPanel: "Narrow panel", showAll: "Show all {n} constituents", show10: "Show the 10 largest",
     foot: "© 2026 Aldwin Syahperdana · Tidara. Astronomical tide only: weather can raise or lower the sea by tens of centimetres.",
     location: "Location", position: "Position", localTime: "Local time", record: "Record", accuracy: "Accuracy", tideType: "Tide type",
     recordTxt: "{a} to {b} · {n} clean days", accTxt: "{p}% of variance on unseen data · RMSE {r} cm", notTested: "not tested (record too short)", na: "not available",
@@ -304,11 +400,35 @@ const I18N = {
     downloading: "Downloading {f} ({s} MB).", dlFail: "Download failed: {e}", tooBigCopy: "Too large to copy. Use Download instead.", copied: "Copied {n} high and low waters.", copyBlocked: "Copy was blocked by the browser.",
     yourTime: "Your time", stationZone: "station", close: "Close station panel", panelLbl: "Station details", mapLbl: "Map of Indonesian tide stations",
     csvTitle: "Tidara tide prediction", csvAstro: "astronomical tide only", csvTimes: "times", csvDate: "date_time", csvType: "type", csvHLAT: "height_m_above_LAT", csvHMSL: "height_m_rel_MSL", csvHHAT: "height_m_rel_HAT", csvHW: "HW", csvLW: "LW",
+    seaPoint: "Sea point", modelName: "Tidara Indonesian tide model v1.0", modelChip: "Model prediction", model: "Model", modelTxt: "EOT20 + GOT5.5/5.6 + FES2022 ensemble, corrected with BIG and Pushidrosal tide gauges",
+    estAcc: "Estimated accuracy", estAccTxt: "about ±{r} cm RMS (astronomical tide)", disagree: "Model disagreement", seasonal: "Seasonal terms", seasonalTxt: "Sa/Ssa taken from {s}",
+    confHi: "High confidence", confMd: "Medium confidence", confLo: "Low confidence — use at your own risk",
+    confHiP: "The model should be within about ±{r} cm (RMS) here. Open water with good model agreement.",
+    confMdP: "Estimated error about ±{r} cm (RMS). Fine for planning; check against a nearby station when accuracy matters.",
+    confLoP: "Estimated error ±{r} cm (RMS) or more. Bays, river mouths and narrow straits here are smaller than the model grid. For survey work use a station in the same waters, or install a temporary gauge.",
+    nearTitle: "Nearest stations by sea distance", useSt: "Use this station", seaKm: "{d} km by sea", tapSea: "Tap on the sea to get a model prediction for that point.", noModel: "No model data here.", loadingModel: "Loading model…",
+    svTitle: "Survey software file", svGo: "Download", fmt_npt: "EIVA NaviPac (.npt)", fmt_wsv: "EIVA (.wsv)", fmt_tid: "CARIS HIPS (.tid)", fmt_zdf: "CARIS tide zones (.zdf + .tid, zip)", fmt_hyp: "HYPACK Manual Tides import (.txt)", fmt_qtd: "Qinsy tide data (.qtd)",
+    svUtc: "Times are written in {z}. Survey software usually expects UTC: choose UTC in Time zone above and predict again.", svOk: "Times in UTC. Heights {u}, positive up.",
+    svHyp: "Import in HYPACK Manual Tides (tab-delimited, DD/MM/YYYY), then save the .TID with Invert Tides on.",
+    svQtd: "Qinsy .qtd: times are stored in UTC automatically, whatever time zone you chose. Heights are relative to MSL; MSL above LAT (Z0 = {z} m) and the M2, S2, K1, O1 constants are stored in the station block. Station name: \"{n}\" (Qinsy files use 12 characters). New format: check the first file in Qinsy before survey use.",
+    coordBtn: "Enter coordinates", coordTitle: "Go to coordinates", cDD: "D.d°", cDDM: "D° M.m′", cDMS: "D° M′ S″", cDDt: "Decimal degrees", cDDMt: "Degrees and decimal minutes", cDMSt: "Degrees, minutes and seconds", cUTMt: "UTM easting and northing", cLat: "Latitude", cLon: "Longitude",
+    cZone: "Zone", cHemi: "Hemisphere", cE: "Easting (m)", cN: "Northing (m)", cGo: "Predict at this point", cIs: "Same point:",
+    cDDhint: "South and west are negative, e.g. -6.175392 and 106.827153. WGS 84.", cUTMhint: "WGS 84. Indonesia is in zones 46 to 54; northings south of the equator include the 10,000,000 m false northing.",
+    eLat: "Latitude must be between -90 and 90.", eLon: "Longitude must be between -180 and 180.", eDeg: "Degrees must be whole numbers in range (decimals only in the last field).", eMin: "Minutes must be 0 to 59.999.", eSec: "Seconds must be 0 to 59.99.",
+    eE: "Easting must be between 100,000 and 900,000 m.", eN: "Northing must be between 0 and 10,000,000 m.",
+    cLand: "No model data at this point: it is on land or too close to the coast for the model grid. Try a point a little further offshore, or use a nearby station.",
+    cGoTo: "Go to {p}", posAlt: "Other formats",
+    stnRiver: "River mouth", n_LIAT_t: "River-mouth gauge: expect errors of 15–30 cm",
+    n_LIAT_p: "This gauge is in a river mouth, not the open sea. The tide here is damped and about an hour late, and low waters are held up, most strongly from December to March, when the tide can drop to a third of the open-sea tide. Predictions from this station are off by about 11 cm (RMS) in the dry season and 16 cm in the wet season, sometimes 30 cm or more around low water. For work offshore, tap the sea instead; for low-water work in the harbour, use a local tide gauge.",
+    zN: "North (°)", zS: "South (°)", zW: "West (°)", zE: "East (°)", zSize: "Zone size (km)",
+    zStation: "Zones around this station: one .tid from the station, with time and range corrections per zone taken from the model.",
+    zPoint: "Each zone gets its own predicted .tid from the model (time correction 0, range ratio 1.00).",
+    zTooMany: "Too many zones ({n}). Make the area smaller or the zones bigger (max 80).", zTooBig: "Too much data for zones: shorten the period or use a longer interval.", zNone: "No sea inside that area.",
     fileHL: "highlow", fileSer: "series",
   },
   id: {
     tagline: "Pasang surut laut Nusantara", guide: "Panduan", science: "Sains", search: "Cari 303 stasiun…", noMatch: "Tidak ada stasiun yang cocok dengan “{q}”.",
-    attrib: "© 2026 Aldwin Syahperdana · Data pengamatan: stasiun pasut BIG · Peta dasar: Natural Earth",
+    attrib: "© 2026 Aldwin Syahperdana · Data pengamatan: stasiun pasut BIG dan Pushidrosal · Model memakai FES2022 (CNES/AVISO) · Peta dasar: Natural Earth",
     now: "Sekarang", play: "Putar lini waktu", pause: "Jeda lini waktu", mapTz: "Zona waktu peta", zin: "Perbesar", zout: "Perkecil",
     lyr_level: "Muka air", lyr_range: "Tunggang pasut", lyr_type: "Tipe pasut", lyr_grade: "Kualitas data", noData: "Stasiun tanpa data", layerGroup: "Lapisan peta",
     legLevel: "Muka air saat ini", legLow: "Terendah (LAT)", legHigh: "Tertinggi (HAT)", legShare: "Persentase dari tunggang pasut tiap stasiun",
@@ -322,7 +442,7 @@ const I18N = {
     hLAT: "meter di atas LAT (datum peta)", hMSL: "meter terhadap muka laut rata-rata", hHAT: "meter terhadap HAT (0 = pasang tertinggi, di bawahnya negatif)", relHAT: "m thd HAT", predict: "Hitung prediksi",
     chartHint: "Geser untuk memindah, gulir atau cubit untuk memperbesar, klik dua kali untuk mengatur ulang.", tabExt: "Air tinggi & rendah", tabSer: "Deret waktu",
     dlExt: "Unduh CSV tinggi/rendah", dlSer: "Unduh CSV deret waktu", cpExt: "Salin tinggi/rendah",
-    station: "Stasiun", levels: "Elevasi pasut", constants: "Konstanta harmonik", showAll: "Tampilkan semua {n} komponen", show10: "Tampilkan 10 terbesar",
+    station: "Stasiun", levels: "Elevasi pasut", constants: "Konstanta harmonik", widePanel: "Panel lebar", narrowPanel: "Panel sempit", showAll: "Tampilkan semua {n} komponen", show10: "Tampilkan 10 terbesar",
     foot: "© 2026 Aldwin Syahperdana · Tidara. Hanya pasut astronomis: cuaca dapat menaikkan atau menurunkan muka laut puluhan sentimeter.",
     location: "Lokasi", position: "Posisi", localTime: "Waktu setempat", record: "Rekaman", accuracy: "Akurasi", tideType: "Tipe pasut",
     recordTxt: "{a} s.d. {b} · {n} hari data bersih", accTxt: "{p}% varians pada data uji · RMSE {r} cm", notTested: "tidak diuji (rekaman terlalu pendek)", na: "tidak tersedia",
@@ -336,6 +456,30 @@ const I18N = {
     downloading: "Mengunduh {f} ({s} MB).", dlFail: "Unduhan gagal: {e}", tooBigCopy: "Terlalu besar untuk disalin. Gunakan Unduh.", copied: "{n} air tinggi dan rendah disalin.", copyBlocked: "Penyalinan diblokir oleh peramban.",
     yourTime: "Waktu Anda", stationZone: "stasiun", close: "Tutup panel stasiun", panelLbl: "Rincian stasiun", mapLbl: "Peta stasiun pasang surut Indonesia",
     csvTitle: "Prediksi pasang surut Tidara", csvAstro: "hanya pasut astronomis", csvTimes: "waktu", csvDate: "tanggal_waktu", csvType: "jenis", csvHLAT: "tinggi_m_di_atas_LAT", csvHMSL: "tinggi_m_thd_MSL", csvHHAT: "tinggi_m_thd_HAT", csvHW: "Tinggi", csvLW: "Rendah",
+    seaPoint: "Titik laut", modelName: "Model pasut Indonesia Tidara v1.0", modelChip: "Prediksi model", model: "Model", modelTxt: "Ensembel EOT20 + GOT5.5/5.6 + FES2022, dikoreksi dengan stasiun pasut BIG dan Pushidrosal",
+    estAcc: "Perkiraan akurasi", estAccTxt: "sekitar ±{r} cm RMS (pasut astronomis)", disagree: "Selisih antarmodel", seasonal: "Komponen musiman", seasonalTxt: "Sa/Ssa diambil dari {s}",
+    confHi: "Keyakinan tinggi", confMd: "Keyakinan sedang", confLo: "Keyakinan rendah — risiko ditanggung pengguna",
+    confHiP: "Model di sini diperkirakan dalam ±{r} cm (RMS). Perairan terbuka dengan kesesuaian model yang baik.",
+    confMdP: "Perkiraan galat sekitar ±{r} cm (RMS). Cukup untuk perencanaan; bandingkan dengan stasiun terdekat bila akurasi penting.",
+    confLoP: "Perkiraan galat ±{r} cm (RMS) atau lebih. Teluk, muara sungai dan selat sempit di sini lebih kecil dari grid model. Untuk survei, gunakan stasiun di perairan yang sama atau pasang palem/tide gauge sementara.",
+    nearTitle: "Stasiun terdekat menurut jarak laut", useSt: "Pakai stasiun ini", seaKm: "{d} km lewat laut", tapSea: "Ketuk laut untuk mendapatkan prediksi model di titik itu.", noModel: "Tidak ada data model di sini.", loadingModel: "Memuat model…",
+    svTitle: "Berkas perangkat lunak survei", svGo: "Unduh", fmt_npt: "EIVA NaviPac (.npt)", fmt_wsv: "EIVA (.wsv)", fmt_tid: "CARIS HIPS (.tid)", fmt_zdf: "Zona pasut CARIS (.zdf + .tid, zip)", fmt_hyp: "Impor HYPACK Manual Tides (.txt)", fmt_qtd: "Data pasut Qinsy (.qtd)",
+    svUtc: "Waktu ditulis dalam {z}. Perangkat lunak survei umumnya memakai UTC: pilih UTC pada Zona waktu di atas lalu prediksi ulang.", svOk: "Waktu dalam UTC. Tinggi {u}, positif ke atas.",
+    svHyp: "Impor di HYPACK Manual Tides (dipisah tab, DD/MM/YYYY), lalu simpan .TID dengan Invert Tides aktif.",
+    svQtd: "Qinsy .qtd: waktu otomatis disimpan dalam UTC, apa pun zona waktu yang dipilih. Tinggi relatif terhadap MSL; MSL di atas LAT (Z0 = {z} m) serta konstanta M2, S2, K1, O1 disimpan di blok stasiun. Nama stasiun: \"{n}\" (berkas Qinsy memakai 12 karakter). Format baru: periksa berkas pertama di Qinsy sebelum dipakai untuk survei.",
+    coordBtn: "Masukkan koordinat", coordTitle: "Ke koordinat", cDD: "D.d°", cDDM: "D° M.m′", cDMS: "D° M′ S″", cDDt: "Derajat desimal", cDDMt: "Derajat dan menit desimal", cDMSt: "Derajat, menit dan detik", cUTMt: "Easting dan northing UTM", cLat: "Lintang", cLon: "Bujur",
+    cZone: "Zona", cHemi: "Belahan", cE: "Easting (m)", cN: "Northing (m)", cGo: "Prediksi di titik ini", cIs: "Titik yang sama:",
+    cDDhint: "Selatan dan barat bernilai negatif, mis. -6,175392 dan 106,827153. WGS 84.", cUTMhint: "WGS 84. Indonesia berada di zona 46 sampai 54; northing di selatan khatulistiwa sudah termasuk false northing 10.000.000 m.",
+    eLat: "Lintang harus antara -90 dan 90.", eLon: "Bujur harus antara -180 dan 180.", eDeg: "Derajat harus bilangan bulat dalam rentang (desimal hanya di kolom terakhir).", eMin: "Menit harus 0 sampai 59,999.", eSec: "Detik harus 0 sampai 59,99.",
+    eE: "Easting harus antara 100.000 dan 900.000 m.", eN: "Northing harus antara 0 dan 10.000.000 m.",
+    cLand: "Tidak ada data model di titik ini: berada di darat atau terlalu dekat pantai untuk grid model. Coba titik sedikit lebih ke laut, atau gunakan stasiun terdekat.",
+    cGoTo: "Ke {p}", posAlt: "Format lain",
+    stnRiver: "Muara sungai", n_LIAT_t: "Stasiun di muara sungai: galat 15–30 cm",
+    n_LIAT_p: "Stasiun ini berada di muara sungai, bukan di laut terbuka. Pasut di sini teredam dan terlambat sekitar satu jam, dan air rendah tertahan, paling kuat pada Desember sampai Maret, ketika pasut bisa tinggal sepertiga dari pasut laut terbuka. Prediksi stasiun ini meleset sekitar 11 cm (RMS) pada musim kemarau dan 16 cm pada musim hujan, kadang 30 cm atau lebih di sekitar air rendah. Untuk pekerjaan di lepas pantai, ketuk laut; untuk pekerjaan saat air rendah di pelabuhan, gunakan palem/tide gauge setempat.",
+    zN: "Utara (°)", zS: "Selatan (°)", zW: "Barat (°)", zE: "Timur (°)", zSize: "Ukuran zona (km)",
+    zStation: "Zona di sekitar stasiun ini: satu .tid dari stasiun, dengan koreksi waktu dan rasio tunggang per zona dari model.",
+    zPoint: "Setiap zona mendapat .tid prediksi model sendiri (koreksi waktu 0, rasio tunggang 1,00).",
+    zTooMany: "Zona terlalu banyak ({n}). Perkecil area atau perbesar zona (maks. 80).", zTooBig: "Data zona terlalu besar: perpendek periode atau perbesar interval.", zNone: "Tidak ada laut di area itu.",
     fileHL: "tinggi-rendah", fileSer: "deret-waktu",
   },
 };
@@ -457,6 +601,11 @@ function render() {
     }
     labels.push([s, x, y, v]);
   }
+  if (state.sel && state.sel.virtual) {
+    const x = X(state.sel.lon), y = Y(state.sel.lat);
+    cx.beginPath(); cx.arc(x, y, 9, 0, 7); cx.fillStyle = "rgba(255,255,255,.35)"; cx.fill(); cx.lineWidth = 2.5; cx.strokeStyle = C.ink; cx.stroke();
+    cx.beginPath(); cx.arc(x, y, 3.5, 0, 7); cx.fillStyle = C.accent; cx.fill();
+  }
   if (view.s > 34) {
     cx.font = "600 11.5px " + getComputedStyle(document.body).fontFamily; cx.textBaseline = "middle";
     const boxes = [];
@@ -482,7 +631,7 @@ cv.addEventListener("pointermove", (e) => {
   if (Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4) { moved = true; cv.classList.add("drag"); }
   view.lon -= (e.clientX - prev[0]) / view.s; view.lat += (e.clientY - prev[1]) / view.s; draw();
 });
-const up = (e) => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = null; cv.classList.remove("drag"); if (!moved && e.type === "pointerup") { const s = pick(e.clientX, e.clientY); if (s) select(s); } };
+const up = (e) => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = null; cv.classList.remove("drag"); if (!moved && e.type === "pointerup") { const s = pick(e.clientX, e.clientY); if (s) select(s); else if (MD) selectPoint(unY(e.clientY), unX(e.clientX)); } };
 cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
 cv.addEventListener("wheel", (e) => { e.preventDefault(); zoomAt(Math.exp(-e.deltaY * 0.0016), e.clientX, e.clientY); }, { passive: false });
 cv.addEventListener("dblclick", (e) => zoomAt(2, e.clientX, e.clientY));
@@ -572,12 +721,18 @@ $("tz").onchange = (e) => { state.tz = e.target.value; setRange(); setTime(state
   const show = () => {
     const v = norm(q.value.trim());
     if (!v) { res.classList.remove("show"); return; }
+    const cm = q.value.trim().match(/^(-?\d{1,2}(?:\.\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:\.\d+)?)$/);
+    if (cm && Math.abs(+cm[1]) <= 90 && Math.abs(+cm[2]) <= 180) {
+      items = [{ coord: [+cm[1], +cm[2]] }]; on = 0;
+      res.innerHTML = `<button data-i="0" class="on"><span>${t("cGoTo", { p: GEO.fmt.DD(+cm[1], +cm[2]) })}</span><small>${GEO.fmt.DDM(+cm[1], +cm[2])}</small></button>`;
+      res.classList.add("show"); res.querySelector("button").onclick = () => go(items[0]); return;
+    }
     items = ST.filter((s) => norm(`${s.name} ${s.code} ${s.province} ${s.regency}`).includes(v)).slice(0, 12); on = 0;
     res.innerHTML = items.length ? items.map((s, i) => `<button data-i="${i}" class="${i === on ? "on" : ""}"><span>${s.name} <small>${s.code}</small></span><small>${s.province || ""}</small></button>`).join("") : `<div class="hint" style="padding:8px 10px">${t("noMatch", { q: q.value.replace(/</g, "&lt;") })}</div>`;
     res.classList.add("show");
     res.querySelectorAll("button").forEach((b) => b.onclick = () => go(items[+b.dataset.i]));
   };
-  const go = (s) => { if (!s) return; res.classList.remove("show"); q.value = ""; q.blur(); select(s, true); };
+  const go = (s) => { if (!s) return; res.classList.remove("show"); q.value = ""; q.blur(); if (s.coord) goCoord(s.coord[0], s.coord[1]); else select(s, true); };
   q.addEventListener("input", show);
   q.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); on = (on + (e.key === "ArrowDown" ? 1 : items.length - 1)) % Math.max(1, items.length); res.querySelectorAll("button").forEach((b, i) => b.classList.toggle("on", i === on)); }
@@ -586,40 +741,307 @@ $("tz").onchange = (e) => { state.tz = e.target.value; setRange(); setTime(state
   });
   document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".search")) res.classList.remove("show"); });
 })();
+async function goCoord(lat, lon) {
+  if (!inDomain(lat, lon)) { toast(t("noModel")); return false; }
+  const m = await modelAt(lat, lon); if (!m) { toast(t("cLand")); return false; }
+  await selectPoint(lat, lon, true); return true;
+}
+/* ---------- coordinates: DD / DDM / DMS / UTM (WGS 84, Krüger series to n^4, sub-millimetre inside a zone) ---------- */
+const GEO = (() => {
+  const a = 6378137, f = 1 / 298.257223563, k0 = 0.9996, n = f / (2 - f), n2 = n * n, n3 = n2 * n, n4 = n3 * n;
+  const A = a / (1 + n) * (1 + n2 / 4 + n4 / 64), e = Math.sqrt(f * (2 - f)), D = Math.PI / 180;
+  const al = [0, n / 2 - 2 * n2 / 3 + 5 * n3 / 16 + 41 * n4 / 180, 13 * n2 / 48 - 3 * n3 / 5 + 557 * n4 / 1440, 61 * n3 / 240 - 103 * n4 / 140, 49561 * n4 / 161280];
+  const be = [0, n / 2 - 2 * n2 / 3 + 37 * n3 / 96 - n4 / 360, n2 / 48 + n3 / 15 - 437 * n4 / 1440, 17 * n3 / 480 - 37 * n4 / 840, 4397 * n4 / 161280];
+  const de = [0, 2 * n - 2 * n2 / 3 - 2 * n3 + 116 * n4 / 45, 7 * n2 / 3 - 8 * n3 / 5 - 227 * n4 / 45, 56 * n3 / 15 - 136 * n4 / 35, 4279 * n4 / 630];
+  const zoneOf = (lon) => Math.min(60, Math.max(1, Math.floor((lon + 180) / 6) + 1));
+  function toUTM(lat, lon, zone) {
+    zone = zone || zoneOf(lon);
+    const l0 = (zone * 6 - 183) * D, phi = lat * D, lam = lon * D - l0;
+    const t = Math.sinh(Math.atanh(Math.sin(phi)) - e * Math.atanh(e * Math.sin(phi)));
+    const xi = Math.atan2(t, Math.cos(lam)), eta = Math.atanh(Math.sin(lam) / Math.sqrt(1 + t * t));
+    let x = eta, y = xi;
+    for (let j = 1; j <= 4; j++) { x += al[j] * Math.cos(2 * j * xi) * Math.sinh(2 * j * eta); y += al[j] * Math.sin(2 * j * xi) * Math.cosh(2 * j * eta); }
+    const E = 500000 + k0 * A * x, N0 = k0 * A * y;
+    return { zone, hemi: lat < 0 ? "S" : "N", E, N: lat < 0 ? N0 + 10000000 : N0 };
+  }
+  function fromUTM(zone, hemi, E, N) {
+    const xi = (hemi === "S" ? N - 10000000 : N) / (k0 * A), eta = (E - 500000) / (k0 * A);
+    let x = eta, y = xi;
+    for (let j = 1; j <= 4; j++) { x -= be[j] * Math.cos(2 * j * xi) * Math.sinh(2 * j * eta); y -= be[j] * Math.sin(2 * j * xi) * Math.cosh(2 * j * eta); }
+    const chi = Math.asin(Math.sin(y) / Math.cosh(x));
+    let phi = chi; for (let j = 1; j <= 4; j++) phi += de[j] * Math.sin(2 * j * chi);
+    return { lat: phi / D, lon: zone * 6 - 183 + Math.atan2(Math.sinh(x), Math.cos(y)) / D };
+  }
+  /* split |v| into degrees + minutes (+ seconds), carrying rounding up (59.9995' -> next degree) */
+  function split(v, sec, dp) {
+    const s = sec ? 3600 : 60, m = Math.pow(10, dp), tot = Math.round(Math.abs(v) * s * m) / m;
+    let d = Math.floor(tot / s), r = tot - d * s;
+    if (!sec) return [d, r];
+    const mi = Math.floor(r / 60 + 1e-9); return [d, mi, r - mi * 60];
+  }
+  const fx = (v, dp, w) => v.toFixed(dp).padStart(w + (dp ? dp + 1 : 0), "0");
+  const fmt = {
+    DD: (la, lo) => `${la.toFixed(6)}, ${lo.toFixed(6)}`,
+    DDM: (la, lo) => { const p = split(la, false, 4), q = split(lo, false, 4); return `${p[0]}° ${fx(p[1], 4, 2)}′ ${la < 0 ? "S" : "N"}, ${q[0]}° ${fx(q[1], 4, 2)}′ ${lo < 0 ? "W" : "E"}`; },
+    DMS: (la, lo) => { const p = split(la, true, 2), q = split(lo, true, 2); return `${p[0]}° ${fx(p[1], 0, 2)}′ ${fx(p[2], 2, 2)}″ ${la < 0 ? "S" : "N"}, ${q[0]}° ${fx(q[1], 0, 2)}′ ${fx(q[2], 2, 2)}″ ${lo < 0 ? "W" : "E"}`; },
+    UTM: (la, lo) => { const u = toUTM(la, lo); return `${u.zone}${u.hemi} ${Math.round(u.E)} mE ${Math.round(u.N)} mN`; },
+  };
+  return { toUTM, fromUTM, zoneOf, split, fmt };
+})();
+
+/* ---------- go to coordinates (button beside the search box) ---------- */
+const coordUI = (() => {
+  const box = $("coordBox"), btn = $("coordBtn"), fields = $("cFields"), prev = $("cPrev"), go = $("cGo");
+  const KEY = "tidara.coordFmt";
+  let fmt = (() => { try { return localStorage.getItem(KEY) || "DD"; } catch (e) { return "DD"; } })();
+  if (!["DD", "DDM", "DMS", "UTM"].includes(fmt)) fmt = "DD";
+  let cur = null;                                   // last valid {lat, lon}
+  const num = (id) => { const el = $(id); if (!el) return NaN; const v = el.value.trim().replace(",", "."); return v === "" ? NaN : Number(v); };
+  const hemiSel = (id, a, b) => `<select id="${id}" aria-label="${t("cHemi")}"><option value="${a}">${a}</option><option value="${b}">${b}</option></select>`;
+  const inp = (id, ph, w, lbl) => `<input id="${id}" inputmode="decimal" autocomplete="off" placeholder="${ph}" style="width:${w}" aria-label="${lbl}">`;
+  function render() {
+    box.querySelectorAll("[data-cf]").forEach((b) => { b.classList.toggle("on", b.dataset.cf === fmt); b.setAttribute("aria-checked", b.dataset.cf === fmt); });
+    const L = t("cLat"), O = t("cLon");
+    if (fmt === "DD") fields.innerHTML =
+      `<label class="crow"><span>${L}</span>${inp("cLa", "-6.123456", "100%", L)}</label>` +
+      `<label class="crow"><span>${O}</span>${inp("cLo", "106.823456", "100%", O)}</label><div class="hint">${t("cDDhint")}</div>`;
+    else if (fmt === "DDM" || fmt === "DMS") {
+      const s = fmt === "DMS", dw = "3.4em", mw = s ? "2.8em" : "5.2em";
+      const row = (k, lbl, a, b, dph) => `<div class="crow"><span>${lbl}</span><div class="cparts">` +
+        inp(`c${k}d`, dph, dw, lbl + " °") + `<i>°</i>` + inp(`c${k}m`, s ? "07" : "07.407", mw, lbl + " ′") + `<i>′</i>` +
+        (s ? inp(`c${k}s`, "24.4", "4em", lbl + " ″") + `<i>″</i>` : "") + hemiSel(`c${k}h`, a, b) + `</div></div>`;
+      fields.innerHTML = row("La", L, "S", "N", "6") + row("Lo", O, "E", "W", "106");
+    } else {
+      let z = ""; for (let i = 46; i <= 54; i++) z += `<option value="${i}">${i}</option>`;
+      fields.innerHTML =
+        `<div class="crow"><span>${t("cZone")}</span><div class="cparts"><select id="cZ" aria-label="${t("cZone")}">${z}</select>${hemiSel("cH", "S", "N")}</div></div>` +
+        `<label class="crow"><span>${t("cE")}</span>${inp("cE", "702178", "100%", t("cE"))}</label>` +
+        `<label class="crow"><span>${t("cN")}</span>${inp("cN", "9317060", "100%", t("cN"))}</label><div class="hint">${t("cUTMhint")}</div>`;
+    }
+    fields.querySelectorAll("input,select").forEach((el) => { el.addEventListener("input", update); el.addEventListener("change", update); el.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); }); });
+    if (cur) fill(cur.lat, cur.lon); update();
+  }
+  function fill(lat, lon) {
+    const set = (id, v) => { const el = $(id); if (el) el.value = v; };
+    if (fmt === "DD") { set("cLa", lat.toFixed(6)); set("cLo", lon.toFixed(6)); }
+    else if (fmt === "DDM") { const p = GEO.split(lat, false, 4), q = GEO.split(lon, false, 4);
+      set("cLad", p[0]); set("cLam", p[1].toFixed(4)); set("cLah", lat < 0 ? "S" : "N"); set("cLod", q[0]); set("cLom", q[1].toFixed(4)); set("cLoh", lon < 0 ? "W" : "E"); }
+    else if (fmt === "DMS") { const p = GEO.split(lat, true, 2), q = GEO.split(lon, true, 2);
+      set("cLad", p[0]); set("cLam", p[1]); set("cLas", p[2].toFixed(2)); set("cLah", lat < 0 ? "S" : "N"); set("cLod", q[0]); set("cLom", q[1]); set("cLos", q[2].toFixed(2)); set("cLoh", lon < 0 ? "W" : "E"); }
+    else { const z = Math.min(54, Math.max(46, GEO.zoneOf(lon))), u = GEO.toUTM(lat, lon, z); set("cZ", z); set("cH", u.hemi); set("cE", u.E.toFixed(1)); set("cN", u.N.toFixed(1)); }
+  }
+  /* returns {lat, lon} or {err} or null (nothing typed yet) */
+  function parse() {
+    const bad = (k) => ({ err: t(k) });
+    if (fmt === "DD") {
+      const la = num("cLa"), lo = num("cLo");
+      if (isNaN(la) && isNaN(lo)) return null;
+      if (isNaN(la) || la < -90 || la > 90) return bad("eLat");
+      if (isNaN(lo) || lo < -180 || lo > 180) return bad("eLon");
+      return { lat: la, lon: lo };
+    }
+    if (fmt === "DDM" || fmt === "DMS") {
+      const s = fmt === "DMS", one = (k, max) => {
+        const d = num(`c${k}d`), m = isNaN(num(`c${k}m`)) ? 0 : num(`c${k}m`), sc = s ? (isNaN(num(`c${k}s`)) ? 0 : num(`c${k}s`)) : 0;
+        if (isNaN(d)) return null;
+        if (d < 0 || d > max || d !== Math.floor(d) && (m || sc)) return "eDeg";
+        if (m < 0 || m >= 60 || (s && m !== Math.floor(m) && sc)) return "eMin";
+        if (sc < 0 || sc >= 60) return "eSec";
+        const v = d + m / 60 + sc / 3600; if (v > max) return "eDeg";
+        const h = $(`c${k}h`).value; return h === "S" || h === "W" ? -v : v;
+      };
+      const la = one("La", 90), lo = one("Lo", 180);
+      if (la === null && lo === null) return null;
+      if (la === null) return bad("eLat"); if (lo === null) return bad("eLon");
+      if (typeof la === "string") return bad(la); if (typeof lo === "string") return bad(lo);
+      return { lat: la, lon: lo };
+    }
+    const E = num("cE"), N = num("cN"), z = +$("cZ").value, h = $("cH").value;
+    if (isNaN(E) && isNaN(N)) return null;
+    if (isNaN(E) || E < 100000 || E > 900000) return bad("eE");
+    if (isNaN(N) || N < 0 || N > 10000000) return bad("eN");
+    const p = GEO.fromUTM(z, h, E, N);
+    return isFinite(p.lat) && isFinite(p.lon) ? p : bad("eN");
+  }
+  function update() {
+    const p = parse(); go.disabled = !p || !!p.err;
+    if (!p) { prev.textContent = ""; prev.className = "hint"; return; }
+    if (p.err) { prev.textContent = p.err; prev.className = "hint cerr"; return; }
+    cur = p;
+    const show = ["DD", "DDM", "DMS", "UTM"].filter((k) => k !== fmt).map((k) => GEO.fmt[k](p.lat, p.lon));
+    prev.innerHTML = `<b>${t("cIs")}</b> ` + show.join("<br>");
+    prev.className = "hint" + (inDomain(p.lat, p.lon) ? "" : " cerr");
+    if (!inDomain(p.lat, p.lon)) prev.innerHTML += `<br>${t("noModel")}`;
+  }
+  async function submit() {
+    const p = parse(); if (!p || p.err) return;
+    if (!inDomain(p.lat, p.lon)) { toast(t("noModel")); return; }
+    go.disabled = true;
+    try {
+      const m = await modelAt(p.lat, p.lon);
+      if (!m) { toast(t("cLand")); return; }
+      close(); await selectPoint(p.lat, p.lon, true);
+    } finally { go.disabled = false; }
+  }
+  function open() {
+    if (state.sel && state.sel.lat != null && !cur) cur = { lat: state.sel.lat, lon: state.sel.lon };
+    box.hidden = false; btn.setAttribute("aria-expanded", "true"); box.closest(".top").classList.add("copen"); render();
+    const f = fields.querySelector("input"); if (f) f.focus();
+  }
+  function close() { box.hidden = true; btn.setAttribute("aria-expanded", "false"); box.closest(".top").classList.remove("copen"); }
+  btn.onclick = () => (box.hidden ? open() : close());
+  $("cX").onclick = close;
+  go.onclick = submit;
+  box.querySelectorAll("[data-cf]").forEach((b) => b.onclick = () => { fmt = b.dataset.cf; try { localStorage.setItem(KEY, fmt); } catch (e) {} render(); });
+  box.addEventListener("keydown", (e) => { if (e.key === "Escape") { close(); btn.focus(); } });
+  document.addEventListener("pointerdown", (e) => { if (!box.hidden && !e.target.closest("#coordBox") && !e.target.closest("#coordBtn")) close(); });
+  return {
+    lang() { box.querySelectorAll("[data-cf]").forEach((b) => { b.title = t("c" + b.dataset.cf + "t"); b.setAttribute("aria-label", b.title); }); btn.title = t("coordBtn"); btn.setAttribute("aria-label", t("coordBtn")); if (!box.hidden) render(); },
+    openAt(lat, lon) { cur = { lat, lon }; fmt = "DD"; open(); },
+  };
+})();
 
 /* ---------- station panel ---------- */
 const panel = $("panel");
+/* ---------- Tidara model: predictions for any sea point (tiles load on demand) ---------- */
+const MD = window.TIDARA_MODEL || null, tiles = {}, tileWait = {};
+const NC = MD ? MD.names.length : 0, REC = 17 + 4 * NC;
+window.TIDARA_TILE = (key, h, w, b64) => {
+  const bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  const dv = new DataView(u8.buffer), off = new Int32Array(h * w); let p = 0;
+  for (let c = 0; c < h * w; c++) { if (dv.getUint16(p, true) === 65535) { off[c] = -1; p += 2; } else { off[c] = p; p += REC; } }
+  tiles[key] = { h, w, dv, off }; const ws = tileWait[key] || []; delete tileWait[key]; ws.forEach((f) => f());
+};
+function loadTile(key) {
+  return new Promise((res) => {
+    if (tiles[key]) return res(tiles[key]); if (!MD || !MD.tiles.includes(key)) return res(null);
+    const first = !tileWait[key]; (tileWait[key] = tileWait[key] || []).push(() => res(tiles[key] || null));
+    if (first) { const sc = document.createElement("script"); sc.src = `assets/model/t_${key}.js`; sc.onerror = () => { const ws = tileWait[key] || []; delete tileWait[key]; ws.forEach((f) => f()); }; document.head.appendChild(sc); }
+  });
+}
+async function cellAt(j, i) {
+  if (!MD || j < 0 || i < 0 || j >= MD.ny || i >= MD.nx) return null;
+  const T = MD.tile, tl = await loadTile(`${Math.floor(j / T)}_${Math.floor(i / T)}`); if (!tl) return null;
+  const o = tl.off[(j % T) * tl.w + (i % T)]; if (o < 0) return null;
+  const dv = tl.dv, c = { conf: dv.getUint16(o, true) / 1000, spread: dv.getUint16(o + 2, true) / 1000, cov: dv.getUint8(o + 4) / 255, near: [], z: new Float64Array(2 * NC) };
+  for (let k = 0; k < 3; k++) { const si = dv.getUint16(o + 5 + 4 * k, true), d = dv.getUint16(o + 7 + 4 * k, true); if (si < 65535) c.near.push([si, d]); }
+  for (let n = 0; n < NC; n++) { const a = dv.getUint16(o + 17 + 4 * n, true) * MD.ampScale, g = dv.getUint16(o + 19 + 4 * n, true) * MD.phaScale * Math.PI / 180; c.z[2 * n] = a * Math.cos(g); c.z[2 * n + 1] = a * Math.sin(g); }
+  return c;
+}
+async function modelAt(lat, lon) {
+  if (!MD) return null;
+  const fj = (lat - MD.lat0) / MD.step, fi = (lon - MD.lon0) / MD.step, j0 = Math.floor(fj), i0 = Math.floor(fi), wy = fj - j0, wx = fi - i0;
+  let cs = [];
+  for (const [dj, di, w] of [[0, 0, (1 - wy) * (1 - wx)], [1, 0, wy * (1 - wx)], [0, 1, (1 - wy) * wx], [1, 1, wy * wx]]) { const c = await cellAt(j0 + dj, i0 + di); if (c) cs.push([c, w + 1e-6]); }
+  if (!cs.length) {
+    let best = null;
+    for (let r = 1; r <= 2 && !best; r++) for (let dj = -r; dj <= r + 1; dj++) for (let di = -r; di <= r + 1; di++) {
+      const c = await cellAt(j0 + dj, i0 + di); if (!c) continue; const d = Math.hypot(j0 + dj - fj, i0 + di - fi); if (!best || d < best[1]) best = [c, d];
+    }
+    if (!best) return null; cs = [[best[0], 1]];
+  }
+  const W0 = cs.reduce((a, x) => a + x[1], 0), m = { conf: 0, spread: 0, cov: 0, z: new Float64Array(2 * NC), near: cs.reduce((a, x) => x[1] > a[1] ? x : a)[0].near };
+  for (const [c, w] of cs) { const f = w / W0; m.conf += f * c.conf; m.spread += f * c.spread; m.cov += f * c.cov; for (let k = 0; k < 2 * NC; k++) m.z[k] += f * c.z[k]; }
+  return m;
+}
+function modelConsts(m) {
+  const c = {}, list = [];
+  MD.names.forEach((n, k) => { const re = m.z[2 * k], im = m.z[2 * k + 1], a = Math.hypot(re, im); if (a >= 0.0005) list.push([n, [+a.toFixed(4), +(((Math.atan2(im, re) * 180 / Math.PI) + 360) % 360).toFixed(1)]]); });
+  const ns = m.near.map(([si, d]) => [byCode[MD.stations[si]], d]).filter((x) => x[0]);
+  const s0 = ns.length && ns[0][1] < 300 ? ns[0][0] : null;
+  if (s0) for (const k of ["Sa", "Ssa"]) if (s0.c[k]) list.push([k, s0.c[k]]);
+  list.sort((a, b) => b[1][0] - a[1][0]); for (const [n, v] of list) c[n] = v;
+  return { c, ns, s0 };
+}
+const confClass = (e) => e < 0.05 ? "hi" : e < 0.10 ? "md" : "lo";
+function datumsFor(p, quick) {
+  const c = {}; for (const k in p.c) if (k !== "Sa" && k !== "Ssa" && (!quick || p.c[k][0] >= 0.004)) c[k] = p.c[k];
+  const start = Date.UTC(2026, 0, 1), step = (quick ? 60 : 20) * 60000, n = Math.round(18.61 * 365.25 * 86400000 / step);
+  const z = E.series({ c }, start, step, n); let hi = -1e9, lo = 1e9; for (let i = 0; i < n; i++) { const v = z[i]; if (v > hi) hi = v; if (v < lo) lo = v; }
+  const A = (k) => (p.c[k] ? p.c[k][0] : 0), sp = A("M2") + A("S2"), np = A("M2") - A("S2");
+  p.datums = { HAT: hi, MHWS: sp, MHWN: np, MLWN: -np, MLWS: -sp, LAT: lo }; p.mslLat = -lo;
+  p.F = (A("K1") + A("O1")) / Math.max(1e-6, sp);
+  p.type = p.F < 0.25 ? "Semidiurnal" : p.F < 1.5 ? "Mixed, mainly semidiurnal" : p.F < 3 ? "Mixed, mainly diurnal" : "Diurnal";
+  return p;
+}
+const inDomain = (lat, lon) => MD && lat >= MD.lat0 && lon >= MD.lon0 && lat <= MD.lat0 + (MD.ny - 1) * MD.step && lon <= MD.lon0 + (MD.nx - 1) * MD.step;
+async function selectPoint(lat, lon, fly) {
+  if (!MD) return;
+  if (!inDomain(lat, lon)) { toast(t("noModel")); return; }
+  const slow = setTimeout(() => toast(t("loadingModel")), 350);
+  const m = await modelAt(lat, lon); clearTimeout(slow);
+  if (!m) { toast(t("tapSea")); return; }
+  const { c, ns, s0 } = modelConsts(m);
+  const p = datumsFor({ virtual: true, code: "PT", name: t("seaPoint"), lat: +lat.toFixed(5), lon: +lon.toFixed(5), c, conf: m.conf, spread: m.spread, cov: m.cov, near: ns, seasonalFrom: s0,
+    tz: ns.length ? ns[0][0].tz : (lon < 114.6 ? 7 : lon < 127 ? 8 : 9) });
+  select(p, fly);
+}
+const fmtLL = (lat, lon) => `${nf(Math.abs(lat), 4)}° ${lat < 0 ? (ID() ? "LS" : "S") : (ID() ? "LU" : "N")}, ${nf(lon, 4)}° ${ID() ? "BT" : "E"}`;
+const altLL = (la, lo) => `<span class="num">${GEO.fmt.DDM(la, lo)}<br>${GEO.fmt.DMS(la, lo)}<br>UTM ${GEO.fmt.UTM(la, lo)}</span>`;
+const fileCode = (s) => s.virtual ? `PT_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}` : s.code;
+function pointStatic(s) {
+  const cl = confClass(s.conf), r = Math.max(1, Math.round(s.conf * 100)), title = { hi: "confHi", md: "confMd", lo: "confLo" }[cl];
+  $("pName").textContent = t("seaPoint");
+  $("pSub").textContent = `${fmtLL(s.lat, s.lon)} · ${t("modelName")}`;
+  $("pChips").innerHTML = `<span class="chip c-${cl}">${t(title).split(" — ")[0]} · ±${r} cm</span><span class="chip">${typeName(s.type)}</span><span class="chip num">${t("range")} ${nf(s.datums.HAT - s.datums.LAT)} m</span>`;
+  $("pInfo").innerHTML = [
+    [t("position"), fmtLL(s.lat, s.lon)], [t("posAlt"), altLL(s.lat, s.lon)], [t("localTime"), `${INDO[s.tz]} (${offStr(s.tz)})`],
+    [t("model"), `${t("modelName")} · ${t("modelTxt")}`], [t("estAcc"), t("estAccTxt", { r })],
+    [t("disagree"), `${nf(s.spread * 100, 1)} cm (EOT20, GOT, FES2022)`],
+    [t("seasonal"), s.seasonalFrom ? t("seasonalTxt", { s: `${s.seasonalFrom.name} (${s.seasonalFrom.code})` }) : "—"],
+    [t("tideType"), `${typeName(s.type)} (F = ${nf(s.F, 3)})`],
+  ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+  $("cConf").hidden = false; $("confBox").className = "conf c-" + cl;
+  $("confT").textContent = t(title); $("confP").textContent = t(title + "P", { r });
+  $("nearList").innerHTML = `<div class="lbl">${t("nearTitle")}</div>` + s.near.map(([st, d]) =>
+    `<div class="row"><span><b>${st.name}</b><small>${st.code} · ${t("grade")} ${st.grade} · ${t("seaKm", { d: nint(d) })}</small></span><button type="button" data-code="${st.code}">${t("useSt")}</button></div>`).join("");
+  $("nearList").querySelectorAll("button[data-code]").forEach((b) => b.onclick = () => select(byCode[b.dataset.code], true));
+}
+
+/* station notes: gauges whose record is not representative of the nearby sea (see _RESULTS/diagnostics) */
+const STATION_NOTES = { LIAT: { level: "lo", chip: "stnRiver" } };
 function stationStatic() {
   const s = state.sel; if (!s) return;
+  if (s.virtual) { pointStatic(s); datumTable(s); constTable(constTable.all); return; }
+  $("cConf").hidden = true;
   $("pName").textContent = s.name;
   $("pSub").textContent = `${s.code} · ${[s.regency, s.province].filter(Boolean).join(", ")}`;
-  $("pChips").innerHTML = `<span class="chip g-${s.grade}">${t("grade")} ${s.grade}</span><span class="chip">${typeName(s.type)}</span><span class="chip num">${t("range")} ${nf(s.datums.HAT - s.datums.LAT)} m</span>`;
+  const note = STATION_NOTES[s.code];
+  $("pChips").innerHTML = `<span class="chip g-${s.grade}">${t("grade")} ${s.grade}</span>` + (note ? `<span class="chip c-${note.level}">${t(note.chip)}</span>` : "") + `<span class="chip">${typeName(s.type)}</span><span class="chip num">${t("range")} ${nf(s.datums.HAT - s.datums.LAT)} m</span>`;
+  if (note) { $("cConf").hidden = false; $("confBox").className = "conf c-" + note.level; $("confT").textContent = t(`n_${s.code}_t`); $("confP").textContent = t(`n_${s.code}_p`); $("nearList").innerHTML = ""; }
   const lat = s.lat != null ? `${nf(Math.abs(s.lat), 5)}° ${s.lat < 0 ? (ID() ? "LS" : "S") : (ID() ? "LU" : "N")}, ${nf(s.lon, 5)}° ${ID() ? "BT" : "E"}` : t("na");
   $("pInfo").innerHTML = [
-    [t("location"), s.location || "—"], [t("position"), lat], [t("localTime"), `${INDO[s.tz]} (${offStr(s.tz)})`],
+    [t("location"), s.location || "—"], [t("position"), lat], [t("posAlt"), altLL(s.lat, s.lon)], [t("localTime"), `${INDO[s.tz]} (${offStr(s.tz)})`],
     [t("record"), t("recordTxt", { a: s.rec[0], b: s.rec[1], n: nint(s.rec[2]) })],
     [t("accuracy"), s.skill != null ? t("accTxt", { p: nf(s.skill, 1), r: nf(s.rmse * 100, 1) }) : t("notTested")],
     [t("tideType"), `${typeName(s.type)} (F = ${nf(s.F, 3)})`],
   ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+  datumTable(s);
+  constTable(constTable.all);
+}
+function datumTable(s) {
   const D = s.datums, rows = ["HAT", "MHWS", "MHWN", "MSL", "MLWN", "MLWS", "LAT"];
   $("pDatums").innerHTML = `<tr><th>${t("level")}</th><th class="r">${t("aboveLATh")}</th><th class="r">${t("relMSLh")}</th></tr>` +
     rows.map((k) => { const v = k === "MSL" ? 0 : D[k]; return `<tr><td>${k} <span class="hint">${t("d_" + k)}</span></td><td class="r">${nf(v + s.mslLat, 3)}</td><td class="r">${nf(v, 3)}</td></tr>`; }).join("");
-  constTable(constTable.all);
 }
 function select(s, fly) {
   state.sel = s; panel.classList.add("open"); document.body.classList.add("p-open");
   if (fly && s.lat != null) { view.lon = s.lon + (W > 760 ? 6 / Math.max(1, view.s / 20) : 0); view.lat = s.lat - (W > 760 ? 0 : 3 / Math.max(1, view.s / 20)); view.s = Math.max(view.s, 40); }
-  try { history.replaceState(null, "", "#" + s.code); } catch (e) {}
+  try { history.replaceState(null, "", "#" + (s.virtual ? `@${s.lat.toFixed(4)},${s.lon.toFixed(4)}` : s.code)); } catch (e) {}
+  $("svFmt").dispatchEvent(new Event("change"));
   $("fTz").innerHTML = tzOptions(s.tz); $("fTz").value = "local";
   const p = parts(Date.now(), "local"); $("fStart").value = `${p.Y}-${pad(p.M + 1)}-${pad(p.D)}T00:00`;
-  $("out").hidden = true; result = null; constTable.all = false;
+  $("out").hidden = true; result = null; constTable.all = isWide();
   stationStatic(); updateNow(); draw();
   setTimeout(() => runPrediction(), 30);
 }
 function constTable(all) {
-  constTable.all = all; const s = state.sel, list = Object.entries(s.c).slice(0, all ? 99 : 10);
-  $("pConst").innerHTML = `<tr><th>${t("constituent")}</th><th class="r">${t("speed")}</th><th class="r">${t("amp")}</th><th class="r">${t("phase")}</th></tr>` +
-    list.map(([n, [Hh, g]]) => `<tr><td>${n}</td><td class="r">${nf(E.speed(n), 4)}</td><td class="r">${nf(Hh, 4)}</td><td class="r">${nf(g, 1)}</td></tr>`).join("");
+  constTable.all = all; const s = state.sel; if (!s) return; const list = Object.entries(s.c).slice(0, all ? 99 : 10);
+  const box = $("pConst"), wpx = box.clientWidth || 400, cols = Math.max(1, Math.min(3, Math.floor((wpx + 18) / 270), Math.ceil(list.length / 6)));
+  const per = Math.ceil(list.length / cols), head = `<tr><th>${t("constituent")}</th><th class="r">${t("speed")}</th><th class="r">${t("amp")}</th><th class="r">${t("phase")}</th></tr>`;
+  box.style.setProperty("--ccols", cols); let html = "";
+  for (let c = 0; c < cols; c++) html += `<table>${head}` + list.slice(c * per, (c + 1) * per).map(([n, [Hh, g]]) => `<tr><td>${n}</td><td class="r">${nf(E.speed(n), 4)}</td><td class="r">${nf(Hh, 4)}</td><td class="r">${nf(g, 1)}</td></tr>`).join("") + `</table>`;
+  box.innerHTML = html;
   $("moreConst").textContent = all ? t("show10") : t("showAll", { n: Object.keys(s.c).length });
   $("moreConst").onclick = () => constTable(!all);
 }
@@ -633,6 +1055,19 @@ function updateNow() {
   const f = (i) => i < 0 ? "—" : `<b>${nf(ex.h[i] + s.mslLat)} m</b><br><span class="lbl">${fTime(ex.t[i], tz)} ${zoneAbbr(ex.t[i], tz)}, ${fDate(ex.t[i], tz).slice(0, -5)}</span>`;
   $("nextHW").innerHTML = f(find(1)); $("nextLW").innerHTML = f(find(0));
 }
+function isWide() { return panel.classList.contains("wide") && innerWidth > 1000; }
+function setWide(on, save) {
+  panel.classList.toggle("wide", on); document.body.classList.toggle("p-wide", on);
+  const b = $("wideBtn"); b.textContent = on ? "⤡" : "⤢"; b.title = t(on ? "narrowPanel" : "widePanel"); b.setAttribute("aria-label", b.title); b.setAttribute("aria-pressed", on);
+  if (save) { try { localStorage.setItem("tidara.wide", on ? "1" : "0"); } catch (e) {} }
+  if (state.sel) { if (on && !constTable.all) constTable.all = true; constTable(constTable.all); }
+  setTimeout(() => { if (result) drawChart(); draw(); }, 280);
+}
+(() => { let v = null; try { v = localStorage.getItem("tidara.wide"); } catch (e) {}
+  setWide(v == null ? innerWidth >= 1280 : v === "1", false); })();
+$("wideBtn").onclick = () => setWide(!panel.classList.contains("wide"), true);
+$("pNav").addEventListener("click", (e) => { const b = e.target.closest("button[data-go]"); if (!b) return;
+  const el = $(b.dataset.go), body = $("pBody"); body.scrollTo({ top: el.offsetTop - body.offsetTop - 8, behavior: "smooth" }); });
 $("pClose").onclick = () => { panel.classList.remove("open"); document.body.classList.remove("p-open"); state.sel = null; try { history.replaceState(null, "", location.pathname); } catch (e) {} draw(); };
 (() => { let y0 = null;
   [panel.querySelector(".grip"), panel.querySelector(".p-head")].forEach((el) => { el.addEventListener("touchstart", (e) => y0 = e.touches[0].clientY, { passive: true });
@@ -696,7 +1131,7 @@ function showResult() {
     `<div>${t("highest")} (${unit})<b>${nf(hi + r.off)}</b><span>${r.ex.t.length ? fISO(hiT, r.tz) : ""}</span></div>` +
     `<div>${t("lowest")} (${unit})<b>${nf(lo + r.off)}</b><span>${r.ex.t.length ? fISO(loT, r.tz) : ""}</span></div>` +
     `<div>${t("nHW")}<b>${nint(nh)}</b></div><div>${t("nLW")}<b>${nint(r.ex.t.length - nh)}</b></div><div>${t("points")}<b>${nint(r.n)}</b></div>`;
-  drawChart(); table();
+  drawChart(); table(); svHintUpdate();
 }
 
 const ch = $("chart");
@@ -822,8 +1257,10 @@ let saver = null;
 try { if (window.claude && typeof window.claude.use === "function") window.claude.use("downloads").then((d) => { saver = d; }).catch(() => {}); } catch (e) {}
 async function download(kind) {
   if (!result) return;
-  const r = result, name = `tidara_${r.s.code}_${fISO(r.start, r.tz).slice(0, 10)}_${kind === "ext" ? t("fileHL") : t("fileSer")}.csv`;
-  const blob = new Blob(csvParts(kind), { type: "text/csv" });
+  const r = result, name = `tidara_${fileCode(r.s)}_${fISO(r.start, r.tz).slice(0, 10)}_${kind === "ext" ? t("fileHL") : t("fileSer")}.csv`;
+  await saveBlob(name, new Blob(csvParts(kind), { type: "text/csv" }));
+}
+async function saveBlob(name, blob) {
   if (saver) {
     try { await saver.save({ filename: name, data: blob }); toast(t("saved", { f: name })); }
     catch (e) { if (e && e.code !== "declined") toast(e.code === "too_large" ? t("tooLarge") : t("dlUnavail")); }
@@ -834,6 +1271,141 @@ async function download(kind) {
     setTimeout(() => URL.revokeObjectURL(url), 60000); toast(t("downloading", { f: name, s: nf(blob.size / 1e6, 1) }));
   } catch (e) { toast(t("dlFail", { e: e.message })); }
 }
+/* ---------- survey software exports (EIVA, CARIS, HYPACK, Qinsy) ---------- */
+const clean3 = (v) => (Math.abs(v) < 0.0005 ? 0 : v).toFixed(3);
+const SVF = {
+  npt: { ext: "npt", head: "", line: (p, v) => `${pad(p.D)}-${pad(p.M + 1)}-${p.Y}, ${pad(p.h)}:${pad(p.m)}:00, ${clean3(v)}` },
+  wsv: { ext: "wsv", head: "", line: (p, v) => `${pad(p.D)}.${pad(p.M + 1)}.${String(p.Y).slice(2)} ${pad(p.h)}:${pad(p.m)}:00 ${clean3(v)}` },
+  tid: { ext: "tid", head: "--------\r\n", line: (p, v) => `${p.Y}/${pad(p.M + 1)}/${pad(p.D)} ${pad(p.h)}:${pad(p.m)} ${clean3(v)}` },
+  hyp: { ext: "txt", head: "Date\tTime\tTide_m\r\n", line: (p, v) => `${pad(p.D)}/${pad(p.M + 1)}/${p.Y}\t${pad(p.h)}:${pad(p.m)}:00\t${clean3(v)}` },
+};
+function svText(fmt, start, step, n, z, off, tz) {
+  const F = SVF[fmt], out = []; let buf = F.head;
+  for (let i = 0; i < n; i++) { buf += F.line(parts(start + i * step, tz), z[i] + off) + "\r\n"; if (buf.length > 4e6) { out.push(buf); buf = ""; } }
+  out.push(buf); return out;
+}
+const CRC = (() => { const tb = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; tb[n] = c >>> 0; } return tb; })();
+function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function makeZip(files) {
+  const enc = new TextEncoder(), loc = [], cen = [], d0 = new Date(); let off = 0;
+  const dosT = (d0.getHours() << 11) | (d0.getMinutes() << 5) | (d0.getSeconds() >> 1), dosD = ((d0.getFullYear() - 1980) << 9) | ((d0.getMonth() + 1) << 5) | d0.getDate();
+  for (const f of files) {
+    const d = enc.encode(f.data), nm = enc.encode(f.name), crc = crc32(d), h = new DataView(new ArrayBuffer(30)), c = new DataView(new ArrayBuffer(46));
+    [[0, 0x04034b50, 4], [4, 20, 2], [6, 0, 2], [8, 0, 2], [10, dosT, 2], [12, dosD, 2], [14, crc, 4], [18, d.length, 4], [22, d.length, 4], [26, nm.length, 2], [28, 0, 2]]
+      .forEach(([o, v, z]) => z === 4 ? h.setUint32(o, v, true) : h.setUint16(o, v, true));
+    [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0, 2], [10, 0, 2], [12, dosT, 2], [14, dosD, 2], [16, crc, 4], [20, d.length, 4], [24, d.length, 4], [28, nm.length, 2], [30, 0, 2], [32, 0, 2], [34, 0, 2], [36, 0, 2], [38, 0, 4], [42, off, 4]]
+      .forEach(([o, v, z]) => z === 4 ? c.setUint32(o, v, true) : c.setUint16(o, v, true));
+    loc.push(h, nm, d); cen.push(c, nm); off += 30 + nm.length + d.length;
+  }
+  const cs = cen.reduce((a, x) => a + x.byteLength, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cs, true); e.setUint32(16, off, true);
+  return new Blob([...loc, ...cen, e], { type: "application/zip" });
+}
+function svHintUpdate() {
+  const fmt = $("svFmt").value, r = result; $("zdfBox").hidden = fmt !== "zdf";
+  if (!r) { $("svHint").textContent = ""; return; }
+  if (fmt === "qtd") { $("svHint").textContent = t("svQtd", { z: nf(r.s.mslLat || 0, 3), n: qtdName(r.s).trim() }); $("svHint").className = "hint"; return; }
+  const z = zoneAbbr(r.start, r.tz), isUtc = r.tz === "0";
+  let h = isUtc ? t("svOk", { u: unitOf(r) }) : t("svUtc", { z: z === offStr(offH(r.start, r.tz)) ? z : `${z} (${offStr(offH(r.start, r.tz))})` });
+  if (fmt === "hyp") h += " " + t("svHyp");
+  $("svHint").textContent = h; $("svHint").className = "hint" + (isUtc ? "" : " warn-tz");
+  if (fmt === "zdf") $("zdfHint").textContent = r.s.virtual ? t("zPoint") : t("zStation");
+}
+$("svFmt").addEventListener("change", () => {
+  const s = state.sel; if (s && s.lat != null && (!$("zN").value || $("zN").dataset.for !== fileCode(s))) {
+    $("zN").value = (s.lat + 0.25).toFixed(3); $("zS").value = (s.lat - 0.25).toFixed(3); $("zW").value = (s.lon - 0.25).toFixed(3); $("zE").value = (s.lon + 0.25).toFixed(3); $("zN").dataset.for = fileCode(s);
+  }
+  svHintUpdate();
+});
+const wrap180 = (d) => ((d + 540) % 360) - 180;
+async function buildZdf() {
+  const r = result, s = r.s, N = +$("zN").value, S = +$("zS").value, Wl = +$("zW").value, El = +$("zE").value, km = Math.max(0.5, +$("zSize").value || 10);
+  if (!(N > S && El > Wl)) { toast(t("zNone")); return null; }
+  const mid = (N + S) / 2, nyz = Math.max(1, Math.round((N - S) * 111.2 / km)), nxz = Math.max(1, Math.round((El - Wl) * 111.2 * Math.cos(mid * Math.PI / 180) / km));
+  if (nyz * nxz > 80) { toast(t("zTooMany", { n: nyz * nxz })); return null; }
+  if (!s.virtual ? false : nyz * nxz * r.n > 6e6) { toast(t("zTooBig")); return null; }
+  toast(t("loadingModel"));
+  const zones = []; let k = 0;
+  for (let a = 0; a < nyz; a++) for (let b = 0; b < nxz; b++) {
+    const s0 = S + a * (N - S) / nyz, s1 = S + (a + 1) * (N - S) / nyz, w0 = Wl + b * (El - Wl) / nxz, w1 = Wl + (b + 1) * (El - Wl) / nxz;
+    const m = await modelAt((s0 + s1) / 2, (w0 + w1) / 2); if (!m) continue;
+    zones.push({ id: "Z" + String(++k).padStart(2, "0"), poly: [[s0, w0], [s1, w0], [s1, w1], [s0, w1], [s0, w0]], lat: (s0 + s1) / 2, lon: (w0 + w1) / 2, m });
+  }
+  if (!zones.length) { toast(t("zNone")); return null; }
+  const f6 = (v) => v.toFixed(6), stepS = Math.round(r.step / 1000), files = [], tz = r.tz, zl = zoneAbbr(r.start, tz);
+  const zoneTxt = zones.map((z) => `${z.id} 5\r\n` + z.poly.map(([la, lo]) => `${f6(la)} ${f6(lo)}`).join("\r\n")).join("\r\n");
+  let stTxt = "", tzTxt = "", note;
+  if (!s.virtual) {
+    const ref = await modelAt(s.lat, s.lon), key = s.F > 1.5 ? ["K1", "O1"] : ["M2", "S2"], ki = key.map((n) => MD.names.indexOf(n));
+    const amp = (m) => ki.reduce((a, i) => a + Math.hypot(m.z[2 * i], m.z[2 * i + 1]), 0), ph = (m) => Math.atan2(m.z[2 * ki[0] + 1], m.z[2 * ki[0]]) * 180 / Math.PI;
+    let hi = -1e9, lo = 1e9; for (let i = 0; i < r.n; i++) { const v = r.series[i]; if (v > hi) hi = v; if (v < lo) lo = v; }
+    stTxt = `${s.code} ${f6(s.lat)} ${f6(s.lon)} ${((hi - lo) / 2).toFixed(3)} 0.050 ${s.code}.tid`;
+    tzTxt = zones.map((z) => { const tc = Math.round(wrap180(ph(z.m) - ph(ref)) / E.speed(key[0]) * 60), rr = amp(z.m) / Math.max(1e-6, amp(ref));
+      return `${z.id} ${s.code} PRIM ${tc} ${rr.toFixed(3)} 0.000 ${(1.96 * z.m.conf).toFixed(3)}`; }).join("\r\n");
+    files.push({ name: `${s.code}.tid`, data: svText("tid", r.start, r.step, r.n, r.series, r.off, tz).join("") });
+    note = `Primary station ${s.name} (${s.code}) predicted from its own harmonic constants. Zone time corrections (minutes, positive = tide later than at the station) and range ratios come from the Tidara model (${key[0]}${key[1] ? "+" + key[1] : ""}).`;
+  } else {
+    const st = [], zt = [];
+    for (const z of zones) {
+      const { c } = modelConsts(z.m), p = datumsFor({ c }, true), off = { LAT: p.mslLat, MSL: 0, HAT: -p.datums.HAT }[r.datum];
+      const ser = E.series({ c }, r.start, r.step, r.n);
+      st.push(`${z.id} ${f6(z.lat)} ${f6(z.lon)} ${((p.datums.HAT - p.datums.LAT) / 2).toFixed(3)} ${(1.96 * z.m.conf).toFixed(3)} ${z.id}.tid`);
+      zt.push(`${z.id} ${z.id} PRIM 0 1.000 0.000 0.000`);
+      files.push({ name: `${z.id}.tid`, data: svText("tid", r.start, r.step, r.n, ser, off, tz).join("") });
+    }
+    stTxt = st.join("\r\n"); tzTxt = zt.join("\r\n");
+    note = "Each zone has its own tide file predicted by the Tidara model at the zone centre (time correction 0, range ratio 1.000). Station uncertainty = 95% (1.96 x estimated RMS error).";
+  }
+  const name = `tidara_${fileCode(s)}_zones`;
+  files.unshift({ name: `${name}.zdf`, data: `[ZONE_DEF_VERSION_3]\r\n\r\n[ZONE]\r\n${zoneTxt}\r\n\r\n[TIDE_STATION]\r\n${stTxt}\r\n\r\n[TIDE_ZONE]\r\n${tzTxt}\r\n\r\n[OPTIONS]\r\n60 ${stepS}\r\n` });
+  files.push({ name: "README.txt", data: `Tidara tide zones for CARIS HIPS and SIPS\r\n\r\n${note}\r\nZones: ${zones.length} rectangles of about ${km} km (latitude, longitude in decimal degrees, WGS84).\r\nThe model grid is 1/8 degree (about 14 km): zones much smaller than that get almost identical corrections.\r\nTide files: basic CARIS format, heights in metres ${unitOf(r)}, positive up, times in ${zl} (${offStr(offH(r.start, tz))}).\r\nThe time zone of the tide files must match your survey data.\r\nAstronomical tide only (no weather effects). Provided without warranty. (c) 2026 Aldwin Syahperdana - Tidara.\r\n` });
+  return { name: `${name}.zip`, blob: makeZip(files) };
+}
+/* ---------- Qinsy tide data (.qtd, binary, little-endian) ----------
+   Layout worked out from a Qinsy sample file (version 3):
+   header with the station block (name, ID, Z0 = MSL above chart datum, then g/H of M2, S2, K1, O1 in degrees UTC / metres),
+   start and end time, datum / method / source strings, interval (minutes) and record count, then one 28-byte record per
+   time step: int32 1, int32 MJD, float64 seconds of day (UTC), float64 height (m, relative to MSL), int32 1.
+   Unknown header bytes are copied unchanged from the sample. The station name and the three strings keep the sample's
+   lengths (12 and 14 characters) so every offset stays exactly as in a file Qinsy wrote. */
+const QTD_HEAD = "AwAAAAMMUmVtYmFuZyBUSWRlAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQAAAAxSZW1iYW5nIFRJZGUBMWZmZmZmZuY/BAAAAAAAAAAAMHVAmpmZmZmZqT8AAAAAADBzQHsUrkfhepQ/AAAAAAAQdUA9CtejcD3aPwAAAAAAQG5AMzMzMzMzwz8CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC0BAAAAn+sAAAAAAAAA4u1AAQAAAKXrAAAAAAAAAOLtQA5NZWFuIFNlYSBMZXZlbA5TaW1wbGlmaWVkIEFUVA5BZG1pcmFsdHkgVUtITwoAAAAAAAAA";
+function qtdBytes(o) {
+  /* o: { name (12 chars), z0, cons: [[g,H] x4 for M2,S2,K1,O1], start (ms UTC), stepMin, z (heights, m), source (14 chars, optional) } */
+  const head = Uint8Array.from(atob(QTD_HEAD), (ch) => ch.charCodeAt(0)), n = o.z.length;
+  const buf = new ArrayBuffer(412 + 28 * n), u8 = new Uint8Array(buf), dv = new DataView(buf);
+  u8.set(head, 0);
+  const put = (off, s, len) => { for (let i = 0; i < len; i++) u8[off + i] = s.charCodeAt(i) & 127; };
+  put(6, o.name, 12); put(80, o.name, 12);
+  if (o.source) put(386, o.source, 14);
+  dv.setFloat64(94, o.z0, true);
+  o.cons.forEach(([g, H], i) => { dv.setFloat64(106 + 16 * i, g, true); dv.setFloat64(114 + 16 * i, H, true); });
+  const tm = (off, ms) => { const day = Math.floor(ms / 86400000); dv.setInt32(off, 1, true); dv.setInt32(off + 4, day + 40587, true); dv.setFloat64(off + 8, (ms - day * 86400000) / 1000, true); };
+  const step = o.stepMin * 60000;
+  tm(323, o.start); tm(339, o.start + (n - 1) * step);
+  dv.setInt32(400, o.stepMin, true); dv.setInt32(404, 0, true); dv.setInt32(408, n, true);
+  for (let i = 0, p = 412; i < n; i++, p += 28) {
+    tm(p, o.start + i * step);
+    const v = Math.round(o.z[i] * 1000) / 1000; dv.setFloat64(p + 16, Object.is(v, -0) ? 0 : v, true); dv.setInt32(p + 24, 1, true);
+  }
+  return u8;
+}
+function qtdName(s) {
+  const a = (x) => String(x).normalize("NFD").replace(/[^\x20-\x7e]/g, "");
+  const raw = s.virtual ? `${s.lat.toFixed(2)},${s.lon.toFixed(2)}` : `${s.code} ${a(s.name)}`;
+  return raw.slice(0, 12).padEnd(12, " ");
+}
+function buildQtd(r) {
+  const s = r.s, c = (k) => (s.c[k] ? [s.c[k][1], s.c[k][0]] : [0, 0]);
+  return qtdBytes({ name: qtdName(s), z0: +(s.mslLat || 0).toFixed(3), cons: ["M2", "S2", "K1", "O1"].map(c), start: r.start, stepMin: Math.round(r.step / 60000), z: r.series, source: "Tidara 2026.11" });
+}
+$("svGo").onclick = async () => {
+  if (!result) return; const r = result, fmt = $("svFmt").value;
+  if (fmt === "qtd") { await saveBlob(`tidara_${fileCode(r.s)}_${fISO(r.start, r.tz).slice(0, 10)}.qtd`, new Blob([buildQtd(r)], { type: "application/octet-stream" })); return; }
+  if (fmt === "zdf") { const z = await buildZdf(); if (z) await saveBlob(z.name, z.blob); return; }
+  const name = `tidara_${fileCode(r.s)}_${fISO(r.start, r.tz).slice(0, 10)}.${SVF[fmt].ext}`;
+  await saveBlob(name, new Blob(svText(fmt, r.start, r.step, r.n, r.series, r.off, r.tz), { type: "text/plain" }));
+};
+
 $("dlExt").onclick = () => download("ext"); $("dlSer").onclick = () => download("ser");
 $("cpExt").onclick = async () => {
   if (!result) return; const txt = csvParts("ext").join("").replace(/^﻿/, "");
@@ -844,7 +1416,7 @@ $("cpExt").onclick = async () => {
 /* ---------- language / theme refresh ---------- */
 function applyLang() {
   document.querySelectorAll("[data-i18n]").forEach((el) => el.textContent = t(el.dataset.i18n));
-  $("q").placeholder = t("search"); $("q").setAttribute("aria-label", t("search"));
+  $("q").placeholder = t("search"); $("q").setAttribute("aria-label", t("search")); coordUI.lang(); $("cX").setAttribute("aria-label", t("close"));
   $("map").setAttribute("aria-label", t("mapLbl")); panel.setAttribute("aria-label", t("panelLbl")); $("pClose").setAttribute("aria-label", t("close"));
   $("zin").setAttribute("aria-label", t("zin")); $("zout").setAttribute("aria-label", t("zout"));
   $("play").setAttribute("aria-label", state.playing ? t("pause") : t("play")); $("tz").setAttribute("aria-label", t("mapTz"));
@@ -853,17 +1425,21 @@ function applyLang() {
   const dm = $("fDatum").options; dm[0].textContent = t("hLAT"); dm[1].textContent = t("hMSL"); dm[2].textContent = t("hHAT");
   const keepTz = $("tz").value || "local"; $("tz").innerHTML = tzOptions(-1); $("tz").value = keepTz;
   if (state.sel) { const k = $("fTz").value; $("fTz").innerHTML = tzOptions(state.sel.tz); $("fTz").value = k || "local"; stationStatic(); updateNow(); }
+  { const o = $("svFmt").options; ["npt", "wsv", "tid", "zdf", "hyp", "qtd"].forEach((k, i) => o[i].textContent = t("fmt_" + k)); svHintUpdate(); }
+  { const b = $("wideBtn"); b.title = t(panel.classList.contains("wide") ? "narrowPanel" : "widePanel"); b.setAttribute("aria-label", b.title); }
   buildLayers(); legend(); setTime(state.t, true); showResult();
 }
 PR.onChange(() => { readTheme(); applyLang(); drawTrack(); draw(); if (result) drawChart(); });
 
 /* ---------- start ---------- */
-addEventListener("resize", () => { resize(); if (result) drawChart(); });
+addEventListener("resize", () => { resize(); if (result) drawChart(); if (state.sel) constTable(constTable.all); });
 readTheme(); setRange(); computeValues(); fit(); resize(); applyLang(); setTime(Date.now());
 setInterval(() => { if (!state.playing && Math.abs(state.t - Date.now()) < 120000) setTime(Date.now(), true); }, 60000);
 const h0 = (location.hash || "").slice(1).toUpperCase();
-if (byCode[h0]) select(byCode[h0], true);
-addEventListener("hashchange", () => { const c = location.hash.slice(1).toUpperCase(); if (byCode[c] && state.sel !== byCode[c]) select(byCode[c], true); });
+const fromHash = (h) => { if (byCode[h]) { if (state.sel !== byCode[h]) select(byCode[h], true); return; }
+  const m = /^@(-?[\d.]+),(-?[\d.]+)$/.exec(h); if (m && !(state.sel && state.sel.virtual && `@${state.sel.lat.toFixed(4)},${state.sel.lon.toFixed(4)}` === h)) selectPoint(+m[1], +m[2], true); };
+fromHash(h0);
+addEventListener("hashchange", () => fromHash(location.hash.slice(1).toUpperCase()));
 </script>
 </body>
 </html>

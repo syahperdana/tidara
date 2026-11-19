@@ -44,6 +44,8 @@ The tidal constants behind it were derived independently from the raw observatio
 - ⏯️ **Timeline**: drag or play the next seven days and watch high water sweep across the archipelago.
 - 🧭 **Four map layers**: water level, tidal range (HAT − LAT), tide type (Formzahl) and data quality grade.
 - 📈 **Predictions from hours to 100 years**: 1 to 60-minute intervals, up to 6 million values per run, computed in a background worker in a few seconds.
+- 📍 **Any point at sea**: tap the sea for a prediction from the Tidara Indonesian tide model v1.0 (EOT20 + GOT5.5/5.6 + FES2022, corrected with the BIG and Pushidrosal gauges), with a confidence badge and the nearest stations by sea distance. Points can also be entered as coordinates: decimal degrees, degrees-minutes, degrees-minutes-seconds or UTM (WGS 84).
+- 🛥️ **Survey software files**: EIVA (.npt, .wsv), CARIS HIPS (.tid, and tide zones .zdf as a zip), a HYPACK Manual Tides import file and Qinsy tide data (.qtd).
 - 📋 **High and low water tables** to the minute, plus the full time series, page by page.
 - 🔍 **Zoomable chart**: from a 100-year overview down to a single tide, on mouse or touch.
 - 💾 **CSV export and copy** for Excel, GIS and engineering tools.
@@ -99,6 +101,7 @@ tidara/
 │   ├── tidara-data.js    Station metadata, datums and harmonic constants
 │   ├── tide-engine.js    Prediction engine (also runs in a Web Worker)
 │   ├── basemap.js        Coastlines and borders (Natural Earth)
+│   ├── model/            Tidara Indonesian tide model v1.0 (tiles load only when the sea is tapped)
 │   ├── prefs.js          Language and day/night preferences
 │   ├── site.css          Styles for the guide and science pages
 │   └── logo.svg          Logo
@@ -120,7 +123,7 @@ python -m http.server 8000
 1. Push this folder to a repository (for example `tidara`).
 2. In the repository go to **Settings → Pages**.
 3. Under **Build and deployment**, choose **Deploy from a branch**, branch **main**, folder **/ (root)**, and save.
-4. After a minute the site is live at `https://YOUR-USERNAME.github.io/tidara/`.
+4. After a minute the site is live at `https://syahperdana.github.io/tidara/`.
 
 ## Updating the data
 
@@ -134,7 +137,9 @@ The analysis scripts produce `tidara-data.js`. To refresh the constants with new
 
 ## Data and credits
 
-- Observations: tide gauge network of **Badan Informasi Geospasial (BIG)**, Indonesia.
+- Observations: tide gauge network of **Badan Informasi Geospasial (BIG)**, Indonesia, and tide gauges of **Pusat Hidro-Oseanografi TNI Angkatan Laut (Pushidrosal)**, used with permission. Tidara's harmonic analysis and predictions are not official Pushidrosal predictions.
+- Global tide models: **EOT20** (Hart-Davis et al. 2021, DGFI-TUM, CC BY 4.0, doi:10.17882/79489) and **GOT5.5/5.6** (R. Ray, NASA GSFC).
+- **FES2022**: The FES2022 Tide product was funded by CNES, produced by LEGOS, NOVELTIS and CLS and made freely available by AVISO. Licence: https://www.aviso.altimetry.fr/fileadmin/documents/data/License_Aviso.pdf. Tidara's tide predictions are derived from the original dataset; the FES2022 data themselves are not redistributed. Because it uses FES2022, Tidara is non-commercial.
 - Base map: [Natural Earth](https://www.naturalearthdata.com/) 1:10m land and boundaries (public domain).
 - Methods: Schureman (1958); Foreman (1977); Pawlowicz, Beardsley & Lentz (2002, T_TIDE); Pugh & Woodworth (2014).
 - Font: [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) (SIL Open Font License).
@@ -146,7 +151,7 @@ The analysis scripts produce `tidara-data.js`. To refresh the constants with new
 
 **Tidara** adalah peta interaktif dan alat prediksi pasang surut untuk 303 stasiun pasut di seluruh Indonesia. Konstanta harmoniknya diturunkan secara mandiri dari data pengamatan per menit selama 4,6 tahun (Oktober 2021 – Mei 2026), melalui kendali mutu per stasiun, lalu diuji pada data yang belum pernah dipakai dalam analisis: median akurasi 97,9% dan median galat 6,4 cm.
 
-Fitur utama: peta muka air saat ini, lini waktu tujuh hari yang dapat diputar, empat lapisan peta, prediksi dari beberapa jam hingga 100 tahun, tabel air tinggi dan air rendah, grafik yang dapat diperbesar, ekspor CSV, zona waktu pengguna otomatis, mode siang dan malam, serta tampilan Bahasa Inggris dan Bahasa Indonesia. Situs ini berjalan sepenuhnya di peramban, tanpa server, dan ringan untuk ponsel.
+Fitur utama: peta muka air saat ini, lini waktu tujuh hari yang dapat diputar, empat lapisan peta, prediksi dari beberapa jam hingga 100 tahun, tabel air tinggi dan air rendah, grafik yang dapat diperbesar, prediksi model di titik mana pun di laut (dengan lencana keyakinan, juga lewat koordinat DD, DM, DMS atau UTM), ekspor CSV dan berkas perangkat lunak survei (EIVA, CARIS, HYPACK, Qinsy), zona waktu pengguna otomatis, mode siang dan malam, serta tampilan Bahasa Inggris dan Bahasa Indonesia. Situs ini berjalan sepenuhnya di peramban, tanpa server, dan ringan untuk ponsel.
 
 Prediksi hanya mencakup pasut astronomis dan **tidak untuk navigasi**.
 
