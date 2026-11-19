@@ -44,7 +44,7 @@
       <div class="feat"><span class="k">LIVE</span><b>Water level right now</b><span>Each station is coloured by where the tide is within its own range, with an arrow for rising or falling.</span></div>
       <div class="feat"><span class="k">TIMELINE</span><b>Play the next week</b><span>Drag or play the timeline to watch high and low water sweep across the archipelago, hour by hour.</span></div>
       <div class="feat"><span class="k">LAYERS</span><b>Four ways to view the network</b><span>Water level, tidal range (HAT − LAT), tide type and data quality grade.</span></div>
-      <div class="feat"><span class="k">PREDICT</span><b>Hours to 100 years</b><span>Any start date, any length, at 1 to 60 minute intervals. Long runs are computed in the background in a few seconds.</span></div>
+      <div class="feat"><span class="k">PREDICT</span><b>Hours to 100 years</b><span>Any start date, any length, at intervals from 1 minute to 1 hour. Long runs are computed in the background in a few seconds.</span></div>
       <div class="feat"><span class="k">TABLES</span><b>High and low waters</b><span>Times and heights of every high and low water, plus the full time series, page by page.</span></div>
       <div class="feat"><span class="k">CHART</span><b>Zoomable tide curve</b><span>Pan and zoom from a 100-year overview down to individual tides, on mouse or touch.</span></div>
       <div class="feat"><span class="k">EXPORT</span><b>CSV download and copy</b><span>Save high/low waters or the full series as CSV for Excel, GIS or engineering software.</span></div>
@@ -105,11 +105,11 @@
       <tr><th>Setting</th><th>Meaning</th></tr>
       <tr><td>Start</td><td>Date and time of the first value, in the chosen time zone.</td></tr>
       <tr><td>Length</td><td>A number of hours, days, months or years. There is no upper limit on length; 100 years is fine.</td></tr>
-      <tr><td>Interval</td><td>Time between values in the series: any whole number of minutes from 1 to 60 (default 5 minutes). High and low waters are always found to the minute, whatever interval you choose.</td></tr>
+      <tr><td>Interval</td><td>Time between values in the series: 1, 5, 10, 15, 20 or 30 minutes, or 1 hour (default 5 minutes). High and low waters are always found to the minute, whatever interval you choose.</td></tr>
       <tr><td>Time zone</td><td><b>UTC</b> (default), or your time (your device's zone, including daylight saving where it applies), WIB (UTC+7), WITA (UTC+8) or WIT (UTC+9). The station's own zone is marked "station" in the list.</td></tr>
       <tr><td>Heights</td><td>Metres above LAT (chart datum, matches nautical charts and BIG's tide tables), metres relative to mean sea level, or metres relative to HAT (0 at the highest astronomical tide, values below it negative, useful for clearance under bridges and structures).</td></tr>
     </table></div>
-    <p>A single run can hold up to 6 million values. If a long run at a short interval would exceed that, Tidara raises the interval automatically and tells you (for example, 100 years at 10-minute steps is 5.3 million values and runs as asked; 100 years at 1-minute steps is set to 9 minutes). On a typical laptop a 100-year run takes 2 to 5 seconds, with a progress bar.</p>
+    <p>A single run can hold up to 6 million values. If a long run at a short interval would exceed that, Tidara raises the interval automatically and tells you (for example, 100 years at 10-minute steps is 5.3 million values and runs as asked; 100 years at 1-minute steps is set to 10 minutes). On a typical laptop a 100-year run takes 2 to 5 seconds, with a progress bar.</p>
 
     <h2 id="results">Reading the results</h2>
     <ul>
@@ -141,7 +141,6 @@
     <div class="tbl"><table>
       <tr><th>Format</th><th>Example line</th></tr>
       <tr><td>EIVA NaviPac (.npt)</td><td><code>13-11-2026, 00:00:00, 2.550</code></td></tr>
-      <tr><td>EIVA (.wsv)</td><td><code>13.11.26 00:00:00 2.550</code></td></tr>
       <tr><td>CARIS HIPS (.tid)</td><td><code>--------</code> then <code>2026/11/13 00:00 2.550</code></td></tr>
       <tr><td>HYPACK Manual Tides import (.txt)</td><td><code>13/11/2026&#9;00:00:00&#9;2.550</code> (tab-separated)</td></tr>
       <tr><td>Qinsy tide data (.qtd)</td><td>binary file (one record per time step)</td></tr>
@@ -149,12 +148,6 @@
     <p>Survey files always use a decimal point, whatever the site language.</p>
     <p><b>HYPACK:</b> open Manual Tides, import the .txt (tab delimiter, DD/MM date format, skip problem lines), then save the .TID with <b>Invert Tides</b> on, because HYPACK stores tide as a correction.</p>
     <p><b>Qinsy (.qtd):</b> a binary tide data file in the layout Qinsy writes. Times are always stored in UTC, whatever time zone you chose. Heights are relative to MSL; the station block holds MSL above LAT (Z0) and the station's M2, S2, K1 and O1 constants. The station name is shortened to 12 characters (code and name, or latitude,longitude for a sea point). The layout was worked out from a Qinsy sample file, so check the first file in Qinsy before survey use.</p>
-    <p><b>CARIS tide zones (.zdf):</b> enter the survey area (north, south, west, east in decimal degrees) and a zone size. Tidara splits the area into rectangular zones and downloads a zip with the .zdf, the .tid file(s) and a README:</p>
-    <ul>
-      <li><b>From a station:</b> one .tid predicted from the station's own constants. Each zone gets a time correction (minutes, positive means the tide is later than at the station) and a range ratio, both taken from the model.</li>
-      <li><b>From a sea point:</b> each zone gets its own .tid predicted by the model at the zone centre (time correction 0, range ratio 1.000).</li>
-    </ul>
-    <div class="note">The model grid is about 14 km, so zones much smaller than that get almost the same corrections. The zone uncertainty written to the .zdf is the 95% value (1.96 × the estimated RMS error). Qinsy (.qtd/.qtf) files are binary and are not supported yet.</div>
 
     <h2 id="numbers">What the numbers mean</h2>
     <div class="tbl"><table>
@@ -221,7 +214,7 @@
       <div class="feat"><span class="k">LANGSUNG</span><b>Muka air saat ini</b><span>Setiap stasiun diberi warna sesuai posisi pasut dalam rentang tunggangnya sendiri, dengan panah naik atau turun.</span></div>
       <div class="feat"><span class="k">LINI WAKTU</span><b>Putar seminggu ke depan</b><span>Geser atau putar lini waktu untuk melihat air tinggi dan air rendah bergerak melintasi Nusantara, jam demi jam.</span></div>
       <div class="feat"><span class="k">LAPISAN</span><b>Empat cara melihat jaringan</b><span>Muka air, tunggang pasut (HAT − LAT), tipe pasut, dan kelas kualitas data.</span></div>
-      <div class="feat"><span class="k">PREDIKSI</span><b>Dari jam hingga 100 tahun</b><span>Tanggal mulai bebas, durasi bebas, interval 1 sampai 60 menit. Perhitungan panjang berjalan di latar belakang dalam beberapa detik.</span></div>
+      <div class="feat"><span class="k">PREDIKSI</span><b>Dari jam hingga 100 tahun</b><span>Tanggal mulai bebas, durasi bebas, interval 1 menit hingga 1 jam. Perhitungan panjang berjalan di latar belakang dalam beberapa detik.</span></div>
       <div class="feat"><span class="k">TABEL</span><b>Air tinggi dan air rendah</b><span>Waktu dan ketinggian setiap air tinggi dan air rendah, serta deret waktu lengkap, per halaman.</span></div>
       <div class="feat"><span class="k">GRAFIK</span><b>Kurva pasut yang dapat diperbesar</b><span>Geser dan perbesar dari ringkasan 100 tahun hingga satu siklus pasut, dengan tetikus atau sentuhan.</span></div>
       <div class="feat"><span class="k">EKSPOR</span><b>Unduh CSV dan salin</b><span>Simpan air tinggi/rendah atau deret waktu lengkap sebagai CSV untuk Excel, GIS, atau perangkat lunak rekayasa.</span></div>
@@ -282,11 +275,11 @@
       <tr><th>Pengaturan</th><th>Arti</th></tr>
       <tr><td>Mulai</td><td>Tanggal dan jam nilai pertama, dalam zona waktu yang dipilih.</td></tr>
       <tr><td>Durasi</td><td>Jumlah jam, hari, bulan, atau tahun. Tidak ada batas atas durasi; 100 tahun tidak masalah.</td></tr>
-      <tr><td>Interval</td><td>Jarak waktu antarnilai dalam deret: berapa pun menit bulat dari 1 sampai 60 (bawaan 5 menit). Air tinggi dan air rendah selalu dihitung hingga ketelitian menit, berapa pun intervalnya.</td></tr>
+      <tr><td>Interval</td><td>Jarak waktu antarnilai dalam deret: 1, 5, 10, 15, 20, atau 30 menit, atau 1 jam (bawaan 5 menit). Air tinggi dan air rendah selalu dihitung hingga ketelitian menit, berapa pun intervalnya.</td></tr>
       <tr><td>Zona waktu</td><td><b>UTC</b> (bawaan), atau waktu Anda (zona perangkat Anda, termasuk waktu musim panas bila berlaku), WIB (UTC+7), WITA (UTC+8), atau WIT (UTC+9). Zona stasiun ditandai "stasiun" dalam daftar.</td></tr>
       <tr><td>Ketinggian</td><td>Meter di atas LAT (datum peta, sesuai peta laut dan tabel pasut BIG), meter terhadap muka laut rata-rata, atau meter terhadap HAT (0 pada air tertinggi astronomis, nilai di bawahnya negatif, berguna untuk ruang bebas di bawah jembatan dan bangunan).</td></tr>
     </table></div>
-    <p>Satu perhitungan dapat memuat hingga 6 juta nilai. Bila perhitungan panjang dengan interval pendek melebihi batas itu, Tidara otomatis memperbesar interval dan memberi tahu Anda (misalnya, 100 tahun dengan interval 10 menit berisi 5,3 juta nilai dan berjalan sesuai permintaan; 100 tahun dengan interval 1 menit diubah menjadi 9 menit). Pada laptop biasa, perhitungan 100 tahun memakan waktu 2 sampai 5 detik, dengan bilah kemajuan.</p>
+    <p>Satu perhitungan dapat memuat hingga 6 juta nilai. Bila perhitungan panjang dengan interval pendek melebihi batas itu, Tidara otomatis memperbesar interval dan memberi tahu Anda (misalnya, 100 tahun dengan interval 10 menit berisi 5,3 juta nilai dan berjalan sesuai permintaan; 100 tahun dengan interval 1 menit diubah menjadi 10 menit). Pada laptop biasa, perhitungan 100 tahun memakan waktu 2 sampai 5 detik, dengan bilah kemajuan.</p>
 
     <h2 id="id-results">Membaca hasil</h2>
     <ul>
@@ -318,7 +311,6 @@
     <div class="tbl"><table>
       <tr><th>Format</th><th>Contoh baris</th></tr>
       <tr><td>EIVA NaviPac (.npt)</td><td><code>13-11-2026, 00:00:00, 2.550</code></td></tr>
-      <tr><td>EIVA (.wsv)</td><td><code>13.11.26 00:00:00 2.550</code></td></tr>
       <tr><td>CARIS HIPS (.tid)</td><td><code>--------</code> lalu <code>2026/11/13 00:00 2.550</code></td></tr>
       <tr><td>Impor HYPACK Manual Tides (.txt)</td><td><code>13/11/2026&#9;00:00:00&#9;2.550</code> (dipisah tab)</td></tr>
       <tr><td>Data pasut Qinsy (.qtd)</td><td>berkas biner (satu rekaman per langkah waktu)</td></tr>
@@ -326,12 +318,6 @@
     <p>Berkas survei selalu memakai titik desimal, apa pun bahasa situs.</p>
     <p><b>HYPACK:</b> buka Manual Tides, impor .txt (pemisah tab, format tanggal DD/MM, lewati baris bermasalah), lalu simpan .TID dengan <b>Invert Tides</b> aktif, karena HYPACK menyimpan pasut sebagai koreksi.</p>
     <p><b>Qinsy (.qtd):</b> berkas data pasut biner dengan susunan seperti yang ditulis Qinsy. Waktu selalu disimpan dalam UTC, apa pun zona waktu yang dipilih. Tinggi relatif terhadap MSL; blok stasiun berisi MSL di atas LAT (Z0) serta konstanta M2, S2, K1 dan O1 stasiun. Nama stasiun dipendekkan menjadi 12 karakter (kode dan nama, atau lintang,bujur untuk titik laut). Susunan berkas diturunkan dari contoh berkas Qinsy, jadi periksa berkas pertama di Qinsy sebelum dipakai untuk survei.</p>
-    <p><b>Zona pasut CARIS (.zdf):</b> isi area survei (utara, selatan, barat, timur dalam derajat desimal) dan ukuran zona. Tidara membagi area menjadi zona persegi dan mengunduh zip berisi .zdf, berkas .tid, dan README:</p>
-    <ul>
-      <li><b>Dari stasiun:</b> satu .tid dari konstanta stasiun. Setiap zona mendapat koreksi waktu (menit, positif berarti pasut lebih lambat daripada di stasiun) dan rasio tunggang, keduanya dari model.</li>
-      <li><b>Dari titik laut:</b> setiap zona mendapat .tid sendiri dari model di pusat zona (koreksi waktu 0, rasio tunggang 1,000).</li>
-    </ul>
-    <div class="note">Grid model sekitar 14 km, sehingga zona yang jauh lebih kecil mendapat koreksi yang hampir sama. Ketidakpastian zona dalam .zdf adalah nilai 95% (1,96 × perkiraan galat RMS). Berkas Qinsy (.qtd/.qtf) berformat biner dan belum didukung.</div>
 
     <h2 id="id-numbers">Arti angka-angka</h2>
     <div class="tbl"><table>

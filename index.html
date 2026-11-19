@@ -326,7 +326,7 @@ body.p-open.p-wide .layers, body.p-open.p-wide .zoom { right: calc(min(920px, 10
         </div>
         <div class="svx">
           <label for="svFmt"><span data-i18n="svTitle"></span><select id="svFmt">
-            <option value="npt"></option><option value="wsv"></option><option value="tid"></option><option value="zdf"></option><option value="hyp"></option><option value="qtd"></option></select></label>
+            <option value="npt"></option><option value="tid"></option><option value="hyp"></option><option value="qtd"></option></select></label>
           <button class="btn ghost" id="svGo" type="button" data-i18n="svGo"></button>
         </div>
         <div id="zdfBox" hidden>
@@ -1138,7 +1138,7 @@ onmessage = (e) => { const m = e.data; let last = 0;
   try { worker = new Worker(URL.createObjectURL(new Blob([src], { type: "text/javascript" }))); } catch (e) { worker = null; }
   return worker;
 }
-const MAXPTS = 6e6;
+const MAXPTS = 6e6, STEPS = [1, 5, 10, 15, 20, 30, 60];   // prediction intervals (minutes)
 function runPrediction() {
   const s = state.sel; if (!s) return;
   const tz = $("fTz").value, v = $("fStart").value; if (!v) { toast(t("chooseStart")); return; }
@@ -1150,7 +1150,7 @@ function runPrediction() {
   else { const e = new Date(start); if (u === "m") e.setUTCMonth(e.getUTCMonth() + L); else e.setUTCFullYear(e.getUTCFullYear() + L); end = e.getTime(); }
   let step = +$("fStep").value * 60000, n = Math.floor((end - start) / step) + 1;
   if (n > MAXPTS) {
-    let need = 60; for (let o = 1; o <= 60; o++) if ((end - start) / (o * 60000) + 1 <= MAXPTS) { need = o; break; }
+    const need = STEPS.find((o) => (end - start) / (o * 60000) + 1 <= MAXPTS) || 60;
     step = need * 60000; n = Math.floor((end - start) / step) + 1; $("fStep").value = need; toast(t("autoStep", { n: need }));
   }
   const msg = { id: Date.now(), st: { c: s.c }, start, step, n };
@@ -1472,11 +1472,11 @@ function applyLang() {
   $("zin").setAttribute("aria-label", t("zin")); $("zout").setAttribute("aria-label", t("zout"));
   $("play").setAttribute("aria-label", state.playing ? t("pause") : t("play")); $("tz").setAttribute("aria-label", t("mapTz"));
   const u = $("fUnit").options; ["h", "d", "m", "y"].forEach((k, i) => u[i].textContent = t("u_" + k));
-  const st = $("fStep"), sv = st.value || "5"; st.innerHTML = Array.from({ length: 60 }, (_, i) => i + 1).map((n) => `<option value="${n}">${n === 1 ? t("min1") : n === 60 ? t("hour1") : t("minN", { n })}</option>`).join(""); st.value = sv;
+  const st = $("fStep"), sv = st.value || "5"; st.innerHTML = STEPS.map((n) => `<option value="${n}">${n === 1 ? t("min1") : n === 60 ? t("hour1") : t("minN", { n })}</option>`).join(""); st.value = sv;
   const dm = $("fDatum").options; dm[0].textContent = t("hLAT"); dm[1].textContent = t("hMSL"); dm[2].textContent = t("hHAT");
   const keepTz = $("tz").value || "local"; $("tz").innerHTML = tzOptions(-1); $("tz").value = keepTz;
   if (state.sel) { const k = $("fTz").value; $("fTz").innerHTML = tzOptions(state.sel.tz); $("fTz").value = k || "0"; stationStatic(); updateNow(); }
-  { const o = $("svFmt").options; ["npt", "wsv", "tid", "zdf", "hyp", "qtd"].forEach((k, i) => o[i].textContent = t("fmt_" + k)); svHintUpdate(); }
+  { const o = $("svFmt").options; ["npt", "tid", "hyp", "qtd"].forEach((k, i) => o[i].textContent = t("fmt_" + k)); svHintUpdate(); }
   { const b = $("wideBtn"); b.title = t(panel.classList.contains("wide") ? "narrowPanel" : "widePanel"); b.setAttribute("aria-label", b.title); }
   buildLayers(); legend(); setTime(state.t, true); showResult();
 }

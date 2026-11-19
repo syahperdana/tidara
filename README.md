@@ -43,9 +43,9 @@ The tidal constants behind it were derived independently from the raw observatio
 - 🌊 **Live water level**: each station is coloured by where the tide is within its own range, with rising/falling arrows.
 - ⏯️ **Timeline**: drag or play the next seven days and watch high water sweep across the archipelago.
 - 🧭 **Four map layers**: water level, tidal range (HAT − LAT), tide type (Formzahl) and data quality grade.
-- 📈 **Predictions from hours to 100 years**: 1 to 60-minute intervals, up to 6 million values per run, computed in a background worker in a few seconds.
+- 📈 **Predictions from hours to 100 years**: intervals from 1 minute to 1 hour, up to 6 million values per run, computed in a background worker in a few seconds.
 - 📍 **Any point at sea**: tap the sea for a prediction from the Tidara Indonesian tide model v1.0 (EOT20 + GOT5.5/5.6 + FES2022, corrected with the BIG and Pushidrosal gauges), with a confidence badge and the nearest stations by sea distance. Points can also be entered as coordinates: decimal degrees, degrees-minutes, degrees-minutes-seconds or UTM (WGS 84).
-- 🛥️ **Survey software files**: EIVA (.npt, .wsv), CARIS HIPS (.tid, and tide zones .zdf as a zip), a HYPACK Manual Tides import file and Qinsy tide data (.qtd).
+- 🛥️ **Survey software files**: EIVA NaviPac (.npt), CARIS HIPS (.tid), a HYPACK Manual Tides import file and Qinsy tide data (.qtd).
 - 📋 **High and low water tables** to the minute, plus the full time series, page by page.
 - 🔍 **Zoomable chart**: from a 100-year overview down to a single tide, on mouse or touch.
 - 💾 **CSV export and copy** for Excel, GIS and engineering tools.
