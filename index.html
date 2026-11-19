@@ -306,7 +306,7 @@ body.p-open.p-wide .layers, body.p-open.p-wide .zoom { right: calc(min(920px, 10
         <label for="fLen"><span data-i18n="length"></span>
           <span class="len"><input type="number" id="fLen" min="1" step="1" value="3"><select id="fUnit"><option value="h"></option><option value="d" selected></option><option value="m"></option><option value="y"></option></select></span>
         </label>
-        <label for="fStep"><span data-i18n="interval"></span><select id="fStep"><option value="1"></option><option value="5"></option><option value="10" selected></option><option value="15"></option><option value="30"></option><option value="60"></option></select></label>
+        <label for="fStep"><span data-i18n="interval"></span><select id="fStep"></select></label>
         <label for="fTz"><span data-i18n="timeZone"></span><select id="fTz"></select></label>
         <label for="fDatum" style="grid-column:1/-1"><span data-i18n="heights"></span><select id="fDatum"><option value="LAT"></option><option value="MSL"></option><option value="HAT"></option></select></label>
         <div class="run"><button class="btn" id="fRun" type="submit" data-i18n="predict"></button><span class="hint" id="fHint"></span></div>
@@ -1080,8 +1080,8 @@ function select(s, fly) {
   try { history.replaceState(null, "", "#" + hs); } catch (e) {}
   try { localStorage.setItem("tidara.last", hs); } catch (e) {}
   $("svFmt").dispatchEvent(new Event("change"));
-  $("fTz").innerHTML = tzOptions(s.tz); $("fTz").value = "local";
-  const p = parts(Date.now(), "local"); $("fStart").value = `${p.Y}-${pad(p.M + 1)}-${pad(p.D)}T00:00`;
+  $("fTz").innerHTML = tzOptions(s.tz); $("fTz").value = "0";
+  const p = parts(Date.now(), "0"); $("fStart").value = `${p.Y}-${pad(p.M + 1)}-${pad(p.D)}T00:00`;
   $("out").hidden = true; result = null; constTable.all = isWide();
   stationStatic(); updateNow(); draw();
   setTimeout(() => runPrediction(), 30);
@@ -1150,7 +1150,7 @@ function runPrediction() {
   else { const e = new Date(start); if (u === "m") e.setUTCMonth(e.getUTCMonth() + L); else e.setUTCFullYear(e.getUTCFullYear() + L); end = e.getTime(); }
   let step = +$("fStep").value * 60000, n = Math.floor((end - start) / step) + 1;
   if (n > MAXPTS) {
-    const need = [1, 5, 10, 15, 30, 60].find((o) => (end - start) / (o * 60000) + 1 <= MAXPTS) || 60;
+    let need = 60; for (let o = 1; o <= 60; o++) if ((end - start) / (o * 60000) + 1 <= MAXPTS) { need = o; break; }
     step = need * 60000; n = Math.floor((end - start) / step) + 1; $("fStep").value = need; toast(t("autoStep", { n: need }));
   }
   const msg = { id: Date.now(), st: { c: s.c }, start, step, n };
@@ -1472,10 +1472,10 @@ function applyLang() {
   $("zin").setAttribute("aria-label", t("zin")); $("zout").setAttribute("aria-label", t("zout"));
   $("play").setAttribute("aria-label", state.playing ? t("pause") : t("play")); $("tz").setAttribute("aria-label", t("mapTz"));
   const u = $("fUnit").options; ["h", "d", "m", "y"].forEach((k, i) => u[i].textContent = t("u_" + k));
-  const st = $("fStep").options; [1, 5, 10, 15, 30, 60].forEach((n, i) => st[i].textContent = n === 1 ? t("min1") : n === 60 ? t("hour1") : t("minN", { n }));
+  const st = $("fStep"), sv = st.value || "5"; st.innerHTML = Array.from({ length: 60 }, (_, i) => i + 1).map((n) => `<option value="${n}">${n === 1 ? t("min1") : n === 60 ? t("hour1") : t("minN", { n })}</option>`).join(""); st.value = sv;
   const dm = $("fDatum").options; dm[0].textContent = t("hLAT"); dm[1].textContent = t("hMSL"); dm[2].textContent = t("hHAT");
   const keepTz = $("tz").value || "local"; $("tz").innerHTML = tzOptions(-1); $("tz").value = keepTz;
-  if (state.sel) { const k = $("fTz").value; $("fTz").innerHTML = tzOptions(state.sel.tz); $("fTz").value = k || "local"; stationStatic(); updateNow(); }
+  if (state.sel) { const k = $("fTz").value; $("fTz").innerHTML = tzOptions(state.sel.tz); $("fTz").value = k || "0"; stationStatic(); updateNow(); }
   { const o = $("svFmt").options; ["npt", "wsv", "tid", "zdf", "hyp", "qtd"].forEach((k, i) => o[i].textContent = t("fmt_" + k)); svHintUpdate(); }
   { const b = $("wideBtn"); b.title = t(panel.classList.contains("wide") ? "narrowPanel" : "widePanel"); b.setAttribute("aria-label", b.title); }
   buildLayers(); legend(); setTime(state.t, true); showResult();

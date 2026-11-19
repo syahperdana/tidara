@@ -53,7 +53,7 @@
       <div class="feat"><span class="k">MOBILE</span><b>Works on phones</b><span>Touch-friendly map with pinch zoom and a bottom sheet for station details.</span></div>
       <div class="feat"><span class="k">THEMES</span><b>Day and night mode</b><span>A light day theme and a dark night theme. Tidara follows your device setting; switch any time with the sun/moon button.</span></div>
       <div class="feat"><span class="k">LANGUAGE</span><b>English and Bahasa Indonesia</b><span>The whole site, including this guide and the CSV exports, is available in both languages. Press <b>ID</b> or <b>EN</b> in the top bar.</span></div>
-      <div class="feat"><span class="k">YOUR TIME</span><b>Your own time zone</b><span>Clocks and predictions open in your device's time zone (including daylight saving abroad), with WIB, WITA, WIT and UTC one click away.</span></div>
+      <div class="feat"><span class="k">YOUR TIME</span><b>Your own time zone</b><span>The map clock opens in your device's time zone (including daylight saving abroad); predictions open in UTC. WIB, WITA, WIT and your own time are one click away.</span></div>
       <div class="feat"><span class="k">LIGHT</span><b>Small and self-contained</b><span>About 200 KB to download (compressed), no server and no map tiles: copy the folder to any web host.</span></div>
     </div>
 
@@ -61,7 +61,7 @@
     <ol class="steps">
       <li><b>Find a station.</b> Click a dot on the map, or type a name, code or province in the search box (for example <kbd>Makassar</kbd>, <kbd>UJPD</kbd> or <kbd>Maluku</kbd>) and press Enter.</li>
       <li><b>Read the current tide.</b> The panel opens with the water level at the selected time, whether it is rising or falling, and the next high and low water.</li>
-      <li><b>Run a prediction.</b> A 3-day prediction starting today runs automatically. Change the start, length, interval, time zone or height reference and press <b>Predict tides</b>.</li>
+      <li><b>Run a prediction.</b> A 3-day prediction starting today (00:00 UTC, every 5 minutes) runs automatically. Change the start, length, interval, time zone or height reference and press <b>Predict tides</b>.</li>
       <li><b>Explore and export.</b> Zoom the chart, page through the high and low water table, and download or copy the results.</li>
     </ol>
     <div class="note">You can link straight to a station by adding its code to the address, for example <code>index.html#SRBY</code> opens Surabaya.</div>
@@ -105,11 +105,11 @@
       <tr><th>Setting</th><th>Meaning</th></tr>
       <tr><td>Start</td><td>Date and time of the first value, in the chosen time zone.</td></tr>
       <tr><td>Length</td><td>A number of hours, days, months or years. There is no upper limit on length; 100 years is fine.</td></tr>
-      <tr><td>Interval</td><td>Time between values in the series: 1, 5, 10, 15, 30 or 60 minutes. High and low waters are always found to the minute, whatever interval you choose.</td></tr>
-      <tr><td>Time zone</td><td><b>Your time</b> (default: your device's zone, including daylight saving where it applies), or WIB (UTC+7), WITA (UTC+8), WIT (UTC+9) or UTC. The station's own zone is marked "station" in the list.</td></tr>
+      <tr><td>Interval</td><td>Time between values in the series: any whole number of minutes from 1 to 60 (default 5 minutes). High and low waters are always found to the minute, whatever interval you choose.</td></tr>
+      <tr><td>Time zone</td><td><b>UTC</b> (default), or your time (your device's zone, including daylight saving where it applies), WIB (UTC+7), WITA (UTC+8) or WIT (UTC+9). The station's own zone is marked "station" in the list.</td></tr>
       <tr><td>Heights</td><td>Metres above LAT (chart datum, matches nautical charts and BIG's tide tables), metres relative to mean sea level, or metres relative to HAT (0 at the highest astronomical tide, values below it negative, useful for clearance under bridges and structures).</td></tr>
     </table></div>
-    <p>A single run can hold up to 6 million values. If a long run at a short interval would exceed that, Tidara raises the interval automatically and tells you (for example, 100 years at 10-minute steps is 5.3 million values and runs as asked; 100 years at 1-minute steps is set to 10 minutes). On a typical laptop a 100-year run takes 2 to 5 seconds, with a progress bar.</p>
+    <p>A single run can hold up to 6 million values. If a long run at a short interval would exceed that, Tidara raises the interval automatically and tells you (for example, 100 years at 10-minute steps is 5.3 million values and runs as asked; 100 years at 1-minute steps is set to 9 minutes). On a typical laptop a 100-year run takes 2 to 5 seconds, with a progress bar.</p>
 
     <h2 id="results">Reading the results</h2>
     <ul>
@@ -137,7 +137,7 @@
     <div class="note">A 100-year series at 10-minute steps is about 120 MB of CSV. For long periods, export the high and low waters (about 4 MB per 100 years), or use a 1-hour interval. When Tidara is viewed inside Claude, each download asks you to confirm first; on your own web server or from the files on your computer it downloads straight away.</div>
 
     <h2 id="survey">Survey software files</h2>
-    <p>Under the CSV buttons, <b>Survey software file</b> writes the predicted series (at the interval you chose) in formats that survey software reads directly. Heights follow the <b>Heights</b> setting (above LAT, relative to MSL or relative to HAT), positive up. Survey software normally expects <b>UTC</b>: choose UTC in <b>Time zone</b> and predict again before exporting. Tidara shows a warning when the times are not UTC.</p>
+    <p>Under the CSV buttons, <b>Survey software file</b> writes the predicted series (at the interval you chose) in formats that survey software reads directly. Heights follow the <b>Heights</b> setting (above LAT, relative to MSL or relative to HAT), positive up. Survey software normally expects <b>UTC</b>, which is the default <b>Time zone</b>; if you changed it, choose UTC and predict again before exporting. Tidara shows a warning when the times are not UTC.</p>
     <div class="tbl"><table>
       <tr><th>Format</th><th>Example line</th></tr>
       <tr><td>EIVA NaviPac (.npt)</td><td><code>13-11-2026, 00:00:00, 2.550</code></td></tr>
@@ -178,7 +178,7 @@
     <h3>Are 100-year predictions reliable?</h3>
     <p>The astronomy is predictable for centuries, so the timing and size of the tides stay accurate. What the prediction cannot know is how mean sea level will change through sea-level rise, land subsidence or harbour works. Add a sea-level scenario separately for long-term design.</p>
     <h3>Which time zone should I use?</h3>
-    <p>Your own time zone is selected automatically. For a tide table to use at the station, pick the zone marked "station". Use UTC to combine stations across zones or for scientific work.</p>
+    <p>Predictions open in UTC, which suits survey software, combining stations across zones and scientific work. For a tide table to use at the station, pick the zone marked "station"; <b>Your time</b> uses your device's zone.</p>
 
     <h2 id="hosting">Hosting the site</h2>
     <p>Tidara is a static website: copy the whole folder to any web host (GitHub Pages, Netlify, an S3 bucket or a company web server) and open <code>index.html</code>. It also runs straight from the folder on your computer. The files are:</p>
@@ -228,7 +228,7 @@
       <div class="feat"><span class="k">LOKAL</span><b>Waktu setempat dan datum peta</b><span>Waktu dalam zona Anda, WIB, WITA, WIT, atau UTC; ketinggian di atas LAT (datum peta), terhadap muka laut rata-rata, atau terhadap HAT.</span></div>
       <div class="feat"><span class="k">TEMA</span><b>Mode siang dan malam</b><span>Tema terang untuk siang dan tema gelap untuk malam. Tidara mengikuti pengaturan perangkat Anda; ganti kapan saja dengan tombol matahari/bulan.</span></div>
       <div class="feat"><span class="k">BAHASA</span><b>Bahasa Inggris dan Indonesia</b><span>Seluruh situs, termasuk panduan ini dan berkas CSV, tersedia dalam dua bahasa. Tekan <b>ID</b> atau <b>EN</b> di bilah atas.</span></div>
-      <div class="feat"><span class="k">WAKTU ANDA</span><b>Zona waktu Anda sendiri</b><span>Jam dan prediksi otomatis memakai zona waktu perangkat Anda (termasuk waktu musim panas di luar negeri); WIB, WITA, WIT, dan UTC tinggal satu klik.</span></div>
+      <div class="feat"><span class="k">WAKTU ANDA</span><b>Zona waktu Anda sendiri</b><span>Jam peta otomatis memakai zona waktu perangkat Anda (termasuk waktu musim panas di luar negeri); prediksi dibuka dalam UTC. WIB, WITA, WIT, dan waktu Anda tinggal satu klik.</span></div>
       <div class="feat"><span class="k">TRANSPARAN</span><b>Konstanta dan akurasi</b><span>Setiap stasiun menampilkan elevasi pasut, konstanta harmonik, dan seberapa baik prediksinya pada data yang belum pernah dilihat.</span></div>
       <div class="feat"><span class="k">PONSEL</span><b>Nyaman di ponsel</b><span>Peta ramah sentuhan dengan cubit untuk memperbesar dan lembar bawah untuk rincian stasiun.</span></div>
       <div class="feat"><span class="k">RINGAN</span><b>Kecil dan mandiri</b><span>Sekitar 200 KB untuk diunduh (terkompresi), tanpa server dan tanpa ubin peta: cukup salin foldernya ke hosting web mana pun.</span></div>
@@ -238,7 +238,7 @@
     <ol class="steps">
       <li><b>Cari stasiun.</b> Klik titik di peta, atau ketik nama, kode, atau provinsi di kotak pencarian (misalnya <kbd>Makassar</kbd>, <kbd>UJPD</kbd>, atau <kbd>Maluku</kbd>) lalu tekan Enter.</li>
       <li><b>Baca kondisi pasut.</b> Panel terbuka dengan muka air pada waktu terpilih, apakah sedang naik atau turun, serta air tinggi dan air rendah berikutnya.</li>
-      <li><b>Jalankan prediksi.</b> Prediksi 3 hari mulai hari ini berjalan otomatis. Ubah waktu mulai, durasi, interval, zona waktu, atau acuan ketinggian lalu tekan <b>Hitung prediksi</b>.</li>
+      <li><b>Jalankan prediksi.</b> Prediksi 3 hari mulai hari ini (00.00 UTC, tiap 5 menit) berjalan otomatis. Ubah waktu mulai, durasi, interval, zona waktu, atau acuan ketinggian lalu tekan <b>Hitung prediksi</b>.</li>
       <li><b>Jelajahi dan ekspor.</b> Perbesar grafik, telusuri tabel air tinggi dan rendah per halaman, lalu unduh atau salin hasilnya.</li>
     </ol>
     <div class="note">Anda dapat menautkan langsung ke sebuah stasiun dengan menambahkan kodenya di alamat, misalnya <code>index.html#SRBY</code> membuka Surabaya.</div>
@@ -282,11 +282,11 @@
       <tr><th>Pengaturan</th><th>Arti</th></tr>
       <tr><td>Mulai</td><td>Tanggal dan jam nilai pertama, dalam zona waktu yang dipilih.</td></tr>
       <tr><td>Durasi</td><td>Jumlah jam, hari, bulan, atau tahun. Tidak ada batas atas durasi; 100 tahun tidak masalah.</td></tr>
-      <tr><td>Interval</td><td>Jarak waktu antarnilai dalam deret: 1, 5, 10, 15, 30, atau 60 menit. Air tinggi dan air rendah selalu dihitung hingga ketelitian menit, berapa pun intervalnya.</td></tr>
-      <tr><td>Zona waktu</td><td><b>Waktu Anda</b> (bawaan: zona perangkat Anda, termasuk waktu musim panas bila berlaku), atau WIB (UTC+7), WITA (UTC+8), WIT (UTC+9), atau UTC. Zona stasiun ditandai "stasiun" dalam daftar.</td></tr>
+      <tr><td>Interval</td><td>Jarak waktu antarnilai dalam deret: berapa pun menit bulat dari 1 sampai 60 (bawaan 5 menit). Air tinggi dan air rendah selalu dihitung hingga ketelitian menit, berapa pun intervalnya.</td></tr>
+      <tr><td>Zona waktu</td><td><b>UTC</b> (bawaan), atau waktu Anda (zona perangkat Anda, termasuk waktu musim panas bila berlaku), WIB (UTC+7), WITA (UTC+8), atau WIT (UTC+9). Zona stasiun ditandai "stasiun" dalam daftar.</td></tr>
       <tr><td>Ketinggian</td><td>Meter di atas LAT (datum peta, sesuai peta laut dan tabel pasut BIG), meter terhadap muka laut rata-rata, atau meter terhadap HAT (0 pada air tertinggi astronomis, nilai di bawahnya negatif, berguna untuk ruang bebas di bawah jembatan dan bangunan).</td></tr>
     </table></div>
-    <p>Satu perhitungan dapat memuat hingga 6 juta nilai. Bila perhitungan panjang dengan interval pendek melebihi batas itu, Tidara otomatis memperbesar interval dan memberi tahu Anda (misalnya, 100 tahun dengan interval 10 menit berisi 5,3 juta nilai dan berjalan sesuai permintaan; 100 tahun dengan interval 1 menit diubah menjadi 10 menit). Pada laptop biasa, perhitungan 100 tahun memakan waktu 2 sampai 5 detik, dengan bilah kemajuan.</p>
+    <p>Satu perhitungan dapat memuat hingga 6 juta nilai. Bila perhitungan panjang dengan interval pendek melebihi batas itu, Tidara otomatis memperbesar interval dan memberi tahu Anda (misalnya, 100 tahun dengan interval 10 menit berisi 5,3 juta nilai dan berjalan sesuai permintaan; 100 tahun dengan interval 1 menit diubah menjadi 9 menit). Pada laptop biasa, perhitungan 100 tahun memakan waktu 2 sampai 5 detik, dengan bilah kemajuan.</p>
 
     <h2 id="id-results">Membaca hasil</h2>
     <ul>
@@ -314,7 +314,7 @@
     <div class="note">Deret 100 tahun dengan interval 10 menit berukuran sekitar 120 MB. Untuk periode panjang, ekspor air tinggi dan rendah saja (sekitar 4 MB per 100 tahun), atau gunakan interval 1 jam. Saat Tidara dibuka di dalam Claude, setiap unduhan meminta konfirmasi terlebih dahulu; di server web Anda sendiri atau dari berkas di komputer, unduhan langsung berjalan.</div>
 
     <h2 id="id-survey">Berkas perangkat lunak survei</h2>
-    <p>Di bawah tombol CSV, <b>Berkas perangkat lunak survei</b> menulis deret prediksi (dengan interval yang Anda pilih) dalam format yang langsung dibaca perangkat lunak survei. Ketinggian mengikuti pilihan <b>Ketinggian</b> (di atas LAT, terhadap MSL atau terhadap HAT), positif ke atas. Perangkat lunak survei umumnya memakai <b>UTC</b>: pilih UTC pada <b>Zona waktu</b> lalu prediksi ulang sebelum mengekspor. Tidara menampilkan peringatan bila waktunya bukan UTC.</p>
+    <p>Di bawah tombol CSV, <b>Berkas perangkat lunak survei</b> menulis deret prediksi (dengan interval yang Anda pilih) dalam format yang langsung dibaca perangkat lunak survei. Ketinggian mengikuti pilihan <b>Ketinggian</b> (di atas LAT, terhadap MSL atau terhadap HAT), positif ke atas. Perangkat lunak survei umumnya memakai <b>UTC</b>, yang merupakan <b>Zona waktu</b> bawaan; bila Anda mengubahnya, pilih UTC lalu prediksi ulang sebelum mengekspor. Tidara menampilkan peringatan bila waktunya bukan UTC.</p>
     <div class="tbl"><table>
       <tr><th>Format</th><th>Contoh baris</th></tr>
       <tr><td>EIVA NaviPac (.npt)</td><td><code>13-11-2026, 00:00:00, 2.550</code></td></tr>
@@ -355,7 +355,7 @@
     <h3>Apakah prediksi 100 tahun dapat diandalkan?</h3>
     <p>Gerak benda langit dapat diprediksi hingga berabad-abad, sehingga waktu dan besar pasut tetap akurat. Yang tidak dapat diketahui adalah perubahan muka laut rata-rata akibat kenaikan muka laut, penurunan tanah, atau pembangunan pelabuhan. Tambahkan skenario muka laut secara terpisah untuk perencanaan jangka panjang.</p>
     <h3>Zona waktu mana yang sebaiknya dipakai?</h3>
-    <p>Zona waktu Anda dipilih otomatis. Untuk tabel pasut yang dipakai di lokasi stasiun, pilih zona yang bertanda "stasiun". Gunakan UTC untuk menggabungkan stasiun lintas zona atau untuk keperluan ilmiah.</p>
+    <p>Prediksi dibuka dalam UTC, yang cocok untuk perangkat lunak survei, penggabungan stasiun lintas zona, dan keperluan ilmiah. Untuk tabel pasut yang dipakai di lokasi stasiun, pilih zona yang bertanda "stasiun"; <b>Waktu Anda</b> memakai zona perangkat Anda.</p>
 
     <h2 id="id-hosting">Memasang situs</h2>
     <p>Tidara adalah situs statis: salin seluruh folder ke hosting web mana pun (GitHub Pages, Netlify, bucket S3, atau server web kantor) lalu buka <code>index.html</code>. Situs juga dapat dibuka langsung dari folder di komputer Anda. Berkasnya:</p>
