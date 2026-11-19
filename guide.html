@@ -377,5 +377,15 @@
   <span><span data-l="en">Observations: Badan Informasi Geospasial (BIG) tide gauge network; Pusat Hidro-Oseanografi TNI AL (Pushidrosal) tide gauges, used with permission · Global model: FES2022 Tide (funded by CNES, produced by LEGOS, NOVELTIS and CLS, made freely available by AVISO; <a href="https://www.aviso.altimetry.fr/fileadmin/documents/data/License_Aviso.pdf">licence</a>; Tidara predictions are derived from it), EOT20 (DGFI-TUM), GOT5.5/5.6 (NASA GSFC) · Base map: Natural Earth</span><span data-l="id">Data pengamatan: jaringan stasiun pasut Badan Informasi Geospasial (BIG); stasiun pasut Pusat Hidro-Oseanografi TNI AL (Pushidrosal), digunakan dengan izin · Model global: FES2022 Tide (didanai CNES, dibuat oleh LEGOS, NOVELTIS dan CLS, disediakan gratis oleh AVISO; <a href="https://www.aviso.altimetry.fr/fileadmin/documents/data/License_Aviso.pdf">lisensi</a>; prediksi Tidara diturunkan darinya), EOT20 (DGFI-TUM), GOT5.5/5.6 (NASA GSFC) · Peta dasar: Natural Earth</span></span>
 </div></footer>
 <script>TidaraPrefs.onChange(() => { document.title = TidaraPrefs.lang === "id" ? 'Panduan Tidara' : 'Tidara User Guide'; });</script>
+<script>/* beta banner: shown only on the test site syahperdana.github.io/tidara-beta */
+(function () { if (!/^\/tidara-beta(\/|$)/.test(location.pathname)) return;
+  var m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
+  var id = false; try { id = (window.TidaraPrefs && TidaraPrefs.lang === "id") || document.documentElement.lang === "id"; } catch (e) {}
+  document.title = "[BETA] " + document.title;
+  var b = document.createElement("a"); b.href = "https://syahperdana.github.io/tidara/";
+  b.textContent = id ? "BETA \u2013 situs uji, bukan versi operasional \u00b7 buka Tidara \u2192" : "BETA \u2013 test site, not the operational version \u00b7 open Tidara \u2192";
+  b.style.cssText = "position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99999;background:#d03b3b;color:#fff;font:600 12px/1.6 system-ui,sans-serif;padding:2px 12px;border-radius:0 0 8px 8px;text-decoration:none;white-space:nowrap";
+  document.body.appendChild(b); })();
+</script>
 </body>
 </html>

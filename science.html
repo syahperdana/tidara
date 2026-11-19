@@ -364,5 +364,15 @@
 })();
 </script>
 <script>TidaraPrefs.onChange(() => { document.title = TidaraPrefs.lang === "id" ? 'Sains di Balik Tidara' : 'The Science Behind Tidara'; });</script>
+<script>/* beta banner: shown only on the test site syahperdana.github.io/tidara-beta */
+(function () { if (!/^\/tidara-beta(\/|$)/.test(location.pathname)) return;
+  var m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
+  var id = false; try { id = (window.TidaraPrefs && TidaraPrefs.lang === "id") || document.documentElement.lang === "id"; } catch (e) {}
+  document.title = "[BETA] " + document.title;
+  var b = document.createElement("a"); b.href = "https://syahperdana.github.io/tidara/";
+  b.textContent = id ? "BETA \u2013 situs uji, bukan versi operasional \u00b7 buka Tidara \u2192" : "BETA \u2013 test site, not the operational version \u00b7 open Tidara \u2192";
+  b.style.cssText = "position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99999;background:#d03b3b;color:#fff;font:600 12px/1.6 system-ui,sans-serif;padding:2px 12px;border-radius:0 0 8px 8px;text-decoration:none;white-space:nowrap";
+  document.body.appendChild(b); })();
+</script>
 </body>
 </html>

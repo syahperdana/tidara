@@ -418,6 +418,8 @@ const I18N = {
     eE: "Easting must be between 100,000 and 900,000 m.", eN: "Northing must be between 0 and 10,000,000 m.",
     cLand: "No model data at this point: it is on land or too close to the coast for the model grid. Try a point a little further offshore, or use a nearby station.",
     cGoTo: "Go to {p}", posAlt: "Other formats",
+    n_RIV_t: "River-mouth gauge: the tide here differs from the open sea",
+    n_RIV_p: "This gauge is in a river or estuary, not on the open coast. The tide here can be smaller and later than at sea, and river flow can hold up low waters, most of all in the rainy season. Predictions from this station suit this site (tested error {r} cm), but not the open sea nearby: for that, tap the sea instead.",
     stnRiver: "River mouth", n_LIAT_t: "River-mouth gauge: expect errors of 15–30 cm",
     n_LIAT_p: "This gauge is in a river mouth, not the open sea. The tide here is damped and about an hour late, and low waters are held up, most strongly from December to March, when the tide can drop to a third of the open-sea tide. Predictions from this station are off by about 11 cm (RMS) in the dry season and 16 cm in the wet season, sometimes 30 cm or more around low water. For work offshore, tap the sea instead; for low-water work in the harbour, use a local tide gauge.",
     zN: "North (°)", zS: "South (°)", zW: "West (°)", zE: "East (°)", zSize: "Zone size (km)",
@@ -474,6 +476,8 @@ const I18N = {
     eE: "Easting harus antara 100.000 dan 900.000 m.", eN: "Northing harus antara 0 dan 10.000.000 m.",
     cLand: "Tidak ada data model di titik ini: berada di darat atau terlalu dekat pantai untuk grid model. Coba titik sedikit lebih ke laut, atau gunakan stasiun terdekat.",
     cGoTo: "Ke {p}", posAlt: "Format lain",
+    n_RIV_t: "Stasiun di muara sungai: pasut di sini berbeda dari laut terbuka",
+    n_RIV_p: "Stasiun ini berada di sungai atau muara, bukan di pantai terbuka. Pasut di sini bisa lebih kecil dan lebih lambat daripada di laut, dan aliran sungai bisa menahan air rendah, terutama pada musim hujan. Prediksi stasiun ini cocok untuk lokasi ini (galat uji {r} cm), tetapi tidak untuk laut terbuka di sekitarnya: untuk itu, ketuk titik di laut.",
     stnRiver: "Muara sungai", n_LIAT_t: "Stasiun di muara sungai: galat 15–30 cm",
     n_LIAT_p: "Stasiun ini berada di muara sungai, bukan di laut terbuka. Pasut di sini teredam dan terlambat sekitar satu jam, dan air rendah tertahan, paling kuat pada Desember sampai Maret, ketika pasut bisa tinggal sepertiga dari pasut laut terbuka. Prediksi stasiun ini meleset sekitar 11 cm (RMS) pada musim kemarau dan 16 cm pada musim hujan, kadang 30 cm atau lebih di sekitar air rendah. Untuk pekerjaan di lepas pantai, ketuk laut; untuk pekerjaan saat air rendah di pelabuhan, gunakan palem/tide gauge setempat.",
     zN: "Utara (°)", zS: "Selatan (°)", zW: "Barat (°)", zE: "Timur (°)", zSize: "Ukuran zona (km)",
@@ -1000,6 +1004,8 @@ function pointStatic(s) {
 
 /* station notes: gauges whose record is not representative of the nearby sea (see _RESULTS/diagnostics) */
 const STATION_NOTES = { LIAT: { level: "lo", chip: "stnRiver" } };
+/* other gauges inside a river or estuary (checked on BIG sketch maps and satellite imagery, 2026-11-19): generic note */
+["GLGH", "SKLP", "KDWG", "KLJL", "MEKE", "PTKR", "KLTL", "PNDG"].forEach((c) => STATION_NOTES[c] = { level: "md", chip: "stnRiver", gen: true });
 function stationStatic() {
   const s = state.sel; if (!s) return;
   if (s.virtual) { pointStatic(s); datumTable(s); constTable(constTable.all); return; }
@@ -1008,7 +1014,7 @@ function stationStatic() {
   $("pSub").textContent = `${s.code} · ${[s.regency, s.province].filter(Boolean).join(", ")}`;
   const note = STATION_NOTES[s.code];
   $("pChips").innerHTML = `<span class="chip g-${s.grade}">${t("grade")} ${s.grade}</span>` + (note ? `<span class="chip c-${note.level}">${t(note.chip)}</span>` : "") + `<span class="chip">${typeName(s.type)}</span><span class="chip num">${t("range")} ${nf(s.datums.HAT - s.datums.LAT)} m</span>`;
-  if (note) { $("cConf").hidden = false; $("confBox").className = "conf c-" + note.level; $("confT").textContent = t(`n_${s.code}_t`); $("confP").textContent = t(`n_${s.code}_p`); $("nearList").innerHTML = ""; }
+  if (note) { $("cConf").hidden = false; $("confBox").className = "conf c-" + note.level; $("confT").textContent = note.gen ? t("n_RIV_t") : t(`n_${s.code}_t`); $("confP").textContent = note.gen ? t("n_RIV_p", { r: s.rmse != null ? nf(s.rmse * 100, 1) : "—" }) : t(`n_${s.code}_p`); $("nearList").innerHTML = ""; }
   const lat = s.lat != null ? `${nf(Math.abs(s.lat), 5)}° ${s.lat < 0 ? (ID() ? "LS" : "S") : (ID() ? "LU" : "N")}, ${nf(s.lon, 5)}° ${ID() ? "BT" : "E"}` : t("na");
   $("pInfo").innerHTML = [
     [t("location"), s.location || "—"], [t("position"), lat], [t("posAlt"), altLL(s.lat, s.lon)], [t("localTime"), `${INDO[s.tz]} (${offStr(s.tz)})`],
@@ -1440,6 +1446,16 @@ const fromHash = (h) => { if (byCode[h]) { if (state.sel !== byCode[h]) select(b
   const m = /^@(-?[\d.]+),(-?[\d.]+)$/.exec(h); if (m && !(state.sel && state.sel.virtual && `@${state.sel.lat.toFixed(4)},${state.sel.lon.toFixed(4)}` === h)) selectPoint(+m[1], +m[2], true); };
 fromHash(h0);
 addEventListener("hashchange", () => fromHash(location.hash.slice(1).toUpperCase()));
+</script>
+<script>/* beta banner: shown only on the test site syahperdana.github.io/tidara-beta */
+(function () { if (!/^\/tidara-beta(\/|$)/.test(location.pathname)) return;
+  var m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
+  var id = false; try { id = (window.TidaraPrefs && TidaraPrefs.lang === "id") || document.documentElement.lang === "id"; } catch (e) {}
+  document.title = "[BETA] " + document.title;
+  var b = document.createElement("a"); b.href = "https://syahperdana.github.io/tidara/";
+  b.textContent = id ? "BETA \u2013 situs uji, bukan versi operasional \u00b7 buka Tidara \u2192" : "BETA \u2013 test site, not the operational version \u00b7 open Tidara \u2192";
+  b.style.cssText = "position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99999;background:#d03b3b;color:#fff;font:600 12px/1.6 system-ui,sans-serif;padding:2px 12px;border-radius:0 0 8px 8px;text-decoration:none;white-space:nowrap";
+  document.body.appendChild(b); })();
 </script>
 </body>
 </html>
