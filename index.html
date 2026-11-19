@@ -374,7 +374,7 @@ const I18N = {
     tagline: "Tides of the Nusantara seas", guide: "User guide", science: "Science", search: "Search 303 stations…", noMatch: "No station matches “{q}”.",
     attrib: "© 2026 Aldwin Syahperdana · Observations: BIG and Pushidrosal tide gauges · Model includes FES2022 (CNES/AVISO) · Base map: Natural Earth",
     now: "Now", play: "Play timeline", pause: "Pause timeline", mapTz: "Map time zone", zin: "Zoom in", zout: "Zoom out",
-    lyr_level: "Water level", lyr_range: "Tidal range", lyr_type: "Tide type", lyr_grade: "Data quality", noData: "Stations without data", layerGroup: "Map layer",
+    lyr_level: "Water level", lyr_range: "Tidal range", lyr_type: "Tide type", lyr_grade: "Data quality", noData: "Stations without data", seaCol: "Colour the sea (model)", legSea: "Sea: Tidara model, main tidal constituents", layerGroup: "Map layer",
     legLevel: "Water level now", legLow: "Lowest (LAT)", legHigh: "Highest (HAT)", legShare: "Share of each station's own tidal range",
     legRange: "Tidal range (HAT − LAT)", legType: "Tide type", legGrade: "Data quality grade",
     gA: "A · ≥ 1 year, ≥ 95% skill", gB: "B · good, shorter or 90–95%", gC: "C · use with care",
@@ -432,7 +432,7 @@ const I18N = {
     tagline: "Pasang surut laut Nusantara", guide: "Panduan", science: "Sains", search: "Cari 303 stasiun…", noMatch: "Tidak ada stasiun yang cocok dengan “{q}”.",
     attrib: "© 2026 Aldwin Syahperdana · Data pengamatan: stasiun pasut BIG dan Pushidrosal · Model memakai FES2022 (CNES/AVISO) · Peta dasar: Natural Earth",
     now: "Sekarang", play: "Putar lini waktu", pause: "Jeda lini waktu", mapTz: "Zona waktu peta", zin: "Perbesar", zout: "Perkecil",
-    lyr_level: "Muka air", lyr_range: "Tunggang pasut", lyr_type: "Tipe pasut", lyr_grade: "Kualitas data", noData: "Stasiun tanpa data", layerGroup: "Lapisan peta",
+    lyr_level: "Muka air", lyr_range: "Tunggang pasut", lyr_type: "Tipe pasut", lyr_grade: "Kualitas data", noData: "Stasiun tanpa data", seaCol: "Warnai laut (model)", legSea: "Laut: model Tidara, konstituen pasut utama", layerGroup: "Lapisan peta",
     legLevel: "Muka air saat ini", legLow: "Terendah (LAT)", legHigh: "Tertinggi (HAT)", legShare: "Persentase dari tunggang pasut tiap stasiun",
     legRange: "Tunggang pasut (HAT − LAT)", legType: "Tipe pasut", legGrade: "Kelas kualitas data",
     gA: "A · ≥ 1 tahun, akurasi ≥ 95%", gB: "B · baik, lebih pendek atau 90–95%", gC: "C · gunakan dengan hati-hati",
@@ -571,6 +571,41 @@ function computeValues() {
     else values.set(s.code, { color: GRADE[s.grade] });
   }
 }
+/* ---------- sea colour: Tidara model field (10 main constituents, 1/8 deg), loaded on first use ---------- */
+const SEA = { on: (() => { try { return localStorage.getItem("tidara.sea") !== "0"; } catch (e) { return true; } })(), d: null, loading: false, layer: "", t: 0 };
+const LUT = (() => { const o = new Uint8Array(768); for (let i = 0; i < 256; i++) { const m = /rgb\((\d+),(\d+),(\d+)\)/.exec(ramp(i / 255)); o[3 * i] = +m[1]; o[3 * i + 1] = +m[2]; o[3 * i + 2] = +m[3]; } return o; })();
+function seaLoad() {
+  if (SEA.d || SEA.loading) return; SEA.loading = true;
+  const sc = document.createElement("script"); sc.src = "assets/model/seafield.js"; sc.async = true;
+  sc.onload = () => { try { seaDecode(window.TIDARA_SEA); } catch (e) {} window.TIDARA_SEA = null; SEA.loading = false; draw(); };
+  sc.onerror = () => { SEA.loading = false; };
+  document.head.appendChild(sc);
+}
+function seaDecode(m) {
+  const n = m.n, K = m.names.length, raw = atob(m.data), F = [];
+  for (let k = 0; k < 2 * K + 2; k++) {
+    const f = new Float32Array(n), sc = m.scales[k], signed = k < 2 * K, o = k * n; let q = 0;
+    for (let i = 0; i < n; i++) { q = (q + raw.charCodeAt(o + i)) & 255; f[i] = (signed && q > 127 ? q - 256 : q) * sc; }
+    F.push(f);
+  }
+  const bits = atob(m.mask), pix = new Int32Array(n); let c = 0;
+  for (let p = 0; p < m.ny * m.nx; p++) if (bits.charCodeAt(p >> 3) & (128 >> (p & 7))) { const j = (p / m.nx) | 0, i = p % m.nx; pix[c++] = ((m.ny - 1 - j) * m.nx + i) * 4; }
+  const cv2 = document.createElement("canvas"); cv2.width = m.nx; cv2.height = m.ny; const ctx = cv2.getContext("2d");
+  SEA.d = { m, K, C: F.slice(0, K), S: F.slice(K, 2 * K), lo: F[2 * K], hi: F[2 * K + 1], pix, cv: cv2, ctx, img: ctx.createImageData(m.nx, m.ny),
+    st: { c: Object.fromEntries(m.names.map((x) => [x, [1, 0]])) } };
+  SEA.layer = "";
+}
+function seaUpdate() {
+  const d = SEA.d; if (SEA.layer === state.layer && (state.layer !== "level" || SEA.t === state.t)) return;
+  SEA.layer = state.layer; SEA.t = state.t;
+  const px = d.img.data, n = d.m.n, K = d.K, put = (i, v) => { const q = Math.max(0, Math.min(255, Math.round(v * 255))) * 3, o = d.pix[i]; px[o] = LUT[q]; px[o + 1] = LUT[q + 1]; px[o + 2] = LUT[q + 2]; px[o + 3] = 255; };
+  if (state.layer === "level") {
+    const tr = E.terms(d.st, state.t), fc = new Float32Array(K), fs = new Float32Array(K);
+    for (let k = 0; k < K; k++) { fc[k] = tr[3 * k] * Math.cos(tr[3 * k + 1]); fs[k] = tr[3 * k] * Math.sin(tr[3 * k + 1]); }
+    for (let i = 0; i < n; i++) { let h = 0; for (let k = 0; k < K; k++) h += fc[k] * d.C[k][i] + fs[k] * d.S[k][i]; const r = d.lo[i] + d.hi[i]; put(i, r > 0.02 ? (h + d.lo[i]) / r : 0.5); }
+  } else for (let i = 0; i < n; i++) put(i, (d.lo[i] + d.hi[i]) / 4);
+  d.ctx.putImageData(d.img, 0, 0);
+}
 let raf = 0;
 function draw() { if (!raf) raf = requestAnimationFrame(render); }
 function render() {
@@ -582,6 +617,11 @@ function render() {
   for (let la = Math.floor(unY(H) / g) * g; la <= unY(0); la += g) { cx.moveTo(0, Y(la)); cx.lineTo(W, Y(la)); }
   cx.stroke();
   cx.setTransform(k * view.s, 0, 0, k * view.s, k * (W / 2 - view.lon * view.s), k * (H / 2 + view.lat * view.s));
+  if (SEA.on && (state.layer === "level" || state.layer === "range")) {
+    if (!SEA.d) seaLoad();
+    else { seaUpdate(); const m = SEA.d.m, st = m.step; cx.imageSmoothingEnabled = true; cx.globalAlpha = 0.55;
+      cx.drawImage(SEA.d.cv, m.lon0 - st / 2, -(m.lat0 + (m.ny - 0.5) * st), m.nx * st, m.ny * st); cx.globalAlpha = 1; }
+  }
   cx.fillStyle = C.land; cx.fill(landPath);
   cx.lineWidth = 1 / view.s; cx.strokeStyle = C.coast; cx.stroke(landPath);
   cx.setLineDash([4 / view.s, 3 / view.s]); cx.strokeStyle = C.border; cx.stroke(borderPath); cx.setLineDash([]);
@@ -623,6 +663,7 @@ function render() {
       cx.fillStyle = C["label-ink"]; cx.fillText(txt, bx + 4, y);
     }
   }
+  clearTimeout(render.sv); render.sv = setTimeout(() => { try { localStorage.setItem("tidara.view", JSON.stringify(view)); } catch (e) {} }, 700);
 }
 
 const ptrs = new Map(); let pinch0 = null, moved = false, downAt = null;
@@ -660,15 +701,17 @@ function hover(e) {
 function buildLayers() {
   $("layers").setAttribute("aria-label", t("layerGroup"));
   $("layers").innerHTML = LAYERS.map((l) => `<button role="radio" aria-checked="${l.id === state.layer}" class="${l.id === state.layer ? "on" : ""}" data-l="${l.id}" title="${t("lyr_" + l.id)}"><i style="background:${l.dot}"></i><span>${t("lyr_" + l.id)}</span></button>`).join("") +
-    `<div class="sep"></div><label><input type="checkbox" id="nd" ${state.showNoData ? "checked" : ""}><span>${t("noData")}</span></label>`;
+    `<div class="sep"></div><label><input type="checkbox" id="nd" ${state.showNoData ? "checked" : ""}><span>${t("noData")}</span></label>` +
+    `<label><input type="checkbox" id="seac" ${SEA.on ? "checked" : ""}><span>${t("seaCol")}</span></label>`;
   $("layers").querySelectorAll("button").forEach((b) => b.onclick = () => { state.layer = b.dataset.l; buildLayers(); computeValues(); legend(); draw(); });
   $("nd").onchange = (e) => { state.showNoData = e.target.checked; draw(); };
+  $("seac").onchange = (e) => { SEA.on = e.target.checked; try { localStorage.setItem("tidara.sea", SEA.on ? "1" : "0"); } catch (x) {} legend(); draw(); };
   $("zoomctl").style.top = ($("layers").getBoundingClientRect().bottom + 10) + "px";
 }
 function legend() {
   const L = $("legend");
-  if (state.layer === "level") L.innerHTML = `<b>${t("legLevel")}</b><div class="ramp" style="background:${rampCSS}"></div><div class="ends"><span>${t("legLow")}</span><span>${t("legHigh")}</span></div><div class="ends" style="margin-top:3px"><span>${t("legShare")}</span></div>`;
-  else if (state.layer === "range") L.innerHTML = `<b>${t("legRange")}</b><div class="ramp" style="background:${rampCSS}"></div><div class="ends num"><span>0 m</span><span>1 m</span><span>2 m</span><span>3 m</span><span>4 m+</span></div>`;
+  if (state.layer === "level") L.innerHTML = `<b>${t("legLevel")}</b><div class="ramp" style="background:${rampCSS}"></div><div class="ends"><span>${t("legLow")}</span><span>${t("legHigh")}</span></div><div class="ends" style="margin-top:3px"><span>${t("legShare")}</span></div>${SEA.on ? `<div class="ends" style="margin-top:2px"><span>${t("legSea")}</span></div>` : ""}`;
+  else if (state.layer === "range") L.innerHTML = `<b>${t("legRange")}</b><div class="ramp" style="background:${rampCSS}"></div><div class="ends num"><span>0 m</span><span>1 m</span><span>2 m</span><span>3 m</span><span>4 m+</span></div>${SEA.on ? `<div class="ends" style="margin-top:3px"><span>${t("legSea")}</span></div>` : ""}`;
   else if (state.layer === "type") L.innerHTML = `<b>${t("legType")}</b><div class="cats">${Object.entries(TYPE).map(([k, c]) => `<span><i style="background:${c}"></i>${typeName(k)}</span>`).join("")}</div>`;
   else L.innerHTML = `<b>${t("legGrade")}</b><div class="cats"><span><i style="background:${GRADE.A}"></i>${t("gA")}</span><span><i style="background:${GRADE.B}"></i>${t("gB")}</span><span><i style="background:${GRADE.C}"></i>${t("gC")}</span></div>`;
 }
@@ -1033,7 +1076,9 @@ function datumTable(s) {
 function select(s, fly) {
   state.sel = s; panel.classList.add("open"); document.body.classList.add("p-open");
   if (fly && s.lat != null) { view.lon = s.lon + (W > 760 ? 6 / Math.max(1, view.s / 20) : 0); view.lat = s.lat - (W > 760 ? 0 : 3 / Math.max(1, view.s / 20)); view.s = Math.max(view.s, 40); }
-  try { history.replaceState(null, "", "#" + (s.virtual ? `@${s.lat.toFixed(4)},${s.lon.toFixed(4)}` : s.code)); } catch (e) {}
+  const hs = s.virtual ? `@${s.lat.toFixed(4)},${s.lon.toFixed(4)}` : s.code;
+  try { history.replaceState(null, "", "#" + hs); } catch (e) {}
+  try { localStorage.setItem("tidara.last", hs); } catch (e) {}
   $("svFmt").dispatchEvent(new Event("change"));
   $("fTz").innerHTML = tzOptions(s.tz); $("fTz").value = "local";
   const p = parts(Date.now(), "local"); $("fStart").value = `${p.Y}-${pad(p.M + 1)}-${pad(p.D)}T00:00`;
@@ -1074,7 +1119,7 @@ function setWide(on, save) {
 $("wideBtn").onclick = () => setWide(!panel.classList.contains("wide"), true);
 $("pNav").addEventListener("click", (e) => { const b = e.target.closest("button[data-go]"); if (!b) return;
   const el = $(b.dataset.go), body = $("pBody"); body.scrollTo({ top: el.offsetTop - body.offsetTop - 8, behavior: "smooth" }); });
-$("pClose").onclick = () => { panel.classList.remove("open"); document.body.classList.remove("p-open"); state.sel = null; try { history.replaceState(null, "", location.pathname); } catch (e) {} draw(); };
+$("pClose").onclick = () => { panel.classList.remove("open"); document.body.classList.remove("p-open"); state.sel = null; try { history.replaceState(null, "", location.pathname); } catch (e) {} try { localStorage.removeItem("tidara.last"); } catch (e) {} draw(); };
 (() => { let y0 = null;
   [panel.querySelector(".grip"), panel.querySelector(".p-head")].forEach((el) => { el.addEventListener("touchstart", (e) => y0 = e.touches[0].clientY, { passive: true });
     el.addEventListener("touchend", (e) => { if (y0 != null && e.changedTouches[0].clientY - y0 > 70) $("pClose").click(); y0 = null; }); });
@@ -1439,12 +1484,17 @@ PR.onChange(() => { readTheme(); applyLang(); drawTrack(); draw(); if (result) d
 
 /* ---------- start ---------- */
 addEventListener("resize", () => { resize(); if (result) drawChart(); if (state.sel) constTable(constTable.all); });
-readTheme(); setRange(); computeValues(); fit(); resize(); applyLang(); setTime(Date.now());
+readTheme(); setRange(); computeValues(); fit();
+const viewBack = (() => { try { const v = JSON.parse(localStorage.getItem("tidara.view") || "null");
+  if (v && isFinite(v.lon) && isFinite(v.lat) && isFinite(v.s) && v.s >= 5 && v.s <= 900) { Object.assign(view, { lon: v.lon, lat: v.lat, s: v.s }); return true; } } catch (e) {} return false; })();
+resize(); applyLang(); setTime(Date.now());
 setInterval(() => { if (!state.playing && Math.abs(state.t - Date.now()) < 120000) setTime(Date.now(), true); }, 60000);
 const h0 = (location.hash || "").slice(1).toUpperCase();
 const fromHash = (h) => { if (byCode[h]) { if (state.sel !== byCode[h]) select(byCode[h], true); return; }
   const m = /^@(-?[\d.]+),(-?[\d.]+)$/.exec(h); if (m && !(state.sel && state.sel.virtual && `@${state.sel.lat.toFixed(4)},${state.sel.lon.toFixed(4)}` === h)) selectPoint(+m[1], +m[2], true); };
 fromHash(h0);
+if (!h0) { let L = null; try { L = localStorage.getItem("tidara.last"); } catch (e) {}
+  if (L) { const m = /^@(-?[\d.]+),(-?[\d.]+)$/.exec(L); if (byCode[L]) select(byCode[L], !viewBack); else if (m) selectPoint(+m[1], +m[2], !viewBack); } }
 addEventListener("hashchange", () => fromHash(location.hash.slice(1).toUpperCase()));
 </script>
 <script>/* beta banner: shown only on the test site syahperdana.github.io/tidara-beta */
