@@ -77,3 +77,22 @@ header.site nav button { font: inherit; color: var(--ink); background: none; bor
 header.site nav button:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 header.site nav .js-lang { font-weight: 700; letter-spacing: .04em; }
 header.site nav .js-theme { display: grid; place-items: center; }
+
+/* documentation pages: downloads, screenshots, illustrations, numbered legends, badges */
+.dl { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 8px; }
+.btn-dl { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: var(--accent-ink); text-decoration: none; border-radius: 12px; padding: 10px 16px; font-weight: 600; font-size: 14.5px; }
+.btn-dl small { display: block; font-weight: 500; font-size: 12px; opacity: .85; }
+.btn-dl.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+figure.shot, figure.ill { padding: 12px; }
+figure.shot img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); }
+figure.shot.narrow img { max-width: 520px; margin: 0 auto; }
+figure .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+figure.phone .pair { max-width: 620px; margin: 0 auto; }
+figure.ill svg { display: block; max-width: 820px; margin: 0 auto; }
+ol.legend-n { counter-reset: n; list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px 22px; }
+ol.legend-n li { counter-increment: n; position: relative; padding-left: 36px; max-width: none; }
+ol.legend-n li::before { content: counter(n); position: absolute; left: 0; top: 1px; width: 24px; height: 24px; border-radius: 50%; background: #e04834; color: #fff; font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+.badge { display: inline-block; border-radius: 999px; padding: 1px 9px; font-weight: 700; font-size: 13px; border: 1px solid; white-space: nowrap; }
+.badge.g { color: #1d8a4e; } .badge.a { color: #b8760f; } .badge.r { color: #c8392b; }
+.note.tip { border-left-color: #2b7de9; } .note.warn { border-left-color: #e0782f; }
+@media (max-width: 600px) { figure .pair { grid-template-columns: 1fr; } figure.phone .pair { grid-template-columns: 1fr 1fr; } }
