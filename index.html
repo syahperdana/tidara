@@ -174,6 +174,9 @@ td.r, th.r { text-align: right; }
 .near .row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; }
 .near .row span { flex: 1; min-width: 0; } .near .row small { color: var(--muted); display: block; }
 .near .row button { border: 1px solid var(--line); background: none; border-radius: 7px; padding: 4px 10px; font-size: 12px; white-space: nowrap; }
+.msw { display: inline-flex; vertical-align: middle; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; margin-top: 2px; }
+.msw button { font: inherit; font-size: 12px; padding: 3px 10px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.msw button.on { background: var(--accent, #0a6fb8); color: #fff; }
 .chip.c-hi { color: #0a7f0a; border-color: rgba(12,163,12,.45); } .chip.c-md { color: #9a6a00; border-color: rgba(250,178,25,.6); } .chip.c-lo { color: #c0392b; border-color: rgba(208,59,59,.5); }
 :root[data-theme="dark"] .chip.c-hi { color: #7ee2a8; } :root[data-theme="dark"] .chip.c-md { color: #f2cf6b; } :root[data-theme="dark"] .chip.c-lo { color: #ff8f8f; }
 .svx { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 12px; align-items: end; }
@@ -400,7 +403,7 @@ const I18N = {
     downloading: "Downloading {f} ({s} MB).", dlFail: "Download failed: {e}", tooBigCopy: "Too large to copy. Use Download instead.", copied: "Copied {n} high and low waters.", copyBlocked: "Copy was blocked by the browser.",
     yourTime: "Your time", stationZone: "station", close: "Close station panel", panelLbl: "Station details", mapLbl: "Map of Indonesian tide stations",
     csvTitle: "Tidara tide prediction", csvAstro: "astronomical tide only", csvTimes: "times", csvDate: "date_time", csvType: "type", csvHLAT: "height_m_above_LAT", csvHMSL: "height_m_rel_MSL", csvHHAT: "height_m_rel_HAT", csvHW: "HW", csvLW: "LW",
-    seaPoint: "Sea point", modelName: "Tidara Indonesian tide model v1.0", modelChip: "Model prediction", model: "Model", modelTxt: "EOT20 + GOT5.5/5.6 + FES2022 ensemble, corrected with BIG and Pushidrosal tide gauges",
+    seaPoint: "Sea point", regName: "Sunda regional model (experimental)", regTxt: "D-Flow FM hydrodynamic run 18, FES2022 open boundary, Manning n = 0.020. Not corrected with tide gauges.", regChip: "Regional · experimental", regSw: "Model source", regV10: "Tidara v1.0", regReg: "Regional (beta)", regAcc: "not yet validated here; at tide gauges its median error is about 5 cm, larger than Tidara v1.0", regDiff: "Difference from Tidara v1.0", regDiff2: "Difference from regional model", regDiffTxt: "{d} cm RMS (main constituents)", regT: "Experimental regional model", regP: "This prediction comes from our regional hydrodynamic model of the Sunda Shelf, which is still under development. Tidara v1.0 is more accurate and stays the default; use this only for comparison.", regOut: "The regional model does not cover this point.", modelName: "Tidara Indonesian tide model v1.0", modelChip: "Model prediction", model: "Model", modelTxt: "EOT20 + GOT5.5/5.6 + FES2022 ensemble, corrected with BIG and Pushidrosal tide gauges",
     estAcc: "Estimated accuracy", estAccTxt: "about ±{r} cm RMS (astronomical tide)", disagree: "Model disagreement", seasonal: "Seasonal terms", seasonalTxt: "Sa/Ssa taken from {s}",
     confHi: "High confidence", confMd: "Medium confidence", confLo: "Low confidence — use at your own risk",
     confHiP: "The model should be within about ±{r} cm (RMS) here. Open water with good model agreement.",
@@ -458,7 +461,7 @@ const I18N = {
     downloading: "Mengunduh {f} ({s} MB).", dlFail: "Unduhan gagal: {e}", tooBigCopy: "Terlalu besar untuk disalin. Gunakan Unduh.", copied: "{n} air tinggi dan rendah disalin.", copyBlocked: "Penyalinan diblokir oleh peramban.",
     yourTime: "Waktu Anda", stationZone: "stasiun", close: "Tutup panel stasiun", panelLbl: "Rincian stasiun", mapLbl: "Peta stasiun pasang surut Indonesia",
     csvTitle: "Prediksi pasang surut Tidara", csvAstro: "hanya pasut astronomis", csvTimes: "waktu", csvDate: "tanggal_waktu", csvType: "jenis", csvHLAT: "tinggi_m_di_atas_LAT", csvHMSL: "tinggi_m_thd_MSL", csvHHAT: "tinggi_m_thd_HAT", csvHW: "Tinggi", csvLW: "Rendah",
-    seaPoint: "Titik laut", modelName: "Model pasut Indonesia Tidara v1.0", modelChip: "Prediksi model", model: "Model", modelTxt: "Ensembel EOT20 + GOT5.5/5.6 + FES2022, dikoreksi dengan stasiun pasut BIG dan Pushidrosal",
+    seaPoint: "Titik laut", regName: "Model regional Sunda (eksperimental)", regTxt: "Simulasi hidrodinamika D-Flow FM run 18, batas terbuka FES2022, Manning n = 0,020. Belum dikoreksi dengan stasiun pasut.", regChip: "Regional · eksperimental", regSw: "Sumber model", regV10: "Tidara v1.0", regReg: "Regional (beta)", regAcc: "belum divalidasi di sini; di stasiun pasut galat mediannya sekitar 5 cm, lebih besar daripada Tidara v1.0", regDiff: "Selisih dengan Tidara v1.0", regDiff2: "Selisih dengan model regional", regDiffTxt: "{d} cm RMS (konstituen utama)", regT: "Model regional eksperimental", regP: "Prediksi ini berasal dari model hidrodinamika regional Paparan Sunda kami yang masih dikembangkan. Tidara v1.0 lebih akurat dan tetap menjadi bawaan; gunakan ini hanya sebagai pembanding.", regOut: "Model regional tidak mencakup titik ini.", modelName: "Model pasut Indonesia Tidara v1.0", modelChip: "Prediksi model", model: "Model", modelTxt: "Ensembel EOT20 + GOT5.5/5.6 + FES2022, dikoreksi dengan stasiun pasut BIG dan Pushidrosal",
     estAcc: "Perkiraan akurasi", estAccTxt: "sekitar ±{r} cm RMS (pasut astronomis)", disagree: "Selisih antarmodel", seasonal: "Komponen musiman", seasonalTxt: "Sa/Ssa diambil dari {s}",
     confHi: "Keyakinan tinggi", confMd: "Keyakinan sedang", confLo: "Keyakinan rendah — risiko ditanggung pengguna",
     confHiP: "Model di sini diperkirakan dalam ±{r} cm (RMS). Perairan terbuka dengan kesesuaian model yang baik.",
@@ -1019,27 +1022,80 @@ async function selectPoint(lat, lon, fly) {
   const m = await modelAt(lat, lon); clearTimeout(slow);
   if (!m) { toast(t("tapSea")); return; }
   const { c, ns, s0 } = modelConsts(m);
-  const p = datumsFor({ virtual: true, code: "PT", name: t("seaPoint"), lat: +lat.toFixed(5), lon: +lon.toFixed(5), c, conf: m.conf, spread: m.spread, cov: m.cov, near: ns, seasonalFrom: s0,
-    tz: ns.length ? ns[0][0].tz : (lon < 114.6 ? 7 : lon < 127 ? 8 : 9) });
-  select(p, fly);
+  const base = { virtual: true, code: "PT", name: t("seaPoint"), lat: +lat.toFixed(5), lon: +lon.toFixed(5), c, conf: m.conf, spread: m.spread, cov: m.cov, near: ns, seasonalFrom: s0,
+    tz: ns.length ? ns[0][0].tz : (lon < 114.6 ? 7 : lon < 127 ? 8 : 9), src: "v10" };
+  if (IS_BETA) {   /* beta only: experimental regional model as an alternative source */
+    const rc = (await regLoad()) ? regionalAt(lat, lon) : null;
+    if (rc) {
+      if (s0) for (const k of ["Sa", "Ssa"]) if (s0.c[k]) rc[k] = s0.c[k];
+      base.v10c = c; base.regc = rc; base.regDiff = constDiff(c, rc);
+      if (REGPREF === "reg") { base.c = rc; base.src = "reg"; base.name = `${t("seaPoint")} (${t("regReg")})`; }
+    }
+  }
+  select(datumsFor(base), fly);
 }
+/* ---------- beta: Sunda regional model (D-Flow FM run 18), loaded only on the test site ---------- */
+const IS_BETA = /^\/tidara-beta(\/|$)/.test(location.pathname);
+let REG = null, REGWAIT = null, REGPREF = "v10";
+try { REGPREF = localStorage.getItem("tidara.regsrc") === "reg" ? "reg" : "v10"; } catch (e) {}
+function regLoad() {
+  if (REG) return Promise.resolve(REG); if (REGWAIT) return REGWAIT;
+  return REGWAIT = new Promise((res) => {
+    const sc = document.createElement("script"); sc.src = "assets/model/regional_sunda.js";
+    sc.onload = () => { const R = window.TIDARA_REGIONAL; if (!R) return res(null);
+      const bin = atob(R.data), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      REG = Object.assign({}, R, { q: new Int16Array(u8.buffer) }); delete REG.data; res(REG); };
+    sc.onerror = () => res(null); document.head.appendChild(sc);
+  });
+}
+function regCell(j, i) {   /* complex amplitudes [re, im] per constituent, or null on land / outside */
+  const R = REG; if (j < 0 || i < 0 || j >= R.ny || i >= R.nx) return null;
+  const NN = R.ny * R.nx, cell = j * R.nx + i; if (R.q[cell] === R.missing) return null;
+  const z = new Float64Array(2 * R.names.length);
+  for (let k = 0; k < R.names.length; k++) { z[2 * k] = R.q[(2 * k) * NN + cell] * R.scale; z[2 * k + 1] = R.q[(2 * k + 1) * NN + cell] * R.scale; }
+  return z;
+}
+function regionalAt(lat, lon) {
+  const R = REG, fj = (lat - R.lat0) / R.step, fi = (lon - R.lon0) / R.step, j0 = Math.floor(fj), i0 = Math.floor(fi), wy = fj - j0, wx = fi - i0;
+  let cs = [];
+  for (const [dj, di, w] of [[0, 0, (1 - wy) * (1 - wx)], [1, 0, wy * (1 - wx)], [0, 1, (1 - wy) * wx], [1, 1, wy * wx]]) { const z = regCell(j0 + dj, i0 + di); if (z) cs.push([z, w + 1e-6]); }
+  if (!cs.length) { let best = null;
+    for (let dj = -1; dj <= 2; dj++) for (let di = -1; di <= 2; di++) { const z = regCell(j0 + dj, i0 + di); if (!z) continue; const d = Math.hypot(j0 + dj - fj, i0 + di - fi); if (!best || d < best[1]) best = [z, d]; }
+    if (!best) return null; cs = [[best[0], 1]]; }
+  const W0 = cs.reduce((a, x) => a + x[1], 0), z = new Float64Array(2 * R.names.length);
+  for (const [zz, w] of cs) for (let k = 0; k < z.length; k++) z[k] += w / W0 * zz[k];
+  const list = R.names.map((n, k) => [n, [+Math.hypot(z[2 * k], z[2 * k + 1]).toFixed(4), +(((Math.atan2(z[2 * k + 1], z[2 * k]) * 180 / Math.PI) + 360) % 360).toFixed(1)]]).filter((x) => x[1][0] >= 0.0005);
+  list.sort((a, b) => b[1][0] - a[1][0]); const c = {}; for (const [n, v] of list) c[n] = v; return c;
+}
+function constDiff(a, b) {   /* RMS of the vector difference over the constituents both models carry (metres) */
+  let s = 0; for (const n of ["M2", "S2", "N2", "K2", "K1", "O1", "P1", "Q1", "M4", "MS4"]) {
+    const A = a[n] || [0, 0], B = b[n] || [0, 0], ga = A[1] * Math.PI / 180, gb = B[1] * Math.PI / 180;
+    s += (A[0] * Math.cos(ga) - B[0] * Math.cos(gb)) ** 2 + (A[0] * Math.sin(ga) - B[0] * Math.sin(gb)) ** 2; }
+  return Math.sqrt(s / 2);
+}
+function setRegSrc(v) { REGPREF = v; try { localStorage.setItem("tidara.regsrc", v); } catch (e) {} const s = state.sel; if (s && s.virtual) selectPoint(s.lat, s.lon, false); }
 const fmtLL = (lat, lon) => `${nf(Math.abs(lat), 4)}° ${lat < 0 ? (ID() ? "LS" : "S") : (ID() ? "LU" : "N")}, ${nf(lon, 4)}° ${ID() ? "BT" : "E"}`;
 const altLL = (la, lo) => `<span class="num">${GEO.fmt.DDM(la, lo)}<br>${GEO.fmt.DMS(la, lo)}<br>UTM ${GEO.fmt.UTM(la, lo)}</span>`;
-const fileCode = (s) => s.virtual ? `PT_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}` : s.code;
+const fileCode = (s) => s.virtual ? `PT_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}${s.src === "reg" ? "_REG" : ""}` : s.code;
 function pointStatic(s) {
   const cl = confClass(s.conf), r = Math.max(1, Math.round(s.conf * 100)), title = { hi: "confHi", md: "confMd", lo: "confLo" }[cl];
+  const reg = s.src === "reg";
   $("pName").textContent = t("seaPoint");
-  $("pSub").textContent = `${fmtLL(s.lat, s.lon)} · ${t("modelName")}`;
-  $("pChips").innerHTML = `<span class="chip c-${cl}">${t(title).split(" — ")[0]} · ±${r} cm</span><span class="chip">${typeName(s.type)}</span><span class="chip num">${t("range")} ${nf(s.datums.HAT - s.datums.LAT)} m</span>`;
+  $("pSub").textContent = `${fmtLL(s.lat, s.lon)} · ${t(reg ? "regName" : "modelName")}`;
+  $("pChips").innerHTML = (reg ? `<span class="chip c-md">${t("regChip")}</span>` : `<span class="chip c-${cl}">${t(title).split(" — ")[0]} · ±${r} cm</span>`) + `<span class="chip">${typeName(s.type)}</span><span class="chip num">${t("range")} ${nf(s.datums.HAT - s.datums.LAT)} m</span>`;
+  const sw = s.regc ? `<span class="msw" role="group" aria-label="${t("regSw")}" title="${t("regSw")}"><button type="button" data-src="v10"${reg ? "" : ' class="on" aria-pressed="true"'}>${t("regV10")}</button><button type="button" data-src="reg"${reg ? ' class="on" aria-pressed="true"' : ""}>${t("regReg")}</button></span>` : "";
   $("pInfo").innerHTML = [
     [t("position"), fmtLL(s.lat, s.lon)], [t("posAlt"), altLL(s.lat, s.lon)], [t("localTime"), `${INDO[s.tz]} (${offStr(s.tz)})`],
-    [t("model"), `${t("modelName")} · ${t("modelTxt")}`], [t("estAcc"), t("estAccTxt", { r })],
-    [t("disagree"), `${nf(s.spread * 100, 1)} cm (EOT20, GOT, FES2022)`],
+    ...(reg ? [[t("model"), `${t("regName")} · ${t("regTxt")}`], [t("estAcc"), t("regAcc")], [t("regDiff"), t("regDiffTxt", { d: nf(s.regDiff * 100, 1) })]]
+      : [[t("model"), `${t("modelName")} · ${t("modelTxt")}`], [t("estAcc"), t("estAccTxt", { r })], [t("disagree"), `${nf(s.spread * 100, 1)} cm (EOT20, GOT, FES2022)`],
+         ...(s.regc ? [[t("regDiff2"), t("regDiffTxt", { d: nf(s.regDiff * 100, 1) })]] : [])]),
     [t("seasonal"), s.seasonalFrom ? t("seasonalTxt", { s: `${s.seasonalFrom.name} (${s.seasonalFrom.code})` }) : "—"],
     [t("tideType"), `${typeName(s.type)} (F = ${nf(s.F, 3)})`],
   ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
-  $("cConf").hidden = false; $("confBox").className = "conf c-" + cl;
-  $("confT").textContent = t(title); $("confP").textContent = t(title + "P", { r });
+  if (sw) $("pChips").insertAdjacentHTML("beforeend", sw);
+  $("pChips").querySelectorAll(".msw button").forEach((b) => b.onclick = () => { if (b.dataset.src !== s.src) setRegSrc(b.dataset.src); });
+  $("cConf").hidden = false; $("confBox").className = "conf c-" + (reg ? "md" : cl);
+  $("confT").textContent = reg ? t("regT") : t(title); $("confP").textContent = reg ? t("regP") : t(title + "P", { r });
   $("nearList").innerHTML = `<div class="lbl">${t("nearTitle")}</div>` + s.near.map(([st, d]) =>
     `<div class="row"><span><b>${st.name}</b><small>${st.code} · ${t("grade")} ${st.grade} · ${t("seaKm", { d: nint(d) })}</small></span><button type="button" data-code="${st.code}">${t("useSt")}</button></div>`).join("");
   $("nearList").querySelectorAll("button[data-code]").forEach((b) => b.onclick = () => select(byCode[b.dataset.code], true));
