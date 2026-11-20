@@ -96,3 +96,15 @@ ol.legend-n li::before { content: counter(n); position: absolute; left: 0; top: 
 .badge.g { color: #1d8a4e; } .badge.a { color: #b8760f; } .badge.r { color: #c8392b; }
 .note.tip { border-left-color: #2b7de9; } .note.warn { border-left-color: #e0782f; }
 @media (max-width: 600px) { figure .pair { grid-template-columns: 1fr; } figure.phone .pair { grid-template-columns: 1fr 1fr; } }
+
+/* back to top (guide, science) */
+.totop { position: fixed; right: 20px; bottom: 22px; z-index: 50; width: 46px; height: 46px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  background: color-mix(in srgb, var(--surface) 82%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--accent);
+  display: grid; place-items: center; cursor: pointer; box-shadow: 0 6px 20px rgba(8, 21, 30, .16);
+  opacity: 0; transform: translateY(12px) scale(.9); pointer-events: none; transition: opacity .25s, transform .25s, background .2s, color .2s; }
+.totop.show { opacity: 1; transform: none; pointer-events: auto; }
+.totop:hover { background: var(--accent); color: var(--accent-ink); }
+.totop svg { width: 20px; height: 20px; }
+@media (max-width: 640px) { .totop { right: 14px; bottom: 16px; width: 42px; height: 42px; } }
+@media (prefers-reduced-motion: reduce) { .totop { transition: none; } }
+@media print { .totop { display: none !important; } }

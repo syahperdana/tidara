@@ -586,5 +586,14 @@
   b.style.cssText = "position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99999;background:#d03b3b;color:#fff;font:600 12px/1.6 system-ui,sans-serif;padding:2px 12px;border-radius:0 0 8px 8px;text-decoration:none;white-space:nowrap";
   document.body.appendChild(b); })();
 </script>
+<button type="button" class="totop" id="toTop" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<script>/* back to top */
+(function () { const b = document.getElementById("toTop"); if (!b) return;
+  const lbl = () => { const t = document.documentElement.lang === "id" ? "Kembali ke atas" : "Back to top"; b.setAttribute("aria-label", t); b.title = t; };
+  const upd = () => b.classList.toggle("show", scrollY > 600);
+  addEventListener("scroll", upd, { passive: true }); upd(); lbl(); new MutationObserver(lbl).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  b.onclick = () => { scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); b.blur(); };
+})();
+</script>
 </body>
 </html>

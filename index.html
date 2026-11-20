@@ -89,6 +89,7 @@ select option { background: var(--menu); color: var(--ink); }
 .zoom { position: fixed; right: 12px; display: flex; flex-direction: column; z-index: 4; overflow: hidden; transition: right .25s ease; }
 .zoom button { width: 38px; height: 36px; border: 0; background: none; font-size: 18px; }
 .zoom button + button { border-top: 1px solid var(--line); }
+.zoom #zhome { display: grid; place-items: center; color: inherit; cursor: pointer; }
 body.p-open .layers, body.p-open .zoom { right: 464px; }
 
 .legend { position: fixed; left: 12px; bottom: calc(86px + env(safe-area-inset-bottom)); padding: 8px 10px; z-index: 4; font-size: 11px; min-width: 210px; }
@@ -210,7 +211,7 @@ body.p-open.p-wide .layers, body.p-open.p-wide .zoom { right: calc(min(920px, 10
   .layers { top: auto; bottom: calc(150px + env(safe-area-inset-bottom)); }
   .layers button span, .layers label span { display: none; }
   .layers button { padding: 9px; } .layers label { padding: 6px 9px; }
-  .zoom { display: none; }
+  .zoom #zin, .zoom #zout { display: none; } body.p-open .zoom { right: 12px; }
   .legend { bottom: calc(80px + env(safe-area-inset-bottom)); min-width: 0; max-width: 62vw; }
   .timeline { gap: 8px; padding: 7px 9px; }
   .tl-time { min-width: 100px; } .tl-time b { font-size: 13px; }
@@ -254,7 +255,7 @@ body.p-open.p-wide .layers, body.p-open.p-wide .zoom { right: calc(min(920px, 10
 </div>
 
 <div class="layers glass" id="layers" role="radiogroup"></div>
-<div class="zoom glass" id="zoomctl"><button id="zin">+</button><button id="zout">−</button></div>
+<div class="zoom glass" id="zoomctl"><button id="zin">+</button><button id="zout">−</button><button id="zhome"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.2"/></svg></button></div>
 <div class="legend glass" id="legend"></div>
 <div class="attrib" data-i18n="attrib"></div>
 
@@ -373,7 +374,7 @@ const I18N = {
   en: {
     tagline: "Tides of the Nusantara seas", guide: "User guide", science: "Science", search: "Search 303 stations…", noMatch: "No station matches “{q}”.",
     attrib: "© 2026 Aldwin Syahperdana · Observations: BIG and Pushidrosal tide gauges · Model includes FES2022 (CNES/AVISO) · Base map: Natural Earth",
-    now: "Now", play: "Play timeline", pause: "Pause timeline", mapTz: "Map time zone", zin: "Zoom in", zout: "Zoom out",
+    now: "Now", play: "Play timeline", pause: "Pause timeline", mapTz: "Map time zone", zin: "Zoom in", zout: "Zoom out", zhome: "Show the whole model area",
     lyr_level: "Water level", lyr_range: "Tidal range", lyr_type: "Tide type", lyr_grade: "Data quality", noData: "Stations without data", seaCol: "Colour the sea (model)", legSea: "Sea: Tidara model, main tidal constituents", layerGroup: "Map layer",
     legLevel: "Water level now", legLow: "Lowest (LAT)", legHigh: "Highest (HAT)", legShare: "Share of each station's own tidal range",
     legRange: "Tidal range (HAT − LAT)", legType: "Tide type", legGrade: "Data quality grade",
@@ -431,7 +432,7 @@ const I18N = {
   id: {
     tagline: "Pasang surut laut Nusantara", guide: "Panduan", science: "Sains", search: "Cari 303 stasiun…", noMatch: "Tidak ada stasiun yang cocok dengan “{q}”.",
     attrib: "© 2026 Aldwin Syahperdana · Data pengamatan: stasiun pasut BIG dan Pushidrosal · Model memakai FES2022 (CNES/AVISO) · Peta dasar: Natural Earth",
-    now: "Sekarang", play: "Putar lini waktu", pause: "Jeda lini waktu", mapTz: "Zona waktu peta", zin: "Perbesar", zout: "Perkecil",
+    now: "Sekarang", play: "Putar lini waktu", pause: "Jeda lini waktu", mapTz: "Zona waktu peta", zin: "Perbesar", zout: "Perkecil", zhome: "Tampilkan seluruh area model",
     lyr_level: "Muka air", lyr_range: "Tunggang pasut", lyr_type: "Tipe pasut", lyr_grade: "Kualitas data", noData: "Stasiun tanpa data", seaCol: "Warnai laut (model)", legSea: "Laut: model Tidara, konstituen pasut utama", layerGroup: "Lapisan peta",
     legLevel: "Muka air saat ini", legLow: "Terendah (LAT)", legHigh: "Tertinggi (HAT)", legShare: "Persentase dari tunggang pasut tiap stasiun",
     legRange: "Tunggang pasut (HAT − LAT)", legType: "Tipe pasut", legGrade: "Kelas kualitas data",
@@ -555,8 +556,17 @@ const landPath = new Path2D(), borderPath = new Path2D();
 for (const r of decode(window.TIDARA_LAND)) { landPath.moveTo(r[0], r[1]); for (let i = 2; i < r.length; i += 2) landPath.lineTo(r[i], r[i + 1]); landPath.closePath(); }
 for (const r of decode(window.TIDARA_BORDERS)) { borderPath.moveTo(r[0], r[1]); for (let i = 2; i < r.length; i += 2) borderPath.lineTo(r[i], r[i + 1]); }
 let W = innerWidth, H = innerHeight;
-function resize() { W = innerWidth; H = innerHeight; cv.width = W * dpr(); cv.height = H * dpr(); drawTrack(); draw(); }
-function fit() { view.s = Math.max(6, Math.min(W / 48, (H - 170) / 20)); view.lon = 118; view.lat = W < 760 ? -3.2 : -2.4; }
+function resize() { W = innerWidth; H = innerHeight; cv.width = W * dpr(); cv.height = H * dpr(); drawTrack(); draw(); if (typeof posZoom === "function" && $("layers").childElementCount) posZoom(); }
+function fit() {   /* default extent: the whole model area */
+  const v = homeView(); Object.assign(view, v);
+}
+function homeView() { return { s: Math.min((W - 24) / (DOM.e - DOM.w), (H - 170) / (DOM.n - DOM.s)), lon: (DOM.w + DOM.e) / 2, lat: (DOM.s + DOM.n) / 2 + (W > 760 ? 0 : -1) }; }
+function goHome() {   /* animate back to the default extent */
+  const a = { ...view }, b = homeView(), t0 = performance.now(), dur = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450;
+  const step = (now) => { const k = dur ? Math.min(1, (now - t0) / dur) : 1, e = 1 - Math.pow(1 - k, 3);
+    view.s = a.s * Math.pow(b.s / a.s, e); view.lon = a.lon + (b.lon - a.lon) * e; view.lat = a.lat + (b.lat - a.lat) * e; draw(); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 const X = (lon) => (lon - view.lon) * view.s + W / 2, Y = (lat) => (view.lat - lat) * view.s + H / 2;
 const unX = (x) => (x - W / 2) / view.s + view.lon, unY = (y) => view.lat - (y - H / 2) / view.s;
 
@@ -608,8 +618,20 @@ function seaUpdate() {
 }
 let raf = 0;
 function draw() { if (!raf) raf = requestAnimationFrame(render); }
+/* keep the map on the Tidara model area (15°S–10°N, 90°E–145°E, plus a small margin);
+   extra room on the side the station panel covers so a selected place is never hidden under it */
+const DOM = { w: 89.5, e: 145.5, s: -15.5, n: 10.5 };
+const sMin = () => Math.min(W / (DOM.e - DOM.w), H / (DOM.n - DOM.s));
+function clampView() {
+  view.s = Math.max(view.s, sMin());
+  const open = document.body.classList.contains("p-open") && panel.classList.contains("open");   /* offset sizes: not affected by the slide-in animation */
+  const padE = open && W > 760 ? (panel.offsetWidth + 24) / view.s : 0, padS = open && W <= 760 ? panel.offsetHeight / view.s : 0;
+  const hw = W / 2 / view.s, hh = H / 2 / view.s;
+  const lim = (c, a, b, h) => b - a <= 2 * h ? (a + b) / 2 : Math.max(a + h, Math.min(b - h, c));   /* smaller than the screen: keep it centred */
+  view.lon = lim(view.lon, DOM.w, DOM.e + padE, hw); view.lat = lim(view.lat, DOM.s - padS, DOM.n, hh);
+}
 function render() {
-  raf = 0; const k = dpr();
+  raf = 0; const k = dpr(); clampView();
   cx.setTransform(k, 0, 0, k, 0, 0); cx.fillStyle = C.sea; cx.fillRect(0, 0, W, H);
   cx.strokeStyle = C.grid; cx.lineWidth = 1; cx.beginPath();
   const g = view.s > 60 ? 1 : view.s > 25 ? 2 : 5;
@@ -667,7 +689,7 @@ function render() {
 }
 
 const ptrs = new Map(); let pinch0 = null, moved = false, downAt = null;
-function zoomAt(f, px, py) { const lon = unX(px), lat = unY(py); view.s = Math.max(5, Math.min(900, view.s * f)); view.lon = lon - (px - W / 2) / view.s; view.lat = lat + (py - H / 2) / view.s; draw(); }
+function zoomAt(f, px, py) { const lon = unX(px), lat = unY(py); view.s = Math.max(sMin(), Math.min(900, view.s * f)); view.lon = lon - (px - W / 2) / view.s; view.lat = lat + (py - H / 2) / view.s; draw(); }
 cv.addEventListener("pointerdown", (e) => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; downAt = [e.clientX, e.clientY]; if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: view.s }; } });
 cv.addEventListener("pointermove", (e) => {
   if (!ptrs.has(e.pointerId)) { hover(e); return; }
@@ -680,7 +702,7 @@ const up = (e) => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = null; 
 cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
 cv.addEventListener("wheel", (e) => { e.preventDefault(); zoomAt(Math.exp(-e.deltaY * 0.0016), e.clientX, e.clientY); }, { passive: false });
 cv.addEventListener("dblclick", (e) => zoomAt(2, e.clientX, e.clientY));
-$("zin").onclick = () => zoomAt(1.6, W / 2, H / 2); $("zout").onclick = () => zoomAt(1 / 1.6, W / 2, H / 2);
+$("zin").onclick = () => zoomAt(1.6, W / 2, H / 2); $("zout").onclick = () => zoomAt(1 / 1.6, W / 2, H / 2); $("zhome").onclick = goHome;
 function pick(x, y) { let best = null, bd = 18; for (const s of ST) { if (s.lat == null) continue; const d = Math.hypot(X(s.lon) - x, Y(s.lat) - y); if (d < bd) { bd = d; best = s; } } return best; }
 function hover(e) {
   const tip = $("tip"), s = pick(e.clientX, e.clientY);
@@ -706,7 +728,11 @@ function buildLayers() {
   $("layers").querySelectorAll("button").forEach((b) => b.onclick = () => { state.layer = b.dataset.l; buildLayers(); computeValues(); legend(); draw(); });
   $("nd").onchange = (e) => { state.showNoData = e.target.checked; draw(); };
   $("seac").onchange = (e) => { SEA.on = e.target.checked; try { localStorage.setItem("tidara.sea", SEA.on ? "1" : "0"); } catch (x) {} legend(); draw(); };
-  $("zoomctl").style.top = ($("layers").getBoundingClientRect().bottom + 10) + "px";
+  posZoom();
+}
+function posZoom() {   /* desktop: below the layer menu; phone: only the home button, just above the layer menu */
+  const L = $("layers").getBoundingClientRect(), z = $("zoomctl");
+  z.style.top = (W <= 760 ? L.top - 10 - z.offsetHeight : L.bottom + 10) + "px";
 }
 function legend() {
   const L = $("legend");
@@ -1469,7 +1495,7 @@ function applyLang() {
   document.querySelectorAll("[data-i18n]").forEach((el) => el.textContent = t(el.dataset.i18n));
   $("q").placeholder = t("search"); $("q").setAttribute("aria-label", t("search")); coordUI.lang(); $("cX").setAttribute("aria-label", t("close"));
   $("map").setAttribute("aria-label", t("mapLbl")); panel.setAttribute("aria-label", t("panelLbl")); $("pClose").setAttribute("aria-label", t("close"));
-  $("zin").setAttribute("aria-label", t("zin")); $("zout").setAttribute("aria-label", t("zout"));
+  $("zin").setAttribute("aria-label", t("zin")); $("zout").setAttribute("aria-label", t("zout")); $("zhome").setAttribute("aria-label", t("zhome")); $("zhome").title = t("zhome");
   $("play").setAttribute("aria-label", state.playing ? t("pause") : t("play")); $("tz").setAttribute("aria-label", t("mapTz"));
   const u = $("fUnit").options; ["h", "d", "m", "y"].forEach((k, i) => u[i].textContent = t("u_" + k));
   const st = $("fStep"), sv = st.value || "5"; st.innerHTML = STEPS.map((n) => `<option value="${n}">${n === 1 ? t("min1") : n === 60 ? t("hour1") : t("minN", { n })}</option>`).join(""); st.value = sv;
