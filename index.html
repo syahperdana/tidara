@@ -611,8 +611,20 @@ function seaUpdate() {
 }
 let raf = 0;
 function draw() { if (!raf) raf = requestAnimationFrame(render); }
+/* keep the map on the Tidara model area (15°S–10°N, 90°E–145°E, plus a small margin);
+   extra room on the side the station panel covers so a selected place is never hidden under it */
+const DOM = { w: 89.5, e: 145.5, s: -15.5, n: 10.5 };
+const sMin = () => Math.min(W / (DOM.e - DOM.w), H / (DOM.n - DOM.s));
+function clampView() {
+  view.s = Math.max(view.s, sMin());
+  const open = document.body.classList.contains("p-open") && panel.classList.contains("open");   /* offset sizes: not affected by the slide-in animation */
+  const padE = open && W > 760 ? (panel.offsetWidth + 24) / view.s : 0, padS = open && W <= 760 ? panel.offsetHeight / view.s : 0;
+  const hw = W / 2 / view.s, hh = H / 2 / view.s;
+  const lim = (c, a, b, h) => b - a <= 2 * h ? (a + b) / 2 : Math.max(a + h, Math.min(b - h, c));   /* smaller than the screen: keep it centred */
+  view.lon = lim(view.lon, DOM.w, DOM.e + padE, hw); view.lat = lim(view.lat, DOM.s - padS, DOM.n, hh);
+}
 function render() {
-  raf = 0; const k = dpr();
+  raf = 0; const k = dpr(); clampView();
   cx.setTransform(k, 0, 0, k, 0, 0); cx.fillStyle = C.sea; cx.fillRect(0, 0, W, H);
   cx.strokeStyle = C.grid; cx.lineWidth = 1; cx.beginPath();
   const g = view.s > 60 ? 1 : view.s > 25 ? 2 : 5;
@@ -670,7 +682,7 @@ function render() {
 }
 
 const ptrs = new Map(); let pinch0 = null, moved = false, downAt = null;
-function zoomAt(f, px, py) { const lon = unX(px), lat = unY(py); view.s = Math.max(5, Math.min(900, view.s * f)); view.lon = lon - (px - W / 2) / view.s; view.lat = lat + (py - H / 2) / view.s; draw(); }
+function zoomAt(f, px, py) { const lon = unX(px), lat = unY(py); view.s = Math.max(sMin(), Math.min(900, view.s * f)); view.lon = lon - (px - W / 2) / view.s; view.lat = lat + (py - H / 2) / view.s; draw(); }
 cv.addEventListener("pointerdown", (e) => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); moved = false; downAt = [e.clientX, e.clientY]; if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: view.s }; } });
 cv.addEventListener("pointermove", (e) => {
   if (!ptrs.has(e.pointerId)) { hover(e); return; }
